@@ -221,6 +221,11 @@ drawImage = function(image) {
   if ("Acinonyx" %in% rownames(installed.packages()))
     plot.new()
 
+  # Hold syncing of drawing until we flush, potentially reduces the amount
+  # of drawing to the device by a large amount
+  if (exists("dev.hold"))
+      dev.hold()
+
   # Draws current image in device.
   grid.newpage()
   grid.draw(image)
