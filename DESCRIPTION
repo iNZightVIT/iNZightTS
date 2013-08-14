@@ -6,7 +6,7 @@ Date: 2013-08-14
 Authors@R: c(person("Simon", "Potter", role = c("aut", "cre"),
                     email = "spot023@aucklanduni.ac.nz"),
              person("David", "Banks", role = "aut"),
-			 person("Marco", "Kuper", role = "aut"))
+             person("Marco", "Kuper", role = "aut"))
 Depends: R (>= 2.13)
 Imports: grid
 LazyData: true

@@ -83,11 +83,11 @@ function(vars) {
                                 vp = vpPath("parent", "plot"))
     grobs$box = rectGrob(vp = vpPath("parent", "plot"), name = "boxRect")
     grobs$yAxis = yaxisGrob(vp = vpPath("parent", "plot"), name = "yAxis",
-	                        gp = gpar(cex = 0.9))
+                            gp = gpar(cex = 0.9))
     grobs$xAxis = xaxisGrob(vp = vpPath("parent", "plot"), name = "xAxis",
-	                        gp = gpar(cex = 0.9))
+                            gp = gpar(cex = 0.9))
     grobs$xLabel = textGrob("Time", y = 0.3, name = "xLabel",
-	                        vp = vpPath("parent", "bottom"))
+                            vp = vpPath("parent", "bottom"))
 
 
     ### Legend grobs
@@ -97,22 +97,22 @@ function(vars) {
                        name = "rawKey",
                        gp = gpar(col = obs.col, lwd = 3))
     grobs$rawKeyText = textGrob(label = "Raw data",
-	                      x = unit(10, "mm"),
-	                      y = unit(1, "npc") - unit(1, "lines"),
+                          x = unit(10, "mm"),
+                          y = unit(1, "npc") - unit(1, "lines"),
                           just = c("left", "bottom"),
                           vp = vpPath("parent", "plot"),
                           name = "rawKeyText",
                           gp = gpar(cex = .9, fontface = "bold"))
 
-	stringw = stringWidth(grobs$rawKeyText$label)
+    stringw = stringWidth(grobs$rawKeyText$label)
     grobs$fitKey = linesGrob(x = unit(c(19, 25), "mm") + stringw,
                        y = unit(1, "npc") - unit(0.6, "lines"),
                        vp = vpPath("parent", "plot"),
                        name = "trendKey",
                        gp = gpar(col = fit.col, lwd = 3))
     grobs$fitKeyText = textGrob(label = "Fitted",
-	                      x = unit(27, "mm") + stringw,
-	                      y = unit(1, "npc") - unit(1, "lines"),
+                          x = unit(27, "mm") + stringw,
+                          y = unit(1, "npc") - unit(1, "lines"),
                           just = c("left", "bottom"),
                           vp = vpPath("parent", "plot"),
                           name = "trendKeyText",
@@ -125,7 +125,7 @@ function(vars) {
                         name = "trendSeasonKey",
                         gp = gpar(col = pred.col, lwd = 3))
     grobs$predKeyText = textGrob(label = "Prediction",
-	                       x = unit(44, "mm") + stringw,
+                           x = unit(44, "mm") + stringw,
                            y = unit(1, "npc") - unit(1, "lines"),
                            just = c("left", "bottom"),
                            vp = vpPath("parent", "plot"),

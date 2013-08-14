@@ -1,8 +1,8 @@
 get.x <-
 function(tsObj) {
     ### figure out the limits and step size along the x axis
-	f = frequency(tsObj)
-	s = start(tsObj)
+    f = frequency(tsObj)
+    s = start(tsObj)
     if (f == 1) {
       start.x = s[1]
       step.x = 1
