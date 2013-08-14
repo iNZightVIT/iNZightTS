@@ -1,6 +1,5 @@
 \name{print.iNZightTS}
 \alias{print.iNZightTS}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
   Print an iNZightTS object
 }
@@ -8,16 +7,17 @@
  Print method for iNZightTS (time series) objects.
 }
 \usage{
-## S3 method for class 'iNZightTS'
-print.iNZightTS(obj, full = FALSE)
+\method{print}{iNZightTS}(x, full = FALSE, \dots)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{obj}{
+  \item{x}{
     the \code{iNZightTS} object to be printed
 }
   \item{full}{
     whether to print all the underlying data
+}
+  \item{\dots}{
+    Unused arguments. Only here for consistency with the base S3 method.
 }
 }
 \details{

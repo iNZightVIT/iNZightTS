@@ -1,24 +1,24 @@
 print.iNZightTS <-
-function(obj, full=FALSE) {
+function(x, full = FALSE, ...) {
     writeLines("Current Variable:")
-    print(obj$currVar)
+    print(x$currVar)
 
-    if (obj$freq > 1)
+    if (x$freq > 1)
         writeLines(paste("\nTime Series:\nStart =",
-                         paste(obj$start, collapse = ", "),
+                         paste(x$start, collapse = ", "),
                          "\nEnd =",
-                         paste(obj$end, collapse = ", "),
+                         paste(x$end, collapse = ", "),
                          "\nFrequency =",
-                         paste(obj$freq,  collapse = ", ")))
+                         paste(x$freq,  collapse = ", ")))
     else
         writeLines("\n")
-    print(obj$tsObj)
+    print(x$tsObj)
 
     writeLines("\nData:")
     if (full)
-        print(obj$data)
+        print(x$data)
     else {
-        print(head(obj$data))
+        print(head(x$data))
         writeLines("...")
     }
 }

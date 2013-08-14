@@ -33,8 +33,8 @@ iNZightTS(data, start = 1, end = numeric(), freq = 1, var = 2, ...)
     in the actual time series
   }
   \item{\dots}{
-    additional information passed to \code{read.csv() and used when
-      \code{data} is a path}
+    additional information passed to \code{read.csv()} and used when
+      \code{data} is a path
   }
 }
 \details{

@@ -1,14 +1,15 @@
 seasonplot <-
-function(obj)
+function(obj, ...)
     UseMethod("seasonplot")
 
 
 
 
 seasonplot.forecast <-
-function(x, s, season.labels=NULL, year.labels=FALSE, year.labels.left=FALSE,
+function(obj, s, season.labels=NULL, year.labels=FALSE, year.labels.left=FALSE,
     type="o", main, ylab="", xlab=NULL, col=1, labelgap=0.1, ...)
 {
+  x <- obj
   if(missing(main))
     main = paste("Seasonal plot:", deparse(substitute(x)))
   if(missing(s))
@@ -86,7 +87,7 @@ function(x, s, season.labels=NULL, year.labels=FALSE, year.labels.left=FALSE,
 
 
 seasonplot.iNZightTS <-
-function(obj) {
+function(obj, ...) {
 
     # if there is no season component to the ts, can't create season plot
     if (length(obj$start) == 1)

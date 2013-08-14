@@ -1,6 +1,5 @@
 \name{seasonplot}
 \alias{seasonplot}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
   Plot Seasonal Subseries from a Time Series
 }
@@ -9,13 +8,15 @@
   with the estimated seasonal effects of that series.
 }
 \usage{
-seasonplot(obj)
+seasonplot(obj, ...)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{obj}{
     an \code{iNZightTS} object
 }
+  \item{\dots}{
+    Further arguments to be passed onto specific methods.
+  }
 }
 \details{
   The resulting window will contain two plots. On the left, every

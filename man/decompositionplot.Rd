@@ -1,6 +1,5 @@
 \name{decompositionplot}
 \alias{decompositionplot}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Plot a Time Series Decomposition
 }
@@ -11,7 +10,6 @@ using \code{loess}.
 \usage{
 decompositionplot(obj)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{obj}{
     an \code{iNZightTS} object
@@ -32,11 +30,8 @@ decompositionplot(obj)
   appended, containing results from the decomposition.
 }
 \references{
-R. B. Cleveland, W. S. Cleveland, J.E. McRae, and I. Terpenning (1990) STL: A Seasonal-Trend Decomposition Procedure Based on Loess. Journal of Official Statistics, 6, 3¡V73.
+R. B. Cleveland, W. S. Cleveland, J.E. McRae, and I. Terpenning (1990) STL: A Seasonal-Trend Decomposition Procedure Based on Loess. Journal of Official Statistics, 6, 3iV73.
 }
-
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
 \code{\link{stl}}, \code{\link{loess}}, \code{\link{iNZightTS}}
