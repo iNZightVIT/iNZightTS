@@ -9,7 +9,6 @@ Authors@R: c(person("Simon", "Potter", role = c("aut", "cre"),
              person("Marco", "Kuper", role = "aut"))
 Depends: R (>= 2.13)
 Imports: grid
-LazyData: true
 Suggests: iNZight, Acinonyx
 Enhances: iNZight
 Description: Time Series functionality for iNZight
