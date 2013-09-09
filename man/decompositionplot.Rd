@@ -37,6 +37,6 @@ R. B. Cleveland, W. S. Cleveland, J.E. McRae, and I. Terpenning (1990) STL: A Se
 \code{\link{stl}}, \code{\link{loess}}, \code{\link{iNZightTS}}
 }
 \examples{
-z <- iNZightTS(data.frame(Return = rnorm(100)), freq = 12, var = 'Return')
+z <- iNZightTS(ldeaths)
 y <- decompositionplot(z)
 }
