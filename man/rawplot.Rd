@@ -37,7 +37,7 @@ rawplot(obj, animate = FALSE)
 
 \examples{
 z <- data.frame(Return = rnorm(100))
-x <- iNZightTS(z, var="Return")
+x <- iNZightTS(as.ts(z), var="Return")
 rawplot(x)
 }
 
