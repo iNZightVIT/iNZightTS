@@ -44,7 +44,7 @@ forecastplot(vars)
   \code{\link{HoltWinters}}
 }
 \examples{
-z <- iNZightTS(data.frame(Return = rnorm(100)), freq=12, var=1)
+z <- iNZightTS(ldeaths)
 forecastplot(z)
 }
 
