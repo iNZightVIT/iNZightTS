@@ -1,11 +1,12 @@
 \name{iNZightTS}
 \alias{iNZightTS}
+\alias{iNZightMTS}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
   iNZightTS (Time-Series) Objects
 }
 \description{
- The function \code{iNZightTS} is used to create time-series object used
+ The function \code{iNZightTS} is used to create time-series objects used
  in iNZight.
 }
 \usage{
@@ -44,7 +45,7 @@ iNZightTS(data, start = 1, end = numeric(), freq = 1, var = 2, ...)
   time-series (\code{ts} object) itself.
 
   If a \code{ts} object is used to create the \code{iNZightTS} object,
-  all the domain infortmation are extracted from that object.
+  all the domain information is extracted from that object.
 
   In case of \code{data} being a data.frame or path to a \code{.csv}
   file and \code{start} being omitted, the starting date and the

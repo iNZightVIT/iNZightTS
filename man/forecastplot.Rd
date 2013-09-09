@@ -40,7 +40,7 @@ forecastplot(vars)
 }
 
 \seealso{
-  \code{\link{iNZightTS}}, \code{\link{plot.forecast}},
+  \code{\link{iNZightTS}},
   \code{\link{HoltWinters}}
 }
 \examples{
