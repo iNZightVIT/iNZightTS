@@ -1,6 +1,9 @@
 rawplot <-
 function(obj, animate = FALSE) {
 
+    if (any(grepl("^iNZightMTS$", class(data))))
+        stop("Time-Series must be univariate")
+
     height = 5; width = 6
     ### x and y coordinates of the time series tsObj
     tsObj = obj$tsObj
