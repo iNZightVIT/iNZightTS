@@ -31,6 +31,6 @@ to \code{FALSE} and only the \code{head()} of the data will be printed.
 }
 
 \examples{
-print(iNZightTS(data.frame(Return = rnorm(20)), var = "Return"), full = TRUE)
+print(iNZightTS(UKgas))
 }
 
