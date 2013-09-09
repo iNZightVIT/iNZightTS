@@ -14,7 +14,10 @@ function(data, start=1, end=numeric(), freq=1, var=2, ...) {
           inzightts$data <- as.vector(data)
         }
         else {
-          inzightts$currVar <- 1:dim(data)[2]
+          if (is.null(colnames(data)))
+              inzightts$currVar <- 1:dim(data)[2]
+          else
+              inzightts$currVar <- colnames(data)
           inzightts$data <- data.frame(matrix(as.vector(data), ncol=dim(data)[2]))
           colnames(inzightts$data) <- colnames(data)
         }
@@ -65,7 +68,7 @@ function(data, start=1, end=numeric(), freq=1, var=2, ...) {
     }
 
     class(inzightts) <- "iNZightTS"
-    if (length(var) > 1)
+    if (length(inzightts$currVar) > 1)
       class(inzightts) <- c("iNZightMTS", "iNZightTS")
 
     inzightts
