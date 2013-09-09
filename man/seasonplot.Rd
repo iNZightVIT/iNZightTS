@@ -28,7 +28,7 @@ seasonplot(obj, ...)
 \code{\link{iNZightTS}}
 }
 \examples{
-z <- iNZightTS(data.frame(Return = rnorm(100)), freq=12, var="Return")
-seasonplot(z)
+x <- iNZightTS(UKgas)
+seasonplot(x)
 }
 
