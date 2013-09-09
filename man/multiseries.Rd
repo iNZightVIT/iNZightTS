@@ -22,7 +22,7 @@ multiseries(x)
 
 \details{
   \code{x} is an \code{\link{iNZightMTS}} object containing some
-  data for which timeseries objects can be created. The data columns 
+  data for which timeseries objects can be created. The data columns
   used for the plotting are those that are used in the \code{\link{iNZightMTS}}
   object.
 
@@ -34,13 +34,16 @@ multiseries(x)
 }
 
 \examples{
-# Frequency = 1
-y <- iNZightTS(visitorsA)
+# Frequency > 1
+y <- iNZightTS(Seatbelts)
 multiseries(y)
 
-# Frequency > 1
-x <- iNZightTS(SeaIce)
-multiseries(x)
+# Frequency = 1
+# Casulties for Jan of each year
+X <- Seatbelts[12*(1:15), -8]
+X <- as.ts(X)
+z <- iNZightTS(X)
+multiseries(z)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
