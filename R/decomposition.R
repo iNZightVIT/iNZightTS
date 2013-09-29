@@ -1,6 +1,5 @@
 decomposition <-
-function(obj, trendCol = "black",
-                                    seasonCol = "#45a8ff",randCol = seasonCol) {
+function(obj, trendCol = "black", seasonCol = "#45a8ff",randCol = seasonCol, multiplicative=FALSE) {
 
     xlist = get.x(obj$tsObj)
     x = xlist$x
@@ -8,7 +7,11 @@ function(obj, trendCol = "black",
 
 
     if (obj$freq > 1) {
-        decomp = stl(obj$tsObj, "periodic")
+        if (multiplicative)
+            tsObj <- log(obj$tsObj)
+        else
+            tsObj <- obj$tsObj
+        decomp = stl(tsObj, "periodic")
     }
     else {
         trend.comp = loess(obj$data[1:length(obj$tsObj), obj$currVar] ~ x)$fitted + obj$tsObj * 0
@@ -25,9 +28,18 @@ function(obj, trendCol = "black",
 
     ### x and y coordinates
     y = obj$tsObj@.Data
-    y.trend = decompData[,"trend"]
-    y.season = decompData[,"seasonal"]
-    y.random = decompData[,"remainder"]
+    if (multiplicative) {
+        y.random = y - exp(decompData[,"trend"] + decompData[,"seasonal"])
+        y.trend = exp(decompData[,"trend"])
+        y.season = exp(decompData[,"trend"] + decompData[,"seasonal"]) - y.trend
+        decompData[, "trend"] <- y.trend
+        decompData[, "seasonal"] <- y.season
+        decompData[, "remainder"] <- y.random
+    } else {
+        y.trend = decompData[,"trend"]
+        y.season = decompData[,"seasonal"]
+        y.random = decompData[,"remainder"]
+    }
     y.trend.units = unit(y.trend, "native")
     y.season.units = unit(y.season, "native")
     y.random.units = unit(y.random, "native")
@@ -206,8 +218,8 @@ function(obj, trendCol = "black",
 
 
 decompositionplot <-
-function(obj) {
-    vars <- decomposition(obj)
+function(obj, multiplicative=FALSE) {
+    vars <- decomposition(obj, mult = multiplicative)
     newdevice(width = 6, height = 5)
     drawImage(vars$decompVars$tree)
     vars
