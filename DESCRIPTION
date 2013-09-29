@@ -1,7 +1,7 @@
 Package: iNZightTS
 Type: Package
 Title: Time Series for iNZight
-Version: 0.0.3
+Version: 0.0.2
 Date: 2013-08-14
 Authors@R: c(person("Simon", "Potter", role = c("aut", "cre"),
                     email = "spot023@aucklanduni.ac.nz"),
@@ -10,6 +10,5 @@ Authors@R: c(person("Simon", "Potter", role = c("aut", "cre"),
 Depends: R (>= 2.13)
 Imports: grid
 Suggests: iNZight, Acinonyx
-Enhances: iNZight
 Description: Time Series functionality for iNZight
 License: GPL-2

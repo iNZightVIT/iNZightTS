@@ -8,12 +8,17 @@ Decomposes a time series into trend, seasonal and residual components
 using \code{loess}.
 }
 \usage{
-decompositionplot(obj)
+decompositionplot(obj, multiplicative = FALSE)
 }
 \arguments{
   \item{obj}{
     an \code{iNZightTS} object
-}
+  }
+  \item{multiplicative}{
+    Logical. Whether or not the time series decomposition is performed
+    assuming a multiplicative effect. The default is for an additive
+    decomposition to be applied.
+  }
 }
 \details{
   If the frequency is greater than 1, the components are found using the

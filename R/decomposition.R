@@ -219,7 +219,7 @@ function(obj, trendCol = "black", seasonCol = "#45a8ff",randCol = seasonCol, mul
 
 decompositionplot <-
 function(obj, multiplicative=FALSE) {
-    vars <- decomposition(obj, mult = multiplicative)
+    vars <- decomposition(obj, multiplicative = multiplicative)
     newdevice(width = 6, height = 5)
     drawImage(vars$decompVars$tree)
     vars
