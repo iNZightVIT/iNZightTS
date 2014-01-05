@@ -60,7 +60,7 @@ function(obj, s, season.labels=NULL, year.labels=FALSE, year.labels.left=FALSE,
     xlim[1] <- 0.4-labelgap
   plot(Season,xnew,xaxt="n",xlab=xlab,type=type,ylab=ylab,main=main,xlim=xlim,col=0,...)
   nn <- length(Season)/s
-  col <- rep_len(col, nn)
+  col <- rep(x=col, length.out=nn)
   for(i in 0:(nn-1))
     lines(Season[(i*(s+1)+1) : ((s+1)*(i+1))], xnew[(i*(s+1)+1) : ((s+1)*(i+1))], type = type, col = col[i+1], ...)
   if(year.labels)
