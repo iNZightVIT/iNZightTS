@@ -68,6 +68,13 @@ function(vars.decomp, vpName, lineCol = "red",
 
 newdevice <-
 function(width, height, ...) {
+
+    if ("shiny" %in% rownames(installed.packages())){
+      # we should let shiny to set their default graphics device
+      # setting any width and height here force shiny popup a new window to you
+      
+      return()
+    }
     # The windows device works fine (for now), only attempt to speed up
     # any other devices that we're going to be using.
     # We speed them up by getting rid of bufferring.
