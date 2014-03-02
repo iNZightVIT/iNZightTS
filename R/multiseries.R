@@ -108,7 +108,7 @@ function(vars) {
     ### Form the gTree
     list.grobs = gList()
     dims = c(7.5, 6.5)
-    dev.new(width = dims[1], height = dims[2])
+    newdevice(width = dims[1], height = dims[2])
     for (i in 1:n) {
         ### Trends part
         vpName = paste("trendStack", i, sep = "")
@@ -353,7 +353,7 @@ function(vars) {
     ### Form the gTree
     list.grobs = gList()
     dims = c(9, 7)
-    dev.new(width = dims[1], height = dims[2])
+    newdevice(width = dims[1], height = dims[2])
     for (i in 1:n) {
         ### Trends part
         vpName = paste("trendStack", i, sep = "")

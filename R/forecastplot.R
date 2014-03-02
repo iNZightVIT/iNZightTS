@@ -54,6 +54,7 @@ forecastplot <-
         main <- paste("Holt-Winters prediction for", vars$currVar)
         grobs$title <- textGrob(main, gp = gpar(cex = 1.3, fontface = "bold"),
                                 vp = vpPath("parent", "top"), name = "title")
+        grobs$box <- rectGrob(vp = vpPath("parent", "plot"), name = "boxRect")
         grobs$sep <- linesGrob(tail(x.vals$x.units, 1), unit(ylims, "native"),
                                gp = gpar(col = "#555555", lty = "dashed"),
                                vp = vpPath("parent", "plot"), name = "separator")
@@ -80,7 +81,7 @@ forecastplot <-
                                      gp = gpar(col = int.col, lty = "dashed"),
                                      name = "lowerPredLine",
                                      vp = vpPath("parent", "plot"))
-        grobs$box <- rectGrob(vp = vpPath("parent", "plot"), name = "boxRect")
+        #grobs$box <- rectGrob(vp = vpPath("parent", "plot"), name = "boxRect")
         grobs$yAxis <- yaxisGrob(vp = vpPath("parent", "plot"), name = "yAxis",
                                  gp = gpar(cex = 0.9))
         grobs$xAxis <- xaxisGrob(vp = vpPath("parent", "plot"), name = "xAxis",
@@ -134,7 +135,7 @@ forecastplot <-
         
         tree <- gTree(children = grobs, childrenvp = vp.tree, name = "tree")
         
-        dev.new(width = 7, height = 4)
+        newdevice(width = 7, height = 4)
         drawImage(tree)
         pred
     }

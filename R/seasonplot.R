@@ -94,7 +94,7 @@ function(obj, ...) {
         stop("Time Series does not have a seasonal component")
 
 
-    dev.new(width = 9, height = 7)
+    newdevice(width = 9, height = 7)
 
     freq = obj$freq
     s = obj$start[2]
