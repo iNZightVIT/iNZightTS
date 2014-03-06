@@ -145,7 +145,7 @@ function(vars) {
 
         list.grobs[[rectName]] =
             rectGrob(vp = vpPath("parent", panelName, vpName),
-                     name = rectName)
+                     name = rectName, gp = gpar(fill=NA))
 
         list.grobs[[rawName]] =
             linesGrob(x = x.vals$x.units,
@@ -379,6 +379,11 @@ function(vars) {
         labelName = paste("trend", "label", i, sep = ".")
         panelName = "trends.panel"
 
+        list.grobs[[rectName]] =
+          rectGrob(vp = vpPath("parent", panelName, vpName),
+                   name = rectName, gp = gpar(fill=NA))
+        
+        
         list.grobs[[gridlinesName]] =
             segmentsGrob(x0 = unit(x.at, "native"),
                          y0 = unit(vpObj$yscale[1], "native"),
@@ -388,9 +393,6 @@ function(vars) {
                          vp = vpPath("parent", panelName, vpName),
                          name = gridlinesName)
 
-        list.grobs[[rectName]] =
-            rectGrob(vp = vpPath("parent", panelName, vpName),
-                     name = rectName)
 
         list.grobs[[trendSeasonName]] =
             linesGrob(x = x.vals$x.units,
@@ -476,7 +478,9 @@ function(vars) {
             ind2 = min(ind1 + freq - 1, n.obs)
 
         }
-
+        list.grobs[[rectName]] =
+          rectGrob(vp = vpPath("parent", panelName, vpName),
+                   name = rectName, gp = gpar(fill=NA))
 
         list.grobs[[y0Name]] =
             linesGrob(x = unit(vpObj$xscale, "native"),
@@ -485,9 +489,7 @@ function(vars) {
                       vp = vpPath("parent", panelName, vpName),
                       name = y0Name)
 
-        list.grobs[[rectName]] =
-            rectGrob(vp = vpPath("parent", panelName, vpName),
-                     name = rectName)
+        
 
         list.grobs[[lineName]] =
             linesGrob(x = unit(1:freq, "native"),
