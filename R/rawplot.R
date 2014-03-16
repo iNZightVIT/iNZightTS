@@ -1,5 +1,5 @@
 rawplot <-
-function(obj, animate = FALSE) {
+function(obj, multiplicative = FALSE, animate = FALSE) {
 
     if (any(grepl("^iNZightMTS$", class(data))))
         stop("Time-Series must be univariate")
@@ -15,8 +15,11 @@ function(obj, animate = FALSE) {
 
     ### We want a trend line, so do a decomposition
     if (frequency(tsObj) > 1) {
-        decomp = decomposition(obj)$decompVars
-        smooth = decomp$components[,"trend"]
+        decomp = decomposition(obj, multiplicative = multiplicative)$decompVars
+        if (multiplicative)
+          smooth = exp(log(decomp$components[,"trend"]))
+        else
+          smooth = decomp$components[,"trend"]
     } else {
         smooth = loess(obj$data[1:length(obj$tsObj), obj$currVar] ~ x)$fitted
     }

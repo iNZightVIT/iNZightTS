@@ -87,7 +87,7 @@ function(obj, s, season.labels=NULL, year.labels=FALSE, year.labels.left=FALSE,
 
 
 seasonplot.iNZightTS <-
-function(obj, ...) {
+function(obj, season = TRUE, ...) {
 
     # if there is no season component to the ts, can't create season plot
     if (length(obj$start) == 1)
@@ -111,11 +111,13 @@ function(obj, ...) {
                year.labels = TRUE, year.labels.left = TRUE,
                main = title)
 
-    obj = decomposition(obj)
+    obj = decomposition(obj, multiplicative = season)
     season = obj$decompVars$components[,"seasonal"]
     season = if (s > 1) season[-(1:(freq + 1 - s))][1:freq]
     else season[1:freq]
-
+    
+    
+    
     season.ts = ts(season, start = c(1, 1), frequency = freq)
 
     if (freq == 12) {
@@ -137,9 +139,14 @@ function(obj, ...) {
         xlab = "Season"
     }
 
+    
+    
+    h.lines <- ifelse(obj$decompVars$multiplicative, 1, 0)  #%
+    
     plot(season.ts, type = "n", ylab = NULL, xlab = xlab,
          xaxt = "n", main = "Estimated seasonal effects")
-    abline(h = 0, col = "#aaaaaa", lty = "dashed")
+    
+    abline(h = h.lines, col = "#aaaaaa", lty = "dashed")
     lines(season.ts, type = "o", lwd = 2, cex = 1.2)
     axis(1, at = get.x(season.ts)$x, labels = labs)
 }

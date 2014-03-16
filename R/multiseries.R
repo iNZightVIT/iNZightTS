@@ -1,17 +1,17 @@
 multiseries <-
-function(x) {
+function(x,...) {
     if (!any(grepl("^iNZightMTS$", class(x))))
         stop("x is not an iNZightMTS object")
     if (x$freq > 1) {
-        multiseries.2p(x)
+        multiseries.2p(x, ...)
     } else {
-        multiseries.1(x)
+        multiseries.1(x, ...)
     }
 }
 
 
 multiseries.1 <-
-function(vars) {
+function(vars, multiplicative = TRUE) {
     ##########################################
     # Plot multiple plots time series which have frequency 1
     # in one window.
@@ -38,7 +38,7 @@ function(vars) {
         curr.vars$data = vardata
         curr.vars$tsObj = ts(vars$data[, i], vars$start, vars$end, vars$freq)
         curr.vars$currVar = i
-        curr.vars = decomposition(curr.vars)
+        curr.vars = decomposition(curr.vars, multiplicative = multiplicative)
         name = gsub("[[:space:]]+", "_", curr.vars$currVar)
         listVars[[name]] = curr.vars
     }
@@ -228,7 +228,7 @@ function(vars) {
 
 
 multiseries.2p <-
-function(vars) {
+function(vars, multiplicative = FALSE) {
     ##########################################
     # Plot multiple plots time series which have frequency > 1
     # in one window.
@@ -255,7 +255,8 @@ function(vars) {
         curr.vars$data = vardata
         curr.vars$tsObj = ts(vars$data[, i], vars$start, vars$end, vars$freq)
         curr.vars$currVar = i
-        curr.vars = decomposition(curr.vars)
+        curr.vars = decomposition(curr.vars, multiplicative = multiplicative)
+        whether.multi <- curr.vars$decompVars$multiplicative #%
         name = gsub("[[:space:]]+", "_", curr.vars$currVar)
         listVars[[name]] = curr.vars
     }
@@ -278,7 +279,11 @@ function(vars) {
         varNames[i] = listVars[[i]]$currVar
         raw.y.vals = listVars[[i]]$decompVars$raw
         trend.y.vals = listVars[[i]]$decompVars$components[,"trend"]@.Data
-        deTrend = raw.y.vals - trend.y.vals
+        if (whether.multi)
+          deTrend = raw.y.vals / trend.y.vals
+        else
+          deTrend = raw.y.vals - trend.y.vals
+        
         season.y.vals = listVars[[i]]$decompVars$components[,"seasonal"]@.Data
         joint.y.vals = trend.y.vals + season.y.vals
 
@@ -365,11 +370,17 @@ function(vars) {
 
         trend.y.vals = listVars[[i]]$decompVars$components[,"trend"]@.Data
         season.y.vals = listVars[[i]]$decompVars$components[,"seasonal"]@.Data
-        joint.y.vals = trend.y.vals + season.y.vals
+        
+        if (whether.multi)
+          joint.y.vals = trend.y.vals * season.y.vals
+        else
+          joint.y.vals = trend.y.vals + season.y.vals   # * if multiplicative
         ordered.vals = numeric(freq)
         ordered.vals[subset] = season.y.vals[1:freq]
+        
         raw.y.vals = listVars[[i]]$decompVars$raw
 
+        
         rectName = paste("trend", "border", i, sep = ".")
         trendName = paste("trend", "series", i, sep = ".")
         rawName = paste("raw", "series", i, sep = ".")
@@ -464,7 +475,14 @@ function(vars) {
         ind1 = 1
         ind2 = length(s:freq)
         xcoords = rep(1:freq, length = n.obs + s - 1)[s:(n.obs + s - 1)]
-        deTrend = raw.y.vals - trend.y.vals
+        if (whether.multi)
+          deTrend = raw.y.vals / trend.y.vals
+        else
+          deTrend = raw.y.vals - trend.y.vals
+        
+
+        
+        #deTrend = raw.y.vals - trend.y.vals
         for (j in 1:numSeries) {
             ind = ind1:ind2
             greyLineName = paste("actualSeason", i, j, sep = ".")
@@ -484,7 +502,7 @@ function(vars) {
 
         list.grobs[[y0Name]] =
             linesGrob(x = unit(vpObj$xscale, "native"),
-                      y = unit(rep(0, 2), "native"),
+                      y = unit(rep(ifelse(whether.multi,1,0), 2), "native"),
                       gp = gpar(lty = "dashed"),
                       vp = vpPath("parent", panelName, vpName),
                       name = y0Name)
@@ -609,8 +627,9 @@ function(vars) {
                   gp = gpar(col = trendSeasonCol, lwd = 2))
 
     xc = xc + lineWidth + gap
+    trendandseason <- ifelse(multiplicative, "Trend * seasonal", "Trend + seasonal")
     list.grobs$trendSeasonKeyText =
-        textGrob("Trend + seasonal", x = convertUnit(xc, "mm"),
+        textGrob(trendandseason, x = convertUnit(xc, "mm"),
                  y = unit(1, "npc") - unit(1, "lines"),
                  just = c("left", "bottom"),
                  vp = vpPath("parent", "trends.head"),

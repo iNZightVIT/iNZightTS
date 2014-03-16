@@ -6,13 +6,14 @@ decomposition <-
         x.units <- xlist$x.units
 
         if (obj$freq > 1) {
-            if (multiplicative)
-                tsObj <- log(obj$tsObj)
+            if (multiplicative) 
+                tsObj <- log(obj$tsObj) 
             else
                 tsObj <- obj$tsObj
             decomp <- stl(tsObj, "periodic")
         }
         else {
+          ## freq == 1, non seasonal fitted.
             trend.comp <-
                 loess(obj$data[1:length(obj$tsObj), obj$currVar] ~ x)$fitted +
                     obj$tsObj * 0
@@ -23,20 +24,28 @@ decomposition <-
                 as.ts(data.frame(seasonal = seasons.comp,
                                  trend = trend.comp,
                                  remainder = residuals.comp))
+            
         }
 
         decompData <- decomp$time.series    # returns matrix
 
         ## x and y coordinates
-        y <- obj$tsObj@.Data
+        Y <- obj$tsObj
+        
         if (multiplicative) {
-            y.random <- y - exp(decompData[,"trend"] + decompData[,"seasonal"])
-            y.trend <- exp(decompData[,"trend"])
-            y.season <- exp(decompData[,"trend"] + decompData[,"seasonal"]) - y.trend
+          y <- log(obj$tsObj@.Data)
+            y.random <- exp(y - (decompData[,"trend"] + decompData[,"seasonal"]))  # if we not backtransform here
+            y.trend <- exp(decompData[,"trend"])  # the decompositionplot will all in log scale
+            y.season <- exp(decompData[,"seasonal"])
+          y.season2 <- exp(decompData[,"trend"] + decompData[,"seasonal"]) - exp(decompData[,"trend"])
+          y.random2 <- Y - exp(decompData[,"trend"] + decompData[,"seasonal"])
             decompData[, "trend"] <- y.trend
             decompData[, "seasonal"] <- y.season
             decompData[, "remainder"] <- y.random
+          y.season <- y.season2
+          y.random <- y.random2
         } else {
+          y <- obj$tsObj@.Data
             y.trend <- decompData[,"trend"]
             y.season <- decompData[,"seasonal"]
             y.random <- decompData[,"remainder"]
@@ -45,7 +54,10 @@ decomposition <-
         y.season.units <- unit(y.season, "native")
         y.random.units <- unit(y.random, "native")
 
-
+        test <<- decompData
+        
+        Y <- obj$tsObj@.Data
+        
         ## We want each component plotted on the same scale, so we need
         ## to find the y-axis interval for the most variable component
         minmax <- apply(decompData, 2, function(x) range(x))
@@ -53,10 +65,21 @@ decomposition <-
         ranges[2] <- max(y) - min(y)
 
         expandBy <- (max(y) - min(y)) * 0.1
+        
+        expandBy.trend <- (max(Y) - min(Y)) * 0.1
+        
+        
+        #if (multiplicative)  #%
+          y <- obj$tsObj@.Data  #%
         ## here we edit the viewport y values to provide an extra gap at
         ## the top of each panel
-        trend.vp.y <- y
-        trend.vp.y[which.max(y)] <- max(y) + expandBy
+        trend.vp.y <- y 
+        
+        
+        trend.vp.y[which.max(y)] <- max(y) + expandBy.trend
+        trend.vp.y[which.min(y)] <- min(y) - expandBy.trend
+        
+        
         season.vp.y <- y.season
         max.index <- ifelse(obj$freq > 1, which.max(y.season), 1)
         season.vp.y[max.index] <- max(y.season) + expandBy
@@ -71,7 +94,9 @@ decomposition <-
         ## Need to find the proportion of the plot each subplot will be
         ## allocated, and create the viewports
         props <- ranges/sum(ranges)
-
+        
+        
+        
         ## The following defines the viewport layout for the plot
         ## parent.vp holds everything - with a main central viewport
         ## and 4 viewports around it that act as margins
@@ -92,7 +117,7 @@ decomposition <-
         bottom.vp <- viewport(layout.pos.row = 3, layout.pos.col = 1:2, name = "bottom")
         plots.vp <- viewport(layout =
                              grid.layout(3, 1, heights = props[c(2, 1, 3)]),
-                             name = "plots", layout.pos.row = 2, layout.pos.col = 2)
+                               name = "plots", layout.pos.row = 2, layout.pos.col = 2)
         trend.vp <- dataViewport(x, trend.vp.y, name = "trend", layout.pos.row = 1)
         season.vp <- dataViewport(x, season.vp.y, name = "season", layout.pos.row = 2)
         random.vp <- dataViewport(x, random.vp.y, name = "random", layout.pos.row = 3)
@@ -103,7 +128,8 @@ decomposition <-
 
         xlims <- season.vp$xscale
         dotted.xcoords <- c(xlims[1], x, xlims[2])
-        dotted.ycoords <- rep(0, length(dotted.xcoords))
+        dotted.point <- ifelse(multiplicative, 1, 0) #%
+        dotted.ycoords <- rep(dotted.point, length(dotted.xcoords))
 
         ## The following creates a gTree which contains all of our grobs
         grobs = gList()
@@ -225,8 +251,11 @@ decomposition <-
 
         ## return a list with all the variables we need
         decompVars <- list(tree = image, ranges = ranges, props = props,
-                           raw = obj$tsObj@.Data, components = decomp$time.series,
-                           vertMargins = vertMargins)
+                           raw = obj$tsObj@.Data, 
+                           components = decompData,
+                           #components = decomp$time.series,
+                           vertMargins = vertMargins,
+                           multiplicative = multiplicative)
         obj$decompVars <- decompVars
         obj
     }

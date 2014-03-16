@@ -1,5 +1,5 @@
 forecastplot <-
-    function(vars) {
+    function(vars, seasonal.add = "additive") {
         width <- 7
         height <- 4
 
@@ -18,7 +18,7 @@ forecastplot <-
         ## forecast 2 whole cycles ahead
         ahead <- 2 * vars$freq
         
-        hw.fit <- HoltWinters(tsObj)
+        hw.fit <- HoltWinters(tsObj, seasonal = seasonal.add)
         pred <- predict(hw.fit, n.ahead = ahead, TRUE)
         x.pred.start <- tail(x.vals$x, 1)
         x.pred <- seq(from = x.pred.start,
