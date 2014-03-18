@@ -251,6 +251,7 @@ compareplot.2p <-
     rawCol = "black"
     seasonCol = "red"
     groupCol =  hcl(h = seq(30, 300, by = 270/(length(vars$currVar)-1)), c = 50, l = 70)
+    groupCol.text = hcl(h = seq(30, 300, by = 270/(length(vars$currVar)-1)), c = 50, l = 40)
     
     ### put all the necessary "vars" variables into a list
     listVars = vector("list")
@@ -468,7 +469,7 @@ compareplot.2p <-
         linesGrob(x = x.vals$x.units,
                   y = unit(trend.y.vals, "native"),
                   vp = vpPath("parent", panelName, vpName),
-                  gp = gpar(col = groupCol[i], lty = 3), name = trendName)
+                  gp = gpar(col = groupCol[i], lty = 3, lwd = 3), name = trendName)
       
       list.grobs[[trendLabelName]] =
         textGrob(varNames[i], x = x.vals$x.units[length(x.vals$x.units)],
@@ -476,7 +477,7 @@ compareplot.2p <-
                  hjust = 1, vjust = 2, 
                  #just = c("left", "center"),
                  vp = vpPath("parent", panelName, vpName),
-                 gp = gpar(col = groupCol[i], lwd = 3), name = trendLabelName)
+                 gp = gpar(col = groupCol.text[i], lwd = 3), name = trendLabelName)
       
       list.grobs[[symbolName]] =
         pointsGrob(x = x.vals$x.units[length(x.vals$x.units)],
@@ -639,7 +640,7 @@ compareplot.2p <-
         textGrob(varNames[i], x= 0.1, y = 0.5*(n-i)/n + 0.4, 
                  vp = vpPath("parent", "seasons.head"),
                  just = c("left","center"),
-                 gp = gpar(cex = 0.8,col = groupCol[i]),
+                 gp = gpar(cex = 0.8,col = groupCol.text[i]),
                  name = labelName)
       
 
