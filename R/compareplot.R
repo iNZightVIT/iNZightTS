@@ -513,6 +513,7 @@ compareplot.2p <-
       yAxisName = paste("season", "yAxis", i, sep = ".")
       gridlinesName = paste("season", "gridlines", i, sep = ".")
       labelName = paste("season", "label", i, sep = ".")
+      SymbolName = paste("season", "symbol", i, sep = ".")
       panelName = "seasons.panel"
       
       trend.y.vals = listVars[[i]]$decompVars$components[,"trend"]@.Data
@@ -600,19 +601,34 @@ compareplot.2p <-
         yaxisGrob(vp = vpPath("parent", panelName, vpName),
                   gp = gpar(cex = 0.8), name = yAxisName)
       
-      list.grobs[[labelName]] =
-        textGrob(varNames[i], x = unit(30*(i-1), "mm"), y = unit(1, "mm"),
-                 just = c("left", "bottom"),
-                 vp = vpPath("parent", panelName, gapName),
-                 gp = gpar(cex = 0.8, fontface = "bold.italic", col = rainbow(n)[i]),
-                 name = labelName)
+      #list.grobs[[labelName]] =
+      #  textGrob(varNames[i], x = unit(30*(i-1), "mm"), y = unit(1, "mm"),
+      #           just = c("left", "bottom"),
+      #           vp = vpPath("parent", panelName, gapName),
+      #           gp = gpar(cex = 0.8, fontface = "bold.italic", col = rainbow(n)[i]),
+      #           name = labelName)
+      
       
       
       list.grobs$seasonsLabel =
-        textGrob("Seasonal effects", vp = vpPath("parent", "seasons.head"),
+        textGrob("Seasonal effects", y = 0.95, vp = vpPath("parent", "seasons.head"),
+                 just = "bottom",
                  name = "seasonsLabel")
+     
+      list.grobs[[SymbolName]] =
+      pointsGrob(x= 0, y = 0.5*(n-i)/n + 0.4,
+        pch = i, size = unit(0.5,"char"),
+        vp = vpPath("parent", "seasons.head"),
+        name = SymbolName)
       
+      list.grobs[[labelName]] =
+        textGrob(varNames[i], x= 0.1, y = 0.5*(n-i)/n + 0.4, 
+                 vp = vpPath("parent", "seasons.head"),
+                 just = c("left","center"),
+                 gp = gpar(cex = 0.8),
+                 name = labelName)
       
+
       if (freq == 12) {
         labs = substring(month.abb, 1, 1)
         xlab = "Month"
