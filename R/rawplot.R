@@ -1,5 +1,5 @@
 rawplot <-
-function(obj, multiplicative = FALSE, animate = FALSE) {
+function(obj, multiplicative = FALSE, ylab = "t.value", animate = FALSE) {
 
     if (any(grepl("^iNZightMTS$", class(data))))
         stop("Time-Series must be univariate")
@@ -33,7 +33,7 @@ function(obj, multiplicative = FALSE, animate = FALSE) {
     parent.vp = viewport(layout = grid.layout(3, 3,
                                               heights = unit(c(1, plotHeight, 1),
                                                              c("null", "inches", "null")),
-                                              widths = unit(c(.7, 1, .2),
+                                              widths = unit(c(1.2, 1, .2),
                                                             c("inches", "null", "inches"))),
                          name = "parent")
     head.vp = viewport(layout.pos.row = 1, layout.pos.col = 1:2, name = "head")
@@ -53,8 +53,13 @@ function(obj, multiplicative = FALSE, animate = FALSE) {
                                name = "line", gp = gpar(col = "black", lwd = 2)),
                      linesGrob(x.units, unit(smooth, "native"), name = "smooth",
                                gp = gpar(col = "red"), vp = vpPath("parent", "plot")),
+                     
                      yaxisGrob(vp = vpPath("parent", "plot"), name = "yAxis",
                                gp = gpar(cex = .8)),
+                     textGrob(ylab, x= 0, y = 0.5, vjust = -6, 
+                              rot = 90,
+                              vp = vpPath("parent", "plot"), name = "yAxisLabel",
+                              gp = gpar(cex = .8)),
                      xaxisGrob(vp = vpPath("parent", "plot"), name = "xAxis",
                                gp = gpar(cex = .8)),
                      textGrob(paste("Time series plot for", obj$currVar),
