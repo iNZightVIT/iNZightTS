@@ -250,6 +250,7 @@ compareplot.2p <-
     trendSeasonCol = "#0e8c07"
     rawCol = "black"
     seasonCol = "red"
+    groupCol =  hcl(h = seq(30, 300, by = 270/(length(vars$currVar)-1)), c = 50, l = 70)
     
     ### put all the necessary "vars" variables into a list
     listVars = vector("list")
@@ -424,6 +425,7 @@ compareplot.2p <-
       yAxisName = paste("trend", "yAxis", i, sep = ".")
       gridlinesName = paste("trend", "gridlines", i, sep = ".")
       labelName = paste("trend", "label", i, sep = ".")
+      symbolName = paste("label", "symbol", i, sep = ".")
       #rectName = "trend.border"
       #trendName = "trend.series"
       #rawName = "raw.series"
@@ -460,20 +462,28 @@ compareplot.2p <-
         linesGrob(x = x.vals$x.units,
                   y = unit(raw.y.vals, "native"),
                   vp = vpPath("parent", panelName, vpName),
-                  gp = gpar(col = rainbow(n)[i], lwd = 2), name = rawName)
+                  gp = gpar(col = groupCol[i], lwd = 2), name = rawName)
       
       list.grobs[[trendName]] =
         linesGrob(x = x.vals$x.units,
                   y = unit(trend.y.vals, "native"),
                   vp = vpPath("parent", panelName, vpName),
-                  gp = gpar(col = rainbow(n)[i], lty = 3), name = trendName)
+                  gp = gpar(col = groupCol[i], lty = 3), name = trendName)
       
       list.grobs[[trendLabelName]] =
         textGrob(varNames[i], x = x.vals$x.units[length(x.vals$x.units)],
                  y = unit(trend.y.vals, "native")[length(x.vals$x.units)],
-                 just = c("left", "center"),
+                 hjust = 1, vjust = 2, 
+                 #just = c("left", "center"),
                  vp = vpPath("parent", panelName, vpName),
-                 gp = gpar(col = rainbow(n)[i], lwd = 3), name = trendLabelName)
+                 gp = gpar(col = groupCol[i], lwd = 3), name = trendLabelName)
+      
+      list.grobs[[symbolName]] =
+        pointsGrob(x = x.vals$x.units[length(x.vals$x.units)],
+                 y = unit(trend.y.vals, "native")[length(x.vals$x.units)],
+                 pch = i, size = unit(0.5,"char"),
+                 vp = vpPath("parent", panelName, vpName),
+                 gp = gpar(col = groupCol[i]), name = symbolName)
       
       list.grobs[[yAxisName]] =
         yaxisGrob(vp = vpPath("parent", panelName, vpName),
@@ -484,11 +494,14 @@ compareplot.2p <-
                  vp = vpPath("parent", panelName, vpName),
                   gp = gpar(cex = 1), name = yAxisLabelName)
       
+      
+      
+      
       #list.grobs[[labelName]] =
       #  textGrob(varNames[i], x = unit(30*(i-1), "mm"), y = unit(1, "mm"),
       #           just = c("left", "bottom"),
       #           vp = vpPath("parent", panelName, gapName),
-      #           gp = gpar(cex = 0.8, fontface = "bold.italic", col = rainbow(n)[i]),
+      #           gp = gpar(cex = 0.8, fontface = "bold.italic", col = groupCol[i]),
       #           name = labelName)
     }
       
@@ -587,14 +600,14 @@ compareplot.2p <-
         linesGrob(x = unit(1:freq, "native"),
                   y = unit(ordered.vals, "native"),
                   vp = vpPath("parent", panelName, vpName),
-                  gp = gpar(col = rainbow(n)[i], lwd = 2),
+                  gp = gpar(col = groupCol[i], lwd = 2),
                   name = lineName)
       
       list.grobs[[pointsName]] =
         pointsGrob(x = unit(1:freq, "native"),
                    y = unit(ordered.vals, "native"),
                    vp = vpPath("parent", panelName, vpName),
-                   gp = gpar(col = rainbow(n)[i], cex = 0.7, lwd = 2),
+                   gp = gpar(col = groupCol[i], cex = 0.7, lwd = 2),
                    name = pointsName)
       
       list.grobs[[yAxisName]] =
@@ -605,7 +618,7 @@ compareplot.2p <-
       #  textGrob(varNames[i], x = unit(30*(i-1), "mm"), y = unit(1, "mm"),
       #           just = c("left", "bottom"),
       #           vp = vpPath("parent", panelName, gapName),
-      #           gp = gpar(cex = 0.8, fontface = "bold.italic", col = rainbow(n)[i]),
+      #           gp = gpar(cex = 0.8, fontface = "bold.italic", col = groupCol[i]),
       #           name = labelName)
       
       
@@ -619,13 +632,14 @@ compareplot.2p <-
       pointsGrob(x= 0, y = 0.5*(n-i)/n + 0.4,
         pch = i, size = unit(0.5,"char"),
         vp = vpPath("parent", "seasons.head"),
+        gp = gpar(col = groupCol[i]),
         name = SymbolName)
       
       list.grobs[[labelName]] =
         textGrob(varNames[i], x= 0.1, y = 0.5*(n-i)/n + 0.4, 
                  vp = vpPath("parent", "seasons.head"),
                  just = c("left","center"),
-                 gp = gpar(cex = 0.8),
+                 gp = gpar(cex = 0.8,col = groupCol[i]),
                  name = labelName)
       
 
