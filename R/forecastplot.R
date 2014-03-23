@@ -1,5 +1,5 @@
 forecastplot <-
-    function(vars, seasonal.add = "additive") {
+    function(vars, ylab="", multiplicative = FALSE) {
         width <- 7
         height <- 4
 
@@ -17,7 +17,7 @@ forecastplot <-
 
         ## forecast 2 whole cycles ahead
         ahead <- 2 * vars$freq
-        
+        seasonal.add = ifelse(multiplicative, "multiplicative", "additive")
         hw.fit <- HoltWinters(tsObj, seasonal = seasonal.add)
         pred <- predict(hw.fit, n.ahead = ahead, TRUE)
         x.pred.start <- tail(x.vals$x, 1)
@@ -36,7 +36,7 @@ forecastplot <-
         
         ## set up the viewports
         layout <- grid.layout(3, 3,
-                              widths = unit(c(1, 1, 1), c("inches", "null", "cm")),
+                              widths = unit(c(1.5, 1, 1), c("inches", "null", "cm")),
                               heights = unit(c(1.5, 1, 2), c("cm", "null", "cm")))
         parent.vp <- viewport(name = "parent", layout = layout)
         
@@ -88,6 +88,9 @@ forecastplot <-
                                  gp = gpar(cex = 0.9))
         grobs$xLabel <- textGrob("Time", y = 0.3, name = "xLabel",
                                  vp = vpPath("parent", "bottom"))
+        grobs$yLabel <- textGrob(ylab, x=0,y=0.5,name="yLabel",
+                                 rot = 90, vjust=-5.5,
+                                 vp = vpPath("parent", "plot"))
         
         
         ## Legend grobs
