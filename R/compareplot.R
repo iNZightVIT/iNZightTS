@@ -317,22 +317,15 @@ compareplot.2p <-
     trendVpName = "trendStack"
     
     
-    #x.axis.vals <- x.vals$x
-    #Diff <- diff(x.axis.vals)[1]
-    #extend.x.axis.vals <- x.axis.vals[length(x.axis.vals)] + Diff * (1:freq)
-    #x.axis.vals <- append(x.axis.vals, extend.x.axis.vals)
+
     trends.vps[[trendVpName]] =
-        dataViewport(c(x.vals$x,1.2), range(raw.y.vals, joint.y.vals), #% check range from raw y value and trend+season y value
-                     name = trendVpName, layout.pos.row = 2
-                     ,
+        dataViewport(c(x.vals$x,1.4), range(raw.y.vals, joint.y.vals), #% check range from raw y value and trend+season y value
+                     name = trendVpName, layout.pos.row = 2,
                      extension = 0.04,
-                     
                      #clip = "on",
                      #xscale = c(min(x.vals$x)-(2*freq/(diff(range(x.vals$x)))),
                     #            max(x.vals$x)+(2*freq/(diff(range(x.vals$x))))),
-                     
-                    #xscale = c(min(x.vals$x) - 1, max(x.vals$x) + 1.5)
-                     #xscale = c(0, 1.1) ,
+                  
                     )
                      #extension = 0.1) # 2i --> 2
       #trendGapVpName = paste("trendGap", i, sep = "")
@@ -458,13 +451,6 @@ compareplot.2p <-
       gridlinesName = paste("trend", "gridlines", i, sep = ".")
       labelName = paste("trend", "label", i, sep = ".")
       symbolName = paste("label", "symbol", i, sep = ".")
-      #rectName = "trend.border"
-      #trendName = "trend.series"
-      #rawName = "raw.series"
-      #trendSeasonName = "trendSeason.series"
-      #yAxisName = "trend.yAxis"
-      #gridlinesName ="trend.gridlines"
-      #labelName = "trend.label"
       yAxisLabelName = "trend.yAxis.label"
       panelName = "trends.panel"
       
@@ -505,9 +491,9 @@ compareplot.2p <-
       list.grobs[[trendLabelName]] =
         textGrob(varNames[i], x = x.vals$x.units[length(x.vals$x.units)],
                  y = unit(trend.y.vals, "native")[length(x.vals$x.units)],
-                 #hjust = -0.2, 
-                 #vjust = 2, 
-                 just = c("left", "bottom"),
+                 hjust = -0.2, 
+                 vjust = 2, 
+                 #just = c("left", "bottom"),
                  vp = vpPath("parent", panelName, vpName),
                  gp = gpar(col = groupCol.text[i], cex = 0.6), name = trendLabelName)
       
@@ -543,8 +529,7 @@ compareplot.2p <-
       
       ### Seasonal part
       
-      #vpName = paste("seasonStack", i, sep = "")
-      #gapName = paste("seasonGap", i, sep = "")
+
       vpName = "seasonStack"
       gapName = "seasonGap"
       vpObj = seasons.vps[[vpName]]
@@ -698,7 +683,6 @@ compareplot.2p <-
       list.grobs$xAxis2 =
         xaxisGrob(vp = vpPath("parent", "seasons.panel",
                               "seasonStack"),
-                              #paste("seasonStack", n, sep = "")),
                   gp = gpar(cex = 0.8), name = "xAxis2",
                   at = 1:freq, label = labs)
       list.grobs$xAxisLabel2 =
@@ -707,16 +691,13 @@ compareplot.2p <-
                  y = unit(3, "mm"), vjust = 0)
     }
     
-    #firstTermGap = seq(vars$start[1],vars$end[1],by=2)
-    #print(firstTermGap)
+
     
     list.grobs$xAxis1 =
       xaxisGrob(vp = vpPath("parent", "trends.panel",
                             "trendStack"),
                 at = x.at,
                 label = x.label,
-                            #"trendStack"),
-                            #paste("trendStack", n, sep = "")),
                 gp = gpar(cex = 0.8), name = "xAxis1")
     
     list.grobs$xAxisLabel1 =
@@ -751,7 +732,7 @@ compareplot.2p <-
       textGrob(paste0("Comparing series (for ", deparse(substitute(x, parent.frame(1))),")"), x = 0.3, y = unit(1, "npc") - unit(1, "lines"),
                just = c("left", "bottom"),
                vp = vpPath("parent", "trends.head"),
-               name = "titleText", gp = gpar(cex = .8))
+               name = "titleText", gp = gpar(cex = 1))
     
     #xc = xc + stringWidth(list.grobs$trendKeyText$label) + space
     #list.grobs$rawKey =
