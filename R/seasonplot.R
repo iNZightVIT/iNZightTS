@@ -109,7 +109,7 @@ function(obj, season = TRUE, ...) {
 
     seasonplot.forecast(obj$tsObj, freq, col = cols, pch = 19,
                year.labels = TRUE, year.labels.left = TRUE,
-               main = title)
+               main = title,...)
 
     obj = decomposition(obj, multiplicative = season)
     season = obj$decompVars$components[,"seasonal"]
