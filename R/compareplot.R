@@ -316,7 +316,11 @@ compareplot.1 <-
                name = "trendKeyText", gp = gpar(cex = .8))
     
     list.grobs$titleText = 
-      textGrob(paste0("Comparing series (for ", deparse(substitute(x, parent.frame(1))),")"), x = 0.3, y = unit(1, "npc") - unit(1, "lines"),
+      textGrob(paste0("Comparing series (for ", 
+                      deparse(substitute(x, parent.frame(1))),
+                      ifelse(whether.multi, " --- Multiplicative", ""),
+                      ")"), 
+               x = 0.3, y = unit(1, "npc") - unit(1, "lines"),
                just = c("left", "bottom"),
                vp = vpPath("parent", "trends.head"),
                name = "titleText", gp = gpar(cex = 1))
