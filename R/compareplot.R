@@ -169,7 +169,7 @@ compareplot.1 <-
                   gp = gpar(cex = 0.8), name = yAxisName)
       
       list.grobs[[labelName]] =
-        textGrob(varNames[i], x = 0, y = unit(1, "mm"),
+        textGrob(catchDistorbName(varNames)[i], x = 0, y = unit(1, "mm"),
                  just = c("left", "bottom"),
                  vp = vpPath("parent", panelName, gapName),
                  gp = gpar(cex = 0.8, fontface = "bold.italic"),
@@ -180,6 +180,7 @@ compareplot.1 <-
       xaxisGrob(vp = vpPath("parent", "trends.panel",
                             paste("trendStack", n, sep = "")),
                 gp = gpar(cex = 0.8), name = "xAxis1")
+    print(list.grobs)
     list.grobs$xAxisLabel1 =
       textGrob("Time", vp = vpPath("parent", "trends.bottom"),
                name = "xAxisLabel1", gp = gpar(cex = 0.8),
@@ -262,6 +263,8 @@ compareplot.2p <-
       curr.vars = vars
       curr.vars$data = vardata
       curr.vars$tsObj = ts(vars$data[, i], vars$start, vars$end, vars$freq)
+      minValue = vars$start[1]
+      maxValue = vars$end[1]
       curr.vars$currVar = i
       curr.vars = decomposition(curr.vars, multiplicative = multiplicative)
       
@@ -272,7 +275,9 @@ compareplot.2p <-
     whether.multi <- curr.vars$decompVars$multiplicative #%
     
     n = length(varNums)
-    x.vals = get.x(listVars[[1]]$tsObj)
+    x.vals = get.x2(listVars[[1]]$tsObj)  ## we always use the first one here, some doubt
+    
+
     
     freq = listVars[[1]]$freq
     startSeason = listVars[[1]]$start[2]
@@ -283,6 +288,7 @@ compareplot.2p <-
       subset = 1:freq
     }
     
+  
     
     ### form the viewports
     trends.vps = seasons.vps = vpList()
@@ -316,8 +322,18 @@ compareplot.2p <-
     #extend.x.axis.vals <- x.axis.vals[length(x.axis.vals)] + Diff * (1:freq)
     #x.axis.vals <- append(x.axis.vals, extend.x.axis.vals)
     trends.vps[[trendVpName]] =
-        dataViewport(x.vals$x, range(raw.y.vals, joint.y.vals), #% check range from raw y value and trend+season y value
-                     name = trendVpName, layout.pos.row = 2)
+        dataViewport(c(x.vals$x,1.2), range(raw.y.vals, joint.y.vals), #% check range from raw y value and trend+season y value
+                     name = trendVpName, layout.pos.row = 2
+                     ,
+                     extension = 0.04,
+                     
+                     #clip = "on",
+                     #xscale = c(min(x.vals$x)-(2*freq/(diff(range(x.vals$x)))),
+                    #            max(x.vals$x)+(2*freq/(diff(range(x.vals$x))))),
+                     
+                    #xscale = c(min(x.vals$x) - 1, max(x.vals$x) + 1.5)
+                     #xscale = c(0, 1.1) ,
+                    )
                      #extension = 0.1) # 2i --> 2
       #trendGapVpName = paste("trendGap", i, sep = "")
     trendGapVpName =   "trendGap"
@@ -387,7 +403,6 @@ compareplot.2p <-
     
     
     
-    
     ### Form the gTree
     list.grobs = gList()
     dims = c(9, 7)
@@ -399,8 +414,24 @@ compareplot.2p <-
       vpName = "trendStack"
       gapName = "trendGap"
       vpObj = trends.vps[[vpName]]
-      opar = par(usr = c(vpObj$xscale, vpObj$yscale))
-      x.at = axTicks(1)
+   
+      opar = par(usr = c(vpObj$xscale, vpObj$yscale)
+
+      )
+    
+    
+    x.at = axTicks(1)
+    
+    ## pretty label customed
+    time.data = vars$star[1]:vars$end[1]
+    numeric.time= seq(vars$star[1] + vars$star[2]/freq, vars$end[1] + vars$end[2]/freq,
+                      len = nrow(vars$data))
+    time.data = pretty(time.data)[-1]
+    label.id = which(numeric.time %in% time.data)
+    x.at = c(x.vals$x,1.2)[c(label.id,FALSE)]
+    x.label = numeric.time[label.id]
+    ## pretty label customed
+    
       par(opar)
     
     for (i in 1:n) {
@@ -474,17 +505,18 @@ compareplot.2p <-
       list.grobs[[trendLabelName]] =
         textGrob(varNames[i], x = x.vals$x.units[length(x.vals$x.units)],
                  y = unit(trend.y.vals, "native")[length(x.vals$x.units)],
-                 hjust = 1, vjust = 2, 
-                 #just = c("left", "center"),
+                 #hjust = -0.2, 
+                 #vjust = 2, 
+                 just = c("left", "bottom"),
                  vp = vpPath("parent", panelName, vpName),
-                 gp = gpar(col = groupCol.text[i], lwd = 3), name = trendLabelName)
+                 gp = gpar(col = groupCol.text[i], cex = 0.6), name = trendLabelName)
       
       list.grobs[[symbolName]] =
         pointsGrob(x = x.vals$x.units[length(x.vals$x.units)],
                  y = unit(trend.y.vals, "native")[length(x.vals$x.units)],
                  pch = i, size = unit(0.5,"char"),
                  vp = vpPath("parent", panelName, vpName),
-                 gp = gpar(col = groupCol[i]), name = symbolName)
+                 gp = gpar(col = groupCol[i], cex = 2, lwd= 3), name = symbolName)
       
       list.grobs[[yAxisName]] =
         yaxisGrob(vp = vpPath("parent", panelName, vpName),
@@ -623,9 +655,9 @@ compareplot.2p <-
       #           name = labelName)
       
       
-      
+      effects <- ifelse(multiplicative, "Multiplicative Seasonal effects", "Additive Seasonal effects")
       list.grobs$seasonsLabel =
-        textGrob("Seasonal effects", y = 0.95, vp = vpPath("parent", "seasons.head"),
+        textGrob(effects, y = 0, vp = vpPath("parent", "seasons.head"),
                  just = "bottom",
                  name = "seasonsLabel")
      
@@ -675,11 +707,18 @@ compareplot.2p <-
                  y = unit(3, "mm"), vjust = 0)
     }
     
+    #firstTermGap = seq(vars$start[1],vars$end[1],by=2)
+    #print(firstTermGap)
+    
     list.grobs$xAxis1 =
       xaxisGrob(vp = vpPath("parent", "trends.panel",
                             "trendStack"),
+                at = x.at,
+                label = x.label,
+                            #"trendStack"),
                             #paste("trendStack", n, sep = "")),
                 gp = gpar(cex = 0.8), name = "xAxis1")
+    
     list.grobs$xAxisLabel1 =
       textGrob("Time", vp = vpPath("parent", "trends.bottom"),
                name = "xAxisLabel1", gp = gpar(cex = 0.8),
@@ -709,7 +748,7 @@ compareplot.2p <-
                name = "trendKeyText", gp = gpar(cex = .8))
     
     list.grobs$titleText = 
-      textGrob("Comparison between multi-series", x = 0.3, y = unit(1, "npc") - unit(1, "lines"),
+      textGrob(paste0("Comparing series (for ", deparse(substitute(x, parent.frame(1))),")"), x = 0.3, y = unit(1, "npc") - unit(1, "lines"),
                just = c("left", "bottom"),
                vp = vpPath("parent", "trends.head"),
                name = "titleText", gp = gpar(cex = .8))
@@ -752,3 +791,5 @@ compareplot.2p <-
     
     drawImage(image)
   }
+
+
