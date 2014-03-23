@@ -489,7 +489,7 @@ compareplot.2p <-
     parent.vp =
       viewport(name = "parent",
                layout = grid.layout(4, n.cols,
-                                    heights = unit(c(.3, n, 1, .6),
+                                    heights = unit(c(.3, n, 1, .8),
                                                    c("inches", "inches", "null", "inches")),
                                     widths = widths))
     
