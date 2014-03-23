@@ -103,7 +103,7 @@ decomposition <-
 
         if (obj$freq == 1) 
           season.vp.y[2] <- -expandBy
-        print(season.vp.y)
+
         random.vp.y <- y.random
         random.vp.y[which.max(y.random)] <- max(y.random) + expandBy
 
