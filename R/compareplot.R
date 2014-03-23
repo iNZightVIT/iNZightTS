@@ -16,7 +16,7 @@ compareplot <-
 compareplot.1 <-
   function(vars, multiplicative = TRUE) {
     ##########################################
-    # Plot multiple plots time series which have frequency 1
+    # Plot comparison of multiple time series which have frequency > 1
     # in one window.
     #
     # Args:
@@ -28,9 +28,11 @@ compareplot.1 <-
     
     #trendCol = "blue"
     trendCol = "black"
-    #trendSeasonCol = "#0e8c07"
-    #rawCol = "black"
-    #seasonCol = "red"
+    trendSeasonCol = "#0e8c07"
+    rawCol = "black"
+    seasonCol = "red"
+    groupCol =  hcl(h = seq(30, 300, by = 270/(length(vars$currVar)-1)), c = 50, l = 70)
+    groupCol.text = hcl(h = seq(30, 300, by = 270/(length(vars$currVar)-1)), c = 50, l = 40)
     
     ### put all the necessary "vars" variables into a list
     listVars = vector("list")
@@ -47,31 +49,56 @@ compareplot.1 <-
       listVars[[name]] = curr.vars
     }
     
+    whether.multi <- curr.vars$decompVars$multiplicative #%
+    
     n = length(varNums)
-    x.vals = get.x(listVars[[1]]$tsObj)
+    x.vals = get.x2(listVars[[1]]$tsObj)  ## we always use the first one here, some doubt
     
     freq = listVars[[1]]$freq
     subset = 1
     
     ### form the viewports
     trends.vps = seasons.vps = vpList()
+    # What we do below is want to use range function to find the range of all the data
+    raw.y.vals = matrix(NA, nrow= length(listVars[[1]]$decompVars$raw), ncol= n)
+    trend.y.vals = matrix(NA, nrow= length(listVars[[1]]$decompVars$raw), ncol= n)
+    deTrend <- matrix(NA, nrow= length(listVars[[1]]$decompVars$raw), ncol= n)
+    season.y.vals <- matrix(NA, nrow= length(listVars[[1]]$decompVars$raw), ncol= n)
+    joint.y.vals <- matrix(NA, nrow= length(listVars[[1]]$decompVars$raw), ncol= n)
+    
     for (i in 1:n) {
       varNames[i] = listVars[[i]]$currVar
-      raw.y.vals = listVars[[i]]$decompVars$raw
-      trend.y.vals = listVars[[i]]$decompVars$components[,"trend"]@.Data
-      deTrend = raw.y.vals - trend.y.vals
-      season.y.vals = listVars[[i]]$decompVars$components[,"seasonal"]@.Data
-      joint.y.vals = trend.y.vals + season.y.vals
+      raw.y.vals[,i] = listVars[[i]]$decompVars$raw
+      trend.y.vals[,i] = listVars[[i]]$decompVars$components[,"trend"]@.Data
+      if (whether.multi)
+        deTrend[,i] = raw.y.vals[,i] / trend.y.vals[,i]
+      else
+        deTrend[,i] = raw.y.vals[,i] - trend.y.vals[,i]
       
-      trendVpName = paste("trendStack", i, sep = "")
-      
-      trends.vps[[trendVpName]] =
-        dataViewport(x.vals$x, range(raw.y.vals, joint.y.vals),
-                     name = trendVpName, layout.pos.row = 2*i)
-      trendGapVpName = paste("trendGap", i, sep = "")
-      trends.vps[[trendGapVpName]] = viewport(layout.pos.row = 2*i - 1,
-                                              name = trendGapVpName)
-    }
+      season.y.vals[,i] = listVars[[i]]$decompVars$components[,"seasonal"]@.Data
+      joint.y.vals[,i] = trend.y.vals[,i] + season.y.vals[,i]
+    } #
+    # } I think we can stop the iteration here and combine the result into data frame
+    
+    #trendVpName = paste("trendStack", i, sep = "")
+    trendVpName = "trendStack"
+    
+    
+    
+    trends.vps[[trendVpName]] =
+      dataViewport(c(x.vals$x,1.2), range(raw.y.vals, joint.y.vals), #% check range from raw y value and trend+season y value
+                   name = trendVpName, layout.pos.row = 2,
+                   extension = 0.04,
+                   #clip = "on",
+                   #xscale = c(min(x.vals$x)-(2*freq/(diff(range(x.vals$x)))),
+                   #            max(x.vals$x)+(2*freq/(diff(range(x.vals$x))))),
+                   
+      )
+    #extension = 0.1) # 2i --> 2
+    #trendGapVpName = paste("trendGap", i, sep = "")
+    trendGapVpName =   "trendGap"
+    trends.vps[[trendGapVpName]] = viewport(layout.pos.row = 1,  # 2i-1 --> 1
+                                            name = trendGapVpName)
     
     plots.heights = unit(rep(c(0.25, 1), length = 2*n),
                          rep(c("inches", "null"), length = 2*n))
@@ -82,12 +109,12 @@ compareplot.1 <-
     ### If freq > 1, we have a seasonal panel on the right hand side
     ### giving us 5 columns, otherwise we have just 3 columns.
     n.cols = 3
-    widths = unit(c(0.7, 1, 0.4), c("inches", "null", "inches"))
+    widths = unit(c(1.2, 1, 0.4), c("inches", "null", "inches"))
     
     parent.vp =
       viewport(name = "parent",
                layout = grid.layout(3, n.cols,
-                                    heights = unit(c(.3, 1, .6),
+                                    heights = unit(c(.3, 1, .8),
                                                    c("inches", "null", "inches")),
                                     widths = widths))
     
@@ -97,7 +124,7 @@ compareplot.1 <-
     trends.head.vp = viewport(layout.pos.row = 1, layout.pos.col = 2,
                               name = "trends.head")
     trendsPanel.vp =
-      viewport(layout = grid.layout(2*n, 1, heights = plots.heights),
+      viewport(layout = grid.layout(2, 1, heights = plots.heights),
                name = "trends.panel", layout.pos.row = 2, layout.pos.col = 2)
     trends.bottom.vp = viewport(layout.pos.row = 3, layout.pos.col = 2,
                                 name = "trends.bottom")
@@ -114,30 +141,67 @@ compareplot.1 <-
     list.grobs = gList()
     dims = c(7.5, 6.5)
     newdevice(width = dims[1], height = dims[2])
+    
+    ### Trends part
+    #vpName = paste("trendStack", i, sep = "")
+    #gapName = paste("trendGap", i, sep = "")
+    vpName = "trendStack"
+    gapName = "trendGap"
+    vpObj = trends.vps[[vpName]]
+    
+    opar = par(usr = c(vpObj$xscale, vpObj$yscale)
+               
+    )
+    
+    
+    ## pretty label customed
+    time.data = vars$star[1]:vars$end[1]
+    time.data = pretty(time.data)[-1]
+    numeric.time= seq(vars$star, vars$end[1],
+                      len = nrow(vars$data))
+    label.id = which(numeric.time %in% time.data)
+    x.at = c(x.vals$x,1.2)[c(label.id, FALSE)]
+    x.label = numeric.time[label.id]
+    ## pretty label customed
+    
+
+
+    
+    par(opar)
+    
     for (i in 1:n) {
-      ### Trends part
-      vpName = paste("trendStack", i, sep = "")
-      gapName = paste("trendGap", i, sep = "")
-      vpObj = trends.vps[[vpName]]
-      opar = par(usr = c(vpObj$xscale, vpObj$yscale))
-      x.at = axTicks(1)
-      par(opar)
       
       trend.y.vals = listVars[[i]]$decompVars$components[,"trend"]@.Data
       season.y.vals = listVars[[i]]$decompVars$components[,"seasonal"]@.Data
-      joint.y.vals = trend.y.vals + season.y.vals
+      
+      if (whether.multi)
+        joint.y.vals = trend.y.vals * season.y.vals
+      else
+        joint.y.vals = trend.y.vals + season.y.vals   # * if multiplicative
+      
+      
+      raw.y.vals = listVars[[i]]$decompVars$raw
       ordered.vals = numeric(freq)
       ordered.vals[subset] = season.y.vals[1:freq]
-      raw.y.vals = listVars[[i]]$decompVars$raw
       
       rectName = paste("trend", "border", i, sep = ".")
       trendName = paste("trend", "series", i, sep = ".")
+      trendLabelName = paste("trend", "label", i, sep = ".")
       rawName = paste("raw", "series", i, sep = ".")
       trendSeasonName = paste("trendSeason", "series", i, sep = ".")
       yAxisName = paste("trend", "yAxis", i, sep = ".")
       gridlinesName = paste("trend", "gridlines", i, sep = ".")
       labelName = paste("trend", "label", i, sep = ".")
+      symbolName = paste("label", "symbol", i, sep = ".")
+      labelName2 = paste("season", "label", i, sep = ".")
+      SymbolName2 = paste("season", "symbol", i, sep = ".")
+      yAxisLabelName = "trend.yAxis.label"
       panelName = "trends.panel"
+      
+      list.grobs[[rectName]] =
+        rectGrob(vp = vpPath("parent", panelName, vpName),
+                 name = rectName, gp = gpar(fill=NA))
+      
       
       list.grobs[[gridlinesName]] =
         segmentsGrob(x0 = unit(x.at, "native"),
@@ -148,44 +212,86 @@ compareplot.1 <-
                      vp = vpPath("parent", panelName, vpName),
                      name = gridlinesName)
       
-      list.grobs[[rectName]] =
-        rectGrob(vp = vpPath("parent", panelName, vpName),
-                 name = rectName, gp = gpar(fill=NA))
+      
+      #list.grobs[[trendSeasonName]] =
+      #  linesGrob(x = x.vals$x.units,
+      #            y = unit(joint.y.vals, "native"),
+      #            vp = vpPath("parent", panelName, vpName),
+      #            gp = gpar(col = trendSeasonCol),
+      #            name = trendSeasonName)
       
       list.grobs[[rawName]] =
         linesGrob(x = x.vals$x.units,
                   y = unit(raw.y.vals, "native"),
                   vp = vpPath("parent", panelName, vpName),
-                  gp = gpar(col = rawCol, lwd = 2), name = rawName)
+                  gp = gpar(col = groupCol[i], lwd = 2), name = rawName)
       
       list.grobs[[trendName]] =
         linesGrob(x = x.vals$x.units,
                   y = unit(trend.y.vals, "native"),
                   vp = vpPath("parent", panelName, vpName),
-                  gp = gpar(col = trendCol), name = trendName)
+                  gp = gpar(col = groupCol[i], lty = 3, lwd = 3), name = trendName)
+      
+      list.grobs[[trendLabelName]] =
+        textGrob(varNames[i], x = x.vals$x.units[length(x.vals$x.units)],
+                 y = unit(trend.y.vals, "native")[length(x.vals$x.units)],
+                 hjust = -0.2, 
+                 vjust = 2, 
+                 #just = c("left", "bottom"),
+                 vp = vpPath("parent", panelName, vpName),
+                 gp = gpar(col = groupCol.text[i], cex = 0.6), name = trendLabelName)
+      
+      list.grobs[[symbolName]] =
+        pointsGrob(x = x.vals$x.units[length(x.vals$x.units)],
+                   y = unit(trend.y.vals, "native")[length(x.vals$x.units)],
+                   pch = i, size = unit(0.5,"char"),
+                   vp = vpPath("parent", panelName, vpName),
+                   gp = gpar(col = groupCol[i], cex = 2, lwd= 3), name = symbolName)
       
       list.grobs[[yAxisName]] =
         yaxisGrob(vp = vpPath("parent", panelName, vpName),
                   gp = gpar(cex = 0.8), name = yAxisName)
       
-      list.grobs[[labelName]] =
-        textGrob(catchDistorbName(varNames)[i], x = 0, y = unit(1, "mm"),
-                 just = c("left", "bottom"),
-                 vp = vpPath("parent", panelName, gapName),
-                 gp = gpar(cex = 0.8, fontface = "bold.italic"),
-                 name = labelName)
+      list.grobs[[yAxisLabelName]] =
+        textGrob("t.value", x = 0, y= 0.5, rot = 90, vjust = -5,
+                 vp = vpPath("parent", panelName, vpName),
+                 gp = gpar(cex = 1), name = yAxisLabelName)
+      
+      list.grobs$xAxis1 =
+        xaxisGrob(vp = vpPath("parent", "trends.panel",
+                              "trendStack"),
+                  at = x.at,
+                  label = x.label,
+                  gp = gpar(cex = 0.8), name = "xAxis1")
+      
+      list.grobs$xAxisLabel1 =
+        textGrob("Time", vp = vpPath("parent", "trends.bottom"),
+                 name = "xAxisLabel1", gp = gpar(cex = 0.8),
+                 y = unit(3, "mm"), vjust = 0)
+      
+      
+      #list.grobs[[labelName]] =
+      #  textGrob(varNames[i], x = unit(30*(i-1), "mm"), y = unit(1, "mm"),
+      #           just = c("left", "bottom"),
+      #           vp = vpPath("parent", panelName, gapName),
+      #           gp = gpar(cex = 0.8, fontface = "bold.italic", col = groupCol[i]),
+      #           name = labelName)
+      
+      #list.grobs[[SymbolName2]] =
+      #  pointsGrob(x= 1.2, y = 0.5*(n-i)/n + 0.4,
+      #             pch = i, size = unit(0.5,"char"),
+      #             vp = vpPath("parent", panelName, vpName),
+      #             gp = gpar(col = groupCol[i]),
+      #             name = SymbolName2)
+      
+      #list.grobs[[labelName2]] =
+      #  textGrob(varNames[i], x= 1.2, y = 0.5*(n-i)/n + 0.4, 
+      #           vp = vpPath("parent", panelName, vpName),
+      #           just = c("left","center"),
+      #           gp = gpar(cex = 0.8,col = groupCol.text[i]),
+      #           name = labelName2)
+      
     }
-    
-    list.grobs$xAxis1 =
-      xaxisGrob(vp = vpPath("parent", "trends.panel",
-                            paste("trendStack", n, sep = "")),
-                gp = gpar(cex = 0.8), name = "xAxis1")
-    print(list.grobs)
-    list.grobs$xAxisLabel1 =
-      textGrob("Time", vp = vpPath("parent", "trends.bottom"),
-               name = "xAxisLabel1", gp = gpar(cex = 0.8),
-               y = unit(3, "mm"), vjust = 0)
-    
     
     
     
@@ -196,11 +302,11 @@ compareplot.1 <-
     lineWidth = unit(6, "mm")
     
     list.grobs$trendKey =
-      linesGrob(x = unit.c(xc, xc + lineWidth),
+      linesGrob(x = unit.c(xc, xc + lineWidth*1.5),
                 y = unit(1, "npc") - unit(0.6, "lines"),
                 vp = vpPath("parent", "trends.head"),
                 name = "trendKey",
-                gp = gpar(col = trendCol, lwd = 2))
+                gp = gpar(col = trendCol, lwd = 2, lty = 3))
     
     xc = xc + lineWidth + gap
     list.grobs$trendKeyText =
@@ -209,21 +315,44 @@ compareplot.1 <-
                vp = vpPath("parent", "trends.head"),
                name = "trendKeyText", gp = gpar(cex = .8))
     
-    xc = xc + stringWidth(list.grobs$trendKeyText$label) + space
-    list.grobs$rawKey =
-      linesGrob(x = unit.c(xc, xc + lineWidth),
-                y = unit(1, "npc") - unit(0.6, "lines"),
-                vp = vpPath("parent", "trends.head"),
-                name = "rawKey",
-                gp = gpar(col = rawCol, lwd = 2))
-    
-    xc = xc + lineWidth + gap
-    list.grobs$rawKeyText =
-      textGrob("Raw data", x = convertUnit(xc, "mm"),
-               y = unit(1, "npc") - unit(1, "lines"),
+    list.grobs$titleText = 
+      textGrob(paste0("Comparing series (for ", deparse(substitute(x, parent.frame(1))),")"), x = 0.3, y = unit(1, "npc") - unit(1, "lines"),
                just = c("left", "bottom"),
                vp = vpPath("parent", "trends.head"),
-               name = "rawKeyText", gp = gpar(cex = .8))
+               name = "titleText", gp = gpar(cex = 1))
+    
+    #xc = xc + stringWidth(list.grobs$trendKeyText$label) + space
+    #list.grobs$rawKey =
+    #  linesGrob(x = unit.c(xc, xc + lineWidth),
+    #            y = unit(1, "npc") - unit(0.6, "lines"),
+    #            vp = vpPath("parent", "trends.head"),
+    #            name = "rawKey",
+    #            gp = gpar(col = rawCol, lwd = 2))
+    
+    #xc = xc + lineWidth + gap
+    #list.grobs$rawKeyText =
+    #  textGrob("Raw data", x = convertUnit(xc, "mm"),
+    #           y = unit(1, "npc") - unit(1, "lines"),
+    #           just = c("left", "bottom"),
+    #           vp = vpPath("parent", "trends.head"),
+    #           name = "rawKeyText", gp = gpar(cex = .8))
+    
+    #xc = xc + stringWidth(list.grobs$rawKeyText$label) + space
+    #list.grobs$trendSeasonKey =
+    #  linesGrob(x = unit.c(xc, xc + lineWidth),
+    #            y = unit(1, "npc") - unit(0.6, "lines"),
+    #            vp = vpPath("parent", "trends.head"),
+    #            name = "trendSeasonKey",
+    #            gp = gpar(col = trendSeasonCol, lwd = 2))
+    
+    #xc = xc + lineWidth + gap
+    #trendandseason <- ifelse(multiplicative, "Trend * seasonal", "Trend + seasonal")
+    #list.grobs$trendSeasonKeyText =
+    #  textGrob(trendandseason, x = convertUnit(xc, "mm"),
+    #           y = unit(1, "npc") - unit(1, "lines"),
+    #           just = c("left", "bottom"),
+    #           vp = vpPath("parent", "trends.head"),
+    #           name = "trendSeasonKeyText", gp = gpar(cex = .8))
     
     image = gTree(name = "image", children = list.grobs,
                   childrenvp = final.vptree)
@@ -263,8 +392,6 @@ compareplot.2p <-
       curr.vars = vars
       curr.vars$data = vardata
       curr.vars$tsObj = ts(vars$data[, i], vars$start, vars$end, vars$freq)
-      minValue = vars$start[1]
-      maxValue = vars$end[1]
       curr.vars$currVar = i
       curr.vars = decomposition(curr.vars, multiplicative = multiplicative)
       
@@ -513,7 +640,17 @@ compareplot.2p <-
                  vp = vpPath("parent", panelName, vpName),
                   gp = gpar(cex = 1), name = yAxisLabelName)
       
+      list.grobs$xAxis1 =
+        xaxisGrob(vp = vpPath("parent", "trends.panel",
+                              "trendStack"),
+                  at = x.at,
+                  label = x.label,
+                  gp = gpar(cex = 0.8), name = "xAxis1")
       
+      list.grobs$xAxisLabel1 =
+        textGrob("Time", vp = vpPath("parent", "trends.bottom"),
+                 name = "xAxisLabel1", gp = gpar(cex = 0.8),
+                 y = unit(3, "mm"), vjust = 0)
       
       
       #list.grobs[[labelName]] =
@@ -693,17 +830,7 @@ compareplot.2p <-
     
 
     
-    list.grobs$xAxis1 =
-      xaxisGrob(vp = vpPath("parent", "trends.panel",
-                            "trendStack"),
-                at = x.at,
-                label = x.label,
-                gp = gpar(cex = 0.8), name = "xAxis1")
     
-    list.grobs$xAxisLabel1 =
-      textGrob("Time", vp = vpPath("parent", "trends.bottom"),
-               name = "xAxisLabel1", gp = gpar(cex = 0.8),
-               y = unit(3, "mm"), vjust = 0)
     
     
     
