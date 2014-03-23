@@ -14,17 +14,32 @@ decomposition <-
         }
         else {
           ## freq == 1, non seasonal fitted.
-            trend.comp <-
-                loess(obj$data[1:length(obj$tsObj), obj$currVar] ~ x)$fitted +
+          if (multiplicative)  {
+          trend.comp <-
+                loess(log(obj$data[1:length(obj$tsObj), obj$currVar]) ~ x)$fitted +
                     obj$tsObj * 0
-            residuals.comp <- obj$tsObj - trend.comp
+            
+            residuals.comp <- log(obj$tsObj) - trend.comp
             seasons.comp <- obj$tsObj * 0
             decomp <- list()
             decomp$time.series <-
                 as.ts(data.frame(seasonal = seasons.comp,
                                  trend = trend.comp,
                                  remainder = residuals.comp))
+          }
+          else{
+            trend.comp <-
+              loess(obj$data[1:length(obj$tsObj), obj$currVar] ~ x)$fitted +
+              obj$tsObj * 0
             
+            residuals.comp <- obj$tsObj - trend.comp
+            seasons.comp <- obj$tsObj * 0
+            decomp <- list()
+            decomp$time.series <-
+              as.ts(data.frame(seasonal = seasons.comp,
+                               trend = trend.comp,
+                               remainder = residuals.comp))
+          }
         }
 
         decompData <- decomp$time.series    # returns matrix
@@ -33,12 +48,13 @@ decomposition <-
         Y <- obj$tsObj
         
         if (multiplicative) {
+
           y <- log(obj$tsObj@.Data)
             y.random <- exp(y - (decompData[,"trend"] + decompData[,"seasonal"]))  # if we not backtransform here
             y.trend <- exp(decompData[,"trend"])  # the decompositionplot will all in log scale
             y.season <- exp(decompData[,"seasonal"])
           y.season2 <- exp(decompData[,"trend"] + decompData[,"seasonal"]) - exp(decompData[,"trend"])
-          y.random2 <- Y - exp(decompData[,"trend"] + decompData[,"seasonal"])
+          y.random2 <- Y - as.numeric(exp(decompData[,"trend"] + decompData[,"seasonal"]))
             decompData[, "trend"] <- y.trend
             decompData[, "seasonal"] <- y.season
             decompData[, "remainder"] <- y.random
@@ -81,9 +97,13 @@ decomposition <-
         
         
         season.vp.y <- y.season
+
         max.index <- ifelse(obj$freq > 1, which.max(y.season), 1)
         season.vp.y[max.index] <- max(y.season) + expandBy
-        if (obj$freq == 1) season.vp.y[2] <- -expandBy
+
+        if (obj$freq == 1) 
+          season.vp.y[2] <- -expandBy
+        print(season.vp.y)
         random.vp.y <- y.random
         random.vp.y[which.max(y.random)] <- max(y.random) + expandBy
 
@@ -128,7 +148,7 @@ decomposition <-
 
         xlims <- season.vp$xscale
         dotted.xcoords <- c(xlims[1], x, xlims[2])
-        dotted.point <- ifelse(multiplicative, 1, 0) #%
+        dotted.point <- 0 #ifelse(multiplicative, 1, 0) #%
         dotted.ycoords <- rep(dotted.point, length(dotted.xcoords))
 
         ## The following creates a gTree which contains all of our grobs
