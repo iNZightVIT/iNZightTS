@@ -1,5 +1,8 @@
 forecastplot <-
-    function(vars, ylab="", multiplicative = FALSE) {
+    function(vars, ylab="", multiplicative = FALSE, show = TRUE) {
+      if (as.integer(vars$freq)==1) 
+        return("forecastplot need a time series object with more than 1 frequency.")
+        
         width <- 7
         height <- 4
 
@@ -139,6 +142,7 @@ forecastplot <-
         tree <- gTree(children = grobs, childrenvp = vp.tree, name = "tree")
         
         newdevice(width = 7, height = 4)
-        drawImage(tree)
+        if (show)
+          drawImage(tree)
         pred
     }

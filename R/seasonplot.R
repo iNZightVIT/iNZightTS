@@ -10,6 +10,10 @@ function(obj, s, season.labels=NULL, year.labels=FALSE, year.labels.left=FALSE,
     type="o", main, ylab="", xlab=NULL, col=1, labelgap=0.1, ...)
 {
   x <- obj
+  if (as.integer(obj$freq) == 1)
+    return("No seasonal pattern for a time series data with 1 frequency.")
+    
+    
   if(missing(main))
     main = paste("Seasonal plot:", deparse(substitute(x)))
   if(missing(s))
@@ -91,12 +95,13 @@ function(obj, season = TRUE, ...) {
 
     # if there is no season component to the ts, can't create season plot
     if (length(obj$start) == 1)
-        stop("Time Series does not have a seasonal component")
+        return("Time Series does not have a seasonal component")
 
 
     newdevice(width = 9, height = 7)
 
     freq = obj$freq
+   
     s = obj$start[2]
     n = length(obj$tsObj)
     r = n - (freq + 1 - s)
