@@ -1,5 +1,6 @@
 rawplot <-
-function(obj, multiplicative = FALSE, ylab = "t.value", animate = FALSE) {
+function(obj, multiplicative = FALSE, ylab = "t.value", animate = FALSE,
+         e = NULL) {
 
     if (any(grepl("^iNZightMTS$", class(data))))
         stop("Time-Series must be univariate")
@@ -85,8 +86,8 @@ function(obj, multiplicative = FALSE, ylab = "t.value", animate = FALSE) {
         pauseImage(image, 200)
 
         for (i in 1:n.points) {
-            #if (get("stopAnimation", envir = e) && i < n.points)
-            #    next
+            if ((get("stopAnimation", envir = e) && i < n.points))
+                next
             l <- linesGrob(x = final.line$x[1:i], y = final.line$y[1:i],
                            vp = vpPath("parent", "plot"),
                            name = "line", gp = gpar(col = "black", lwd = 2))
@@ -97,16 +98,18 @@ function(obj, multiplicative = FALSE, ylab = "t.value", animate = FALSE) {
             pauseImage(image, speed)
         }
 
-        ## if (! get("stopAnimation", envir = e)) {
+        
+         if (! get("stopAnimation", envir = e)) {
         pauseImage(image, 5)
         image <- removeGrob(image, "points")
         pauseImage(image, 5)
         image <- addGrob(image, final.smooth)
-        ## } else {
-        ##     image <- removeGrob(image, "points")
-        ##     image <- addGrob(image, final.line)
-        ##     image <- addGrob(image, final.smooth)
-        ## }
+         } else {
+             image <- removeGrob(image, "points")
+             image <- addGrob(image, final.line)
+             image <- addGrob(image, final.smooth)
+         }
+        
     }
     drawImage(image)
 }

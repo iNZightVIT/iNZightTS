@@ -1,5 +1,5 @@
 recompose <-
-  function(vars.decomp, animate = TRUE) {
+  function(vars.decomp, animate = TRUE,e = tsenv) {
     vars.decomp = add.line.plots.vp(vars.decomp, "trend", lineCol = "blue")
     vars.decomp = add.line.plots.vp(vars.decomp, "season")
     
@@ -18,29 +18,27 @@ recompose <-
     
     trend.attr = get.line.coords(vars.decomp, "trend", "trendLine")
     topLabel = editGrob(topLabel, label = "Recomposing...")
-    
     trendLabel = editGrob(trendLabel, label = "Adding seasonal to trend...")
     tree = addGrob(tree, topLabel)
     tree = addGrob(tree, trendLabel)
     vars.decomp$decompVars$tree = tree
     vars.decomp = shiftLineUp(vars.decomp, "season", trend.attr$line.y.parent,
-                              n.steps = if (animate) 1 else 30, animate = animate)
-    vars.decomp = add.seasonal(trend.attr, vars.decomp, animate = animate)
+                              n.steps = if (animate) 1 else 30, animate = animate, e=e)
+    vars.decomp = add.seasonal(trend.attr, vars.decomp, animate = animate,e=e)
     
 
     
-    if (animate)
+    if (! get("stopAnimation", envir = e) && animate)
       drawImage(vars.decomp$decompVars$tree)
     
     
     trendSeason = getGrob(vars.decomp$decompVars$tree, "trendSeason")
     trendSeason.y.parent = trendSeason$y
-    see0 <<- trend.attr
-    see <<- trendSeason.y.parent
+
     trendSeason.y.parent = convertUnit(trendSeason.y.parent,
                                        attr(trendSeason.y.parent[1], "unit"),
                                        valueOnly = TRUE)
-    see2 <<- trendSeason.y.parent
+    
     
     trendLabel = editGrob(trendLabel, label = "Adding residuals to trend+seasonal...")
     vars.decomp = add.line.plots.vp(vars.decomp, "random")
@@ -51,10 +49,9 @@ recompose <-
   
     vars.decomp = shiftLineUp(vars.decomp, "random", 
                               #trend.attr$line.y.parent,
-                              see2,
-                              n.steps = if (animate) 1 else 30, animate = animate)
-   
-    vars.decomp = add.random(trend.attr, vars.decomp, animate = animate)
+                              trendSeason.y.parent,
+                              n.steps = if (animate) 1 else 30, animate = animate, e=e)
+    vars.decomp = add.random(trend.attr, vars.decomp, animate = animate,e=e)
     
     
     topLabel = editGrob(topLabel, label = paste("Recomposed data:", vars.decomp$currentName))
@@ -148,7 +145,7 @@ recompose <-
 
 
 shiftLineUp <-
-  function(vars.decomp, vpName, destination.y.parent, n.steps = 15, animate = TRUE) {
+  function(vars.decomp, vpName, destination.y.parent, n.steps = 15, animate = TRUE, e=tsenv) {
     lineGrobName = paste(vpName, "Line", sep = "")
     line.attr = get.line.coords(vars.decomp, vpName, lineGrobName)
     
@@ -171,12 +168,14 @@ shiftLineUp <-
     
     
     for (i in 1:n.steps) {
+      if (get("stopAnimation", envir = e) && i < n.steps)
+        next
       line.copy = getGrob(updated.tree, paste(vpName, ".copy", sep = ""))
       line.copy2 = editGrob(line.copy, y = unit(line.attr$line.y.parent + i*step.size, "npc"))
       y0.new = editGrob(y0.new, y = unit(start + i*step.size, "npc"))
       updated.tree = addGrob(updated.tree, line.copy2)
       updated.tree = addGrob(updated.tree, y0.new)
-      if (animate)
+      if (! get("stopAnimation", envir = e) && animate)
         drawImage(updated.tree)
     }
     
@@ -193,7 +192,7 @@ shiftLineUp <-
 
 
 add.seasonal <-
-  function(trend.attr, vars.decomp, animate = TRUE) {
+  function(trend.attr, vars.decomp, animate = TRUE, e= tsenv) {
     decomp = vars.decomp$decompVars
     season.copy = getGrob(decomp$tree, "season.copy")
     y0.copy = getGrob(decomp$tree, "season.y0.copy")
@@ -219,7 +218,8 @@ add.seasonal <-
     
     start.seq <- if (animate) 1 else n.points
     for (i in start.seq:n.points) {
-      
+      if (get("stopAnimation", envir = e) && i < n.points)
+        next
       
       trendLine = editGrob(trendLine,
                            x = unit(trend.attr$x.parent[1:i], "npc"),
@@ -275,7 +275,7 @@ add.seasonal <-
 
 
 add.random <-
-  function(trend.attr, vars.decomp, animate = TRUE) {
+  function(trend.attr, vars.decomp, animate = TRUE, e=tsenv) {
     decomp = vars.decomp$decompVars
     random.copy = getGrob(decomp$tree, "random.copy")
     y0.copy = getGrob(decomp$tree, "random.y0.copy")
@@ -296,16 +296,9 @@ add.random <-
     
     
     ### need to 'centre' random line using the trendSeason line points as the origin
-    #if (decomp$multiplicative) 
-    #  rand.npc.scale = log(random.attr$line.vp.yrange) / diff(log(random.attr$line.vp.yrange))
-    #else
-      rand.npc.scale = random.attr$line.vp.yrange / diff(random.attr$line.vp.yrange)
-    
+    rand.npc.scale = random.attr$line.vp.yrange / diff(random.attr$line.vp.yrange)    
     adjustment =  (random.attr$line.y.npc + rand.npc.scale[1]) * decomp$props["remainder"]
     
-    #a0 <<- random.attr$line.y.npc
-    #a1 <<- random.attr$line.vp.yrange
-    #a2 <<- decomp$props["remainder"]
     
     ### In order to make the shiftlineup and add.random pattern consistent, 
     ### we divide 30 here to fix the proportion problem. 
@@ -320,6 +313,8 @@ add.random <-
     n.points = length(decomp$raw)
     start.seq <- if (animate) 1 else n.points + 1
     for (i in start.seq:(n.points+1)) {
+      if (get("stopAnimation", envir = e) && i <= n.points)
+        next
       if (i > 1) {
         trendSeason2 = editGrob(trendSeason,
                                 x = unit(trend.attr$x.parent[1:(i-1)], "npc"),
@@ -348,7 +343,7 @@ add.random <-
       }
       
       
-      if (i > 1 & animate) {
+      if (! get("stopAnimation", envir = e) && i > 1 & animate) {
         pauseImage(updated.tree, 10)
       }
     }
