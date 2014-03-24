@@ -3,15 +3,15 @@ function(x,...) {
     if (!any(grepl("^iNZightMTS$", class(x))))
         stop("x is not an iNZightMTS object")
     if (x$freq > 1) {
-        multiseries.2p(x, ...)
+        multiseries.2p(x,...)
     } else {
-        multiseries.1(x, ...)
+        multiseries.1(x,...)
     }
 }
 
 
 multiseries.1 <-
-function(vars, multiplicative = TRUE) {
+function(vars, multiplicative = TRUE,ylab="t.value", ...) {
     ##########################################
     # Plot multiple plots time series which have frequency 1
     # in one window.
@@ -77,12 +77,12 @@ function(vars, multiplicative = TRUE) {
     ### If freq > 1, we have a seasonal panel on the right hand side
     ### giving us 5 columns, otherwise we have just 3 columns.
     n.cols = 3
-    widths = unit(c(0.7, 1, 0.4), c("inches", "null", "inches"))
+    widths = unit(c(1.2, 1, 0.4), c("inches", "null", "inches"))
 
     parent.vp =
         viewport(name = "parent",
                  layout = grid.layout(3, n.cols,
-                            heights = unit(c(.3, 1, .6),
+                            heights = unit(c(0.4, 1, .6),
                                         c("inches", "null", "inches")),
                             widths = widths))
 
@@ -132,6 +132,7 @@ function(vars, multiplicative = TRUE) {
         yAxisName = paste("trend", "yAxis", i, sep = ".")
         gridlinesName = paste("trend", "gridlines", i, sep = ".")
         labelName = paste("trend", "label", i, sep = ".")
+        y1labelName = paste("y1", "label", 1, sep = ".")
         panelName = "trends.panel"
 
         list.grobs[[gridlinesName]] =
@@ -169,6 +170,22 @@ function(vars, multiplicative = TRUE) {
                      vp = vpPath("parent", panelName, gapName),
                      gp = gpar(cex = 0.8, fontface = "bold.italic"),
                      name = labelName)
+
+        if (i == 1)  {
+          if(nchar(ylab)>8)
+            list.grobs[[y1labelName]] =
+            textGrob(ylab, x = 0, rot= 90, vjust = -6, 
+                     vp = vpPath("parent", panelName, vpName),
+                     just = c("right","center"),
+                     gp = gpar(cex = 0.8),
+                     name = y1labelName)
+          else
+            list.grobs[[y1labelName]] =
+            textGrob(ylab, x = 0, rot= 90, vjust = -6, 
+                     vp = vpPath("parent", panelName, vpName),
+                     gp = gpar(cex = 0.8),
+                     name = y1labelName)
+        }
     }
 
     list.grobs$xAxis1 =
@@ -228,7 +245,7 @@ function(vars, multiplicative = TRUE) {
 
 
 multiseries.2p <-
-function(vars, multiplicative = FALSE) {
+function(vars, multiplicative = FALSE, ylab= "t.value",...) {
     ##########################################
     # Plot multiple plots time series which have frequency > 1
     # in one window.
@@ -313,12 +330,12 @@ function(vars, multiplicative = FALSE) {
     ### If freq > 1, we have a seasonal panel on the right hand side
     ### giving us 5 columns, otherwise we have just 3 columns.
     n.cols = 5
-    widths = unit(c(0.7, 1, 0.8, 0.5, 0.3),
+    widths = unit(c(1.2, 1, 0.8, 0.5, 0.3),
                   c("inches", "null", "inches", "null", "inches"))
     parent.vp =
         viewport(name = "parent",
                  layout = grid.layout(3, n.cols,
-                            heights = unit(c(.3, 1, .6),
+                            heights = unit(c(.3, 1, .8),
                                         c("inches", "null", "inches")),
                             widths = widths))
 
@@ -388,6 +405,7 @@ function(vars, multiplicative = FALSE) {
         yAxisName = paste("trend", "yAxis", i, sep = ".")
         gridlinesName = paste("trend", "gridlines", i, sep = ".")
         labelName = paste("trend", "label", i, sep = ".")
+        y1labelName = paste("y1", "label", 1, sep = ".")
         panelName = "trends.panel"
 
         list.grobs[[rectName]] =
@@ -427,7 +445,23 @@ function(vars, multiplicative = FALSE) {
         list.grobs[[yAxisName]] =
             yaxisGrob(vp = vpPath("parent", panelName, vpName),
                       gp = gpar(cex = 0.8), name = yAxisName)
+        if (i == 1)  {
+          if(nchar(ylab)>8)
+            list.grobs[[y1labelName]] =
+              textGrob(ylab, x = 0, rot= 90, vjust = -5, 
+                       vp = vpPath("parent", panelName, vpName),
+                       just = c("right","center"),
+                       gp = gpar(cex = 0.8),
+                       name = y1labelName)
+          else
+            list.grobs[[y1labelName]] =
+            textGrob(ylab, x = 0, rot= 90, vjust = -5, 
+                     vp = vpPath("parent", panelName, vpName),
+                     gp = gpar(cex = 0.8),
+                     name = y1labelName)
+          }
 
+        
         list.grobs[[labelName]] =
             textGrob(varNames[i], x = 0, y = unit(1, "mm"),
                      just = c("left", "bottom"),
