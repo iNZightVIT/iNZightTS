@@ -11,7 +11,7 @@ function(x,...) {
 
 
 multiseries.1 <-
-function(vars, multiplicative = TRUE,ylab="t.value", ...) {
+function(vars, multiplicative = TRUE, ylab="t.value", ...) {
     ##########################################
     # Plot multiple plots time series which have frequency 1
     # in one window.
@@ -38,7 +38,7 @@ function(vars, multiplicative = TRUE,ylab="t.value", ...) {
         curr.vars$data = vardata
         curr.vars$tsObj = ts(vars$data[, i], vars$start, vars$end, vars$freq)
         curr.vars$currVar = i
-        curr.vars = decomposition(curr.vars, multiplicative = multiplicative)
+        curr.vars = decomposition(curr.vars, ylab = "", multiplicative = multiplicative)
         name = gsub("[[:space:]]+", "_", curr.vars$currVar)
         listVars[[name]] = curr.vars
     }
@@ -272,7 +272,7 @@ function(vars, multiplicative = FALSE, ylab= "t.value",...) {
         curr.vars$data = vardata
         curr.vars$tsObj = ts(vars$data[, i], vars$start, vars$end, vars$freq)
         curr.vars$currVar = i
-        curr.vars = decomposition(curr.vars, multiplicative = multiplicative)
+        curr.vars = decomposition(curr.vars, ylab = "", multiplicative = multiplicative)
         whether.multi <- curr.vars$decompVars$multiplicative #%
         name = gsub("[[:space:]]+", "_", curr.vars$currVar)
         listVars[[name]] = curr.vars

@@ -54,7 +54,7 @@ recompose <-
     vars.decomp = add.random(trend.attr, vars.decomp, animate = animate,e=e)
     
     
-    topLabel = editGrob(topLabel, label = paste("Recomposed data:", vars.decomp$currentName))
+    topLabel = editGrob(topLabel, label = paste("Recomposed data:", vars.decomp$currVar))
     tree = vars.decomp$decompVars$tree
     tree = rmGrobs(tree, c("random.copy", "random.y0.copy"))
     tree = addGrob(tree, topLabel)

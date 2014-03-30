@@ -10,17 +10,19 @@ function(obj, s, season.labels=NULL, year.labels=FALSE, year.labels.left=FALSE,
     type="o", main, ylab="", xlab=NULL, col=1, labelgap=0.1, ...)
 {
   x <- obj
-  if (as.integer(obj$freq) == 1)
-    return("No seasonal pattern for a time series data with 1 frequency.")
+  
     
     
   if(missing(main))
     main = paste("Seasonal plot:", deparse(substitute(x)))
   if(missing(s))
     s = frequency(x)
-  if(s<=1)
-    stop("Frequency must be > 1")
+  #if(s<=1)
+  #  stop("Frequency must be > 1")
 
+  if (as.integer(s) == 1)
+    return("No seasonal pattern for a time series data with 1 frequency.")
+  
   # Pad series
   tsx <- x
   if(start(x)[2]>1)
@@ -116,7 +118,7 @@ function(obj, season = TRUE, ...) {
                year.labels = TRUE, year.labels.left = TRUE,
                main = title,...)
 
-    obj = decomposition(obj, multiplicative = season)
+    obj = decomposition(obj, ylab = "", multiplicative = season)
     season = obj$decompVars$components[,"seasonal"]
     season = if (s > 1) season[-(1:(freq + 1 - s))][1:freq]
     else season[1:freq]

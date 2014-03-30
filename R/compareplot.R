@@ -14,7 +14,7 @@ compareplot <-
 
 
 compareplot.1 <-
-  function(vars, multiplicative = TRUE) {
+  function(vars, ylab = "t.value", multiplicative = TRUE) {
     ##########################################
     # Plot comparison of multiple time series which have frequency > 1
     # in one window.
@@ -44,7 +44,7 @@ compareplot.1 <-
       curr.vars$data = vardata
       curr.vars$tsObj = ts(vars$data[, i], vars$start, vars$end, vars$freq)
       curr.vars$currVar = i
-      curr.vars = decomposition(curr.vars, multiplicative = multiplicative)
+      curr.vars = decomposition(curr.vars, ylab="", multiplicative = multiplicative)
       name = gsub("[[:space:]]+", "_", curr.vars$currVar)
       listVars[[name]] = curr.vars
     }
@@ -195,7 +195,7 @@ compareplot.1 <-
       symbolName = paste("label", "symbol", i, sep = ".")
       labelName2 = paste("season", "label", i, sep = ".")
       SymbolName2 = paste("season", "symbol", i, sep = ".")
-      yAxisLabelName = "trend.yAxis.label"
+      y1labelName = paste("y1", "label", 1, sep = ".")
       panelName = "trends.panel"
       
       list.grobs[[rectName]] =
@@ -252,10 +252,23 @@ compareplot.1 <-
         yaxisGrob(vp = vpPath("parent", panelName, vpName),
                   gp = gpar(cex = 0.8), name = yAxisName)
       
-      list.grobs[[yAxisLabelName]] =
-        textGrob("t.value", x = 0, y= 0.5, rot = 90, vjust = -5,
-                 vp = vpPath("parent", panelName, vpName),
-                 gp = gpar(cex = 1), name = yAxisLabelName)
+      
+      
+      if (i == 1)  {
+        if(nchar(ylab)>8)
+          list.grobs[[y1labelName]] =
+          textGrob(ylab, x = 0, rot= 90, vjust = -6, 
+                   vp = vpPath("parent", panelName, vpName),
+                   just = c("right","center"),
+                   gp = gpar(cex = 0.8),
+                   name = y1labelName)
+        else
+          list.grobs[[y1labelName]] =
+          textGrob(ylab, x = 0, rot= 90, vjust = -6, 
+                   vp = vpPath("parent", panelName, vpName),
+                   gp = gpar(cex = 0.8),
+                   name = y1labelName)
+      }
       
       list.grobs$xAxis1 =
         xaxisGrob(vp = vpPath("parent", "trends.panel",
@@ -367,7 +380,7 @@ compareplot.1 <-
 
 
 compareplot.2p <-
-  function(vars, multiplicative = FALSE) {
+  function(vars, ylab = "t.value", multiplicative = FALSE) {
     ##########################################
     # Plot comparison of multiple time series which have frequency > 1
     # in one window.
@@ -397,7 +410,7 @@ compareplot.2p <-
       curr.vars$data = vardata
       curr.vars$tsObj = ts(vars$data[, i], vars$start, vars$end, vars$freq)
       curr.vars$currVar = i
-      curr.vars = decomposition(curr.vars, multiplicative = multiplicative)
+      curr.vars = decomposition(curr.vars, ylab = "", multiplicative = multiplicative)
       
       name = gsub("[[:space:]]+", "_", curr.vars$currVar)
       listVars[[name]] = curr.vars
@@ -582,7 +595,7 @@ compareplot.2p <-
       gridlinesName = paste("trend", "gridlines", i, sep = ".")
       labelName = paste("trend", "label", i, sep = ".")
       symbolName = paste("label", "symbol", i, sep = ".")
-      yAxisLabelName = "trend.yAxis.label"
+      y1labelName = paste("y1", "label", 1, sep = ".")
       panelName = "trends.panel"
       
       list.grobs[[rectName]] =
@@ -639,10 +652,7 @@ compareplot.2p <-
         yaxisGrob(vp = vpPath("parent", panelName, vpName),
                   gp = gpar(cex = 0.8), name = yAxisName)
       
-      list.grobs[[yAxisLabelName]] =
-        textGrob("t.value", x = 0, y= 0.5, rot = 90, vjust = -5,
-                 vp = vpPath("parent", panelName, vpName),
-                  gp = gpar(cex = 1), name = yAxisLabelName)
+
       
       list.grobs$xAxis1 =
         xaxisGrob(vp = vpPath("parent", "trends.panel",
@@ -656,6 +666,21 @@ compareplot.2p <-
                  name = "xAxisLabel1", gp = gpar(cex = 0.8),
                  y = unit(3, "mm"), vjust = 0)
       
+      if (i == 1)  {
+        if(nchar(ylab)>8)
+          list.grobs[[y1labelName]] =
+          textGrob(ylab, x = 0, rot= 90, vjust = -5, 
+                   vp = vpPath("parent", panelName, vpName),
+                   just = c("right","center"),
+                   gp = gpar(cex = 0.8),
+                   name = y1labelName)
+        else
+          list.grobs[[y1labelName]] =
+          textGrob(ylab, x = 0, rot= 90, vjust = -5, 
+                   vp = vpPath("parent", panelName, vpName),
+                   gp = gpar(cex = 0.8),
+                   name = y1labelName)
+      }
       
       #list.grobs[[labelName]] =
       #  textGrob(varNames[i], x = unit(30*(i-1), "mm"), y = unit(1, "mm"),

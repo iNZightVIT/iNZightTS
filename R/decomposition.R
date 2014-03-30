@@ -1,5 +1,5 @@
 decomposition <-
-    function(obj, trendCol = "black", seasonCol = "#45a8ff",
+    function(obj, ylab, trendCol = "black", seasonCol = "#45a8ff",
              randCol = seasonCol, multiplicative=FALSE) {
         xlist <- get.x(obj$tsObj)
         x <- xlist$x
@@ -70,8 +70,7 @@ decomposition <-
         y.season.units <- unit(y.season, "native")
         y.random.units <- unit(y.random, "native")
 
-        test <<- decompData
-        
+
         Y <- obj$tsObj@.Data
         
         ## We want each component plotted on the same scale, so we need
@@ -129,7 +128,7 @@ decomposition <-
                                           unit(vp.heights,
                                                c("inches", "null", "inches")),
                                           widths =
-                                          unit(c(.7, 1, .7),
+                                          unit(c(1.1, 1, 1),
                                                c("inches", "null", "inches"))))
         head.vp <- viewport(layout.pos.row = 1, layout.pos.col = 1:2, name = "head")
         left.vp <- viewport(layout.pos.row = 2, layout.pos.col = 1, name = "left")
@@ -172,6 +171,11 @@ decomposition <-
                       vp = vpPath("parent", "plots", "trend"),
                       name = "trendYaxis",
                       gp = gpar(cex = .8))
+        grobs$trendYlab <- 
+          textGrob(ylab, x= 0, y= 0.5, rot = 90,
+                   vjust = -5,
+                   vp = vpPath("parent", "plots", "trend"),
+                   name = "trendYlab")
 
         gap <- unit(2, "mm")
         space <- unit(8, "mm")
@@ -273,6 +277,7 @@ decomposition <-
         decompVars <- list(tree = image, ranges = ranges, props = props,
                            raw = obj$tsObj@.Data, 
                            components = decompData,
+                           #currentName =  obj$currVar,
                            #components = decomp$time.series,
                            vertMargins = vertMargins,
                            multiplicative = multiplicative)
@@ -283,8 +288,8 @@ decomposition <-
 
 
 decompositionplot <-
-    function(obj, multiplicative=FALSE) {
-        vars <- decomposition(obj, multiplicative = multiplicative)
+    function(obj, ylab, multiplicative=FALSE) {
+        vars <- decomposition(obj, ylab, multiplicative = multiplicative)
         newdevice(width = 6, height = 5)
         drawImage(vars$decompVars$tree)
         vars

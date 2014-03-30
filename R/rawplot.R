@@ -16,7 +16,7 @@ function(obj, multiplicative = FALSE, ylab = "t.value", animate = FALSE,
 
     ### We want a trend line, so do a decomposition
     if (frequency(tsObj) > 1) {
-        decomp = decomposition(obj, multiplicative = multiplicative)$decompVars
+        decomp = decomposition(obj, ylab = "", multiplicative = multiplicative)$decompVars
         if (multiplicative)
           smooth = exp(log(decomp$components[,"trend"]))
         else
