@@ -264,9 +264,10 @@ decomposition <-
                      gp = gpar(cex = .9, col = "black", fontface = "bold"),
                      x = unit(0.02, "npc"), y = unit(0.97, "npc"),
                      hjust = 0, vjust = 1)
-
+        
+        data.name = ifelse(ylab=="", "data", ylab) 
         grobs$statusText <-
-            textGrob(paste("Decomposition of data:", obj$currVar),
+            textGrob(paste0("Decomposition of ", data.name, ":", obj$currVar),
                      vp = vpPath("parent", "head"),
                      name = "statusText")
 
@@ -275,6 +276,7 @@ decomposition <-
 
         ## return a list with all the variables we need
         decompVars <- list(tree = image, ranges = ranges, props = props,
+                           data.name = data.name,
                            raw = obj$tsObj@.Data, 
                            components = decompData,
                            #currentName =  obj$currVar,

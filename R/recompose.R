@@ -60,8 +60,8 @@ recompose <-
                               n.steps = if (animate) 1 else 30, animate = animate, e=e)
     vars.decomp = add.random(trend.attr, vars.decomp, animate = animate,e=e)
     
-    
-    topLabel = editGrob(topLabel, label = paste("Recomposed data:", vars.decomp$currVar))
+    data.name <- vars.decomp$decompVars$data.name
+    topLabel = editGrob(topLabel, label = paste0("Recomposed ",data.name, ":", vars.decomp$currVar))
     tree = vars.decomp$decompVars$tree
     tree = rmGrobs(tree, c("random.copy", "random.y0.copy"))
     tree = addGrob(tree, topLabel)
