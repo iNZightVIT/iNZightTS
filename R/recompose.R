@@ -1,5 +1,12 @@
 recompose <-
-  function(vars.decomp, animate = TRUE,e = tsenv) {
+  function(vars.decomp, animate = TRUE,e = NULL) {
+    
+    # the e argument to support animation stop 
+    if (is.null(e)) {
+      e <- new.env()
+      e$stopAnimation <- FALSE
+    }
+    
     vars.decomp = add.line.plots.vp(vars.decomp, "trend", lineCol = "blue")
     vars.decomp = add.line.plots.vp(vars.decomp, "season")
     
@@ -18,7 +25,7 @@ recompose <-
     
     trend.attr = get.line.coords(vars.decomp, "trend", "trendLine")
     topLabel = editGrob(topLabel, label = "Recomposing...")
-    trendLabel = editGrob(trendLabel, label = "Adding seasonal to trend...")
+    trendLabel = editGrob(trendLabel, label = "Adding seasonal swing to trend...")
     tree = addGrob(tree, topLabel)
     tree = addGrob(tree, trendLabel)
     vars.decomp$decompVars$tree = tree
@@ -40,7 +47,7 @@ recompose <-
                                        valueOnly = TRUE)
     
     
-    trendLabel = editGrob(trendLabel, label = "Adding residuals to trend+seasonal...")
+    trendLabel = editGrob(trendLabel, label = "Adding residuals to trend+seasonal swing...")
     vars.decomp = add.line.plots.vp(vars.decomp, "random")
     tree = vars.decomp$decompVars$tree
     tree = addGrob(tree, topLabel)
@@ -116,7 +123,8 @@ recompose <-
                                vp = vpPath("parent", "plots", "trend"),
                                name = "trendSeasonKey",
                                gp = gpar(col = trend.season$gp$col))
-    trendseasonTXT <- ifelse(vars.decomp$decompVars$multiplicative, "Trend * seasonal", "Trend + seasonal")
+    #trendseasonTXT <- ifelse(vars.decomp$decompVars$multiplicative, "Trend * Seasonal Swing", "Trend + Seasonal Swing")
+    trendseasonTXT = "Trend + Seasonal Swing"
     trendSeasonKeyText = textGrob(x = unit(44, "mm") + stringw,
                                   y = unit(1, "npc") - unit(1, "lines"),
                                   label = trendseasonTXT,

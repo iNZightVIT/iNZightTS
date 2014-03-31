@@ -1,5 +1,5 @@
 decomposition <-
-    function(obj, ylab, trendCol = "black", seasonCol = "#45a8ff",
+    function(obj, ylab = "", trendCol = "black", seasonCol = "#45a8ff",
              randCol = seasonCol, multiplicative=FALSE) {
         xlist <- get.x(obj$tsObj)
         x <- xlist$x
@@ -227,7 +227,7 @@ decomposition <-
                       name = "seasonYaxis",
                       gp = gpar(cex = .8))
         grobs$seasonLabel <-
-            textGrob("Seasonal",
+            textGrob("Seasonal Swing",
                      vp = vpPath("parent", "plots", "season"),
                      name = "seasonLabel",
                      gp = gpar(cex = .9, col = "black", fontface = "bold"),
@@ -288,7 +288,7 @@ decomposition <-
 
 
 decompositionplot <-
-    function(obj, ylab, multiplicative=FALSE) {
+    function(obj, ylab = "", multiplicative=FALSE) {
         vars <- decomposition(obj, ylab, multiplicative = multiplicative)
         newdevice(width = 6, height = 5)
         drawImage(vars$decompVars$tree)

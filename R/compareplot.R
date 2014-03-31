@@ -14,7 +14,7 @@ compareplot <-
 
 
 compareplot.1 <-
-  function(vars, ylab = "t.value", multiplicative = TRUE) {
+  function(vars, ylab = "", multiplicative = FALSE) {
     ##########################################
     # Plot comparison of multiple time series which have frequency > 1
     # in one window.
@@ -380,7 +380,7 @@ compareplot.1 <-
 
 
 compareplot.2p <-
-  function(vars, ylab = "t.value", multiplicative = FALSE) {
+  function(vars, ylab = "", multiplicative = FALSE) {
     ##########################################
     # Plot comparison of multiple time series which have frequency > 1
     # in one window.

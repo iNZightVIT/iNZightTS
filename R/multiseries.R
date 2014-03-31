@@ -11,7 +11,7 @@ function(x,...) {
 
 
 multiseries.1 <-
-function(vars, multiplicative = TRUE, ylab="t.value", ...) {
+function(vars, multiplicative = FALSE, ylab="", ...) {
     ##########################################
     # Plot multiple plots time series which have frequency 1
     # in one window.
@@ -245,7 +245,7 @@ function(vars, multiplicative = TRUE, ylab="t.value", ...) {
 
 
 multiseries.2p <-
-function(vars, multiplicative = FALSE, ylab= "t.value",...) {
+function(vars, multiplicative = FALSE, ylab= "",...) {
     ##########################################
     # Plot multiple plots time series which have frequency > 1
     # in one window.

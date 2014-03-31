@@ -1,7 +1,13 @@
 rawplot <-
-function(obj, multiplicative = FALSE, ylab = "t.value", animate = FALSE,
-         e = NULL) {
-
+  function(obj, multiplicative = FALSE, ylab = "", animate = FALSE,
+           e = NULL) {
+    
+    # the e argument to support animation stop 
+    if (is.null(e)) {
+      e <- new.env()
+      e$stopAnimation <- FALSE
+    }
+    
     if (any(grepl("^iNZightMTS$", class(data))))
         stop("Time-Series must be univariate")
 
