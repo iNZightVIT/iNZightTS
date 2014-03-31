@@ -568,9 +568,11 @@ function(vars, multiplicative = FALSE, ylab= "t.value",...) {
                      gp = gpar(cex = 0.8, fontface = "bold.italic"),
                      name = labelName)
 
-
+        seasonsLabel.input <- 
+          paste(ifelse(multiplicative, "Multiplicative", "Additive"), 
+                "Seasonal Effects") 
         list.grobs$seasonsLabel =
-        textGrob("Seasonal effects", vp = vpPath("parent", "seasons.head"),
+        textGrob(seasonsLabel.input, vp = vpPath("parent", "seasons.head"),
                  name = "seasonsLabel")
 
 
