@@ -55,6 +55,7 @@ rawplot <-
                          bottom.vp))
 
     ### The following creates a gTree which contains all of our grobs
+    headtitle <- ifelse(ylab != "", ylab, "Time series plot")
     grobList = gList(rectGrob(vp = vpPath("parent", "plot"), name = "border"),
                      linesGrob(x.units, y.units, vp = vpPath("parent", "plot"),
                                name = "line", gp = gpar(col = "black", lwd = 2)),
@@ -69,7 +70,7 @@ rawplot <-
                               gp = gpar(cex = .8)),
                      xaxisGrob(vp = vpPath("parent", "plot"), name = "xAxis",
                                gp = gpar(cex = .8)),
-                     textGrob(paste("Time series plot for", obj$currVar),
+                     textGrob(paste(headtitle,"for", obj$currVar),
                               hjust = 0.5, vjust = -1.5, y = 0,
                               name = "topLabel",
                               vp = vpPath("parent", "head")))

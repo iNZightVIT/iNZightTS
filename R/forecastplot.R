@@ -141,8 +141,10 @@ forecastplot <-
         
         tree <- gTree(children = grobs, childrenvp = vp.tree, name = "tree")
         
-        newdevice(width = 7, height = 4)
-        if (show)
+      
+        if (show){
+          newdevice(width = 7, height = 4)
           drawImage(tree)
+        }
         pred
     }
