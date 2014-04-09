@@ -1,5 +1,4 @@
 
-
 compareplot <-
   function(x,...) {
     if (!any(grepl("^iNZightMTS$", class(x))))
@@ -500,7 +499,7 @@ compareplot.2p <-
     parent.vp =
       viewport(name = "parent",
                layout = grid.layout(4, n.cols,
-                                    heights = unit(c(.3, n/1.5, 1, .8),
+                                    heights = unit(c(.3, max(8,n)/2, 1, .8),
                                                    c("inches", "inches", "null", "inches")),
                                     widths = widths))
     
