@@ -1,6 +1,5 @@
 
 
-
 compareplot <-
   function(x,...) {
     if (!any(grepl("^iNZightMTS$", class(x))))
@@ -501,7 +500,7 @@ compareplot.2p <-
     parent.vp =
       viewport(name = "parent",
                layout = grid.layout(4, n.cols,
-                                    heights = unit(c(.3, n, 1, .8),
+                                    heights = unit(c(.3, n/1.5, 1, .8),
                                                    c("inches", "inches", "null", "inches")),
                                     widths = widths))
     
@@ -812,14 +811,14 @@ compareplot.2p <-
                  name = "seasonsLabel")
      
       list.grobs[[SymbolName]] =
-      pointsGrob(x= 0, y = 0.5*(n-i)/n + 0.4,
+      pointsGrob(x= 0, y = 0.5*(n-i)/(2*n) + 0.5,
         pch = i, size = unit(0.5,"char"),
         vp = vpPath("parent", "seasons.head"),
         gp = gpar(col = groupCol[i]),
         name = SymbolName)
       
       list.grobs[[labelName]] =
-        textGrob(varNames[i], x= 0.1, y = 0.5*(n-i)/n + 0.4, 
+        textGrob(varNames[i], x= 0.1, y = 0.5*(n-i)/(2*n) + 0.5, 
                  vp = vpPath("parent", "seasons.head"),
                  just = c("left","center"),
                  gp = gpar(cex = 0.8,col = groupCol.text[i]),
