@@ -1,5 +1,5 @@
 rawplot <-
-  function(obj, multiplicative = FALSE, ylab = "", animate = FALSE,
+  function(obj, multiplicative = FALSE, ylab = "", xlab = "", animate = FALSE,
            e = NULL) {
     
     # the e argument to support animation stop 
@@ -70,6 +70,9 @@ rawplot <-
                               gp = gpar(cex = .8)),
                      xaxisGrob(vp = vpPath("parent", "plot"), name = "xAxis",
                                gp = gpar(cex = .8)),
+                     textGrob(xlab, x= 0.5, y = 0, vjust = 5, 
+                              vp = vpPath("parent", "plot"), name = "xAxisLabel",
+                              gp = gpar(cex = .8)),
                      textGrob(paste(headtitle,"for", obj$currVar),
                               hjust = 0.5, vjust = -1.5, y = 0,
                               name = "topLabel",

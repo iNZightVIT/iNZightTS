@@ -1,5 +1,5 @@
 decomposition <-
-    function(obj, ylab = "", trendCol = "black", seasonCol = "#45a8ff",
+    function(obj, ylab = "", xlab = "", trendCol = "black", seasonCol = "#45a8ff",
              randCol = seasonCol, multiplicative=FALSE) {
         xlist <- get.x(obj$tsObj)
         x <- xlist$x
@@ -257,6 +257,12 @@ decomposition <-
             xaxisGrob(gp = gpar(cex = .8),
                       vp = vpPath("parent", "plots", "random"),
                       name = "Xaxis")
+        
+        grobs$XaxisLabel <-
+          textGrob(xlab, x= 0.5, y= 0, vjust = 3, 
+                   vp = vpPath("parent", "plots", "random"),
+                   name = "XaxisLabel")
+        
         grobs$randomLabel <-
             textGrob("Residuals",
                      vp = vpPath("parent", "plots", "random"),
@@ -264,6 +270,8 @@ decomposition <-
                      gp = gpar(cex = .9, col = "black", fontface = "bold"),
                      x = unit(0.02, "npc"), y = unit(0.97, "npc"),
                      hjust = 0, vjust = 1)
+        
+        
         
         data.name = ifelse(ylab=="", "data", ylab) 
         grobs$statusText <-
@@ -290,8 +298,8 @@ decomposition <-
 
 
 decompositionplot <-
-    function(obj, ylab = "", multiplicative=FALSE) {
-        vars <- decomposition(obj, ylab, multiplicative = multiplicative)
+    function(obj, ylab = "", xlab = "", multiplicative=FALSE) {
+        vars <- decomposition(obj, ylab, xlab, multiplicative = multiplicative)
         newdevice(width = 6, height = 5)
         drawImage(vars$decompVars$tree)
         vars
