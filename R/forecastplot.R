@@ -115,8 +115,11 @@ forecastplot <-
                                   just = c("left", "bottom"), vp = vpPath("parent", "plot"), 
                                   name = "trendSeasonKeyText", gp = gpar(cex = 0.9, fontface = "bold"))
     tree <- gTree(children = grobs, childrenvp = vp.tree, name = "tree")
-    newdevice(width = 7, height = 4)
-    if (show) 
-        drawImage(tree)
+    
+    
+    if (show){
+      newdevice(width = 7, height = 4)
+      drawImage(tree)
+    }
     pred
     }
