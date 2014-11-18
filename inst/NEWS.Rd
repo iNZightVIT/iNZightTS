@@ -1,8 +1,8 @@
-\name{NEWS}
-\title{NEWS file for the iNZightTS package}
+\name{Change Log}
+\title{Change Log for iNZightTS}
 \encoding{UTF-8}
 
-\section{Changes in Version 1.1.3}{
+\section{Changes in version 1.1.3}{
   \subsection{MINOR CHANGES}{
     \itemize{
       \item added x label to additional plots
@@ -10,7 +10,7 @@
   }
 }
 
-\section{Changes in Version 1.1.2}{
+\section{Changes in version 1.1.2}{
   \subsection{MINOR CHANGES}{
     \itemize{
       \item y-axis label support now on all plots.
@@ -24,7 +24,7 @@
   }
 }
 
-\section{Changes in Version 1.1.1}{
+\section{Changes in version 1.1.1}{
   \subsection{MINOR CHANGES}{
     \itemize{
       \item New functionality using proportion values to calcualate `x`,
@@ -40,9 +40,11 @@
   }
 }
 
-\section{Changes in Version 1.1.0}{
+\section{Changes in version 1.1.0}{
   \subsection{CHANGES}{
-    No user-visible changes to the package, however re-released with the
-    launch of iNZightVIT 2.0.
+    \itemize{
+      \item No user-visible changes to the package, however re-released with the
+      launch of iNZightVIT 2.0.
+    }
   }
 }
