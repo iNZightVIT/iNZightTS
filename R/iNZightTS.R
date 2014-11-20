@@ -1,3 +1,57 @@
+##' The function \code{iNZightTS} is used to create time-series objects used
+##' in iNZight.
+##'
+##' The function \code{iNZgithTS} is used to create time-series
+##' objects. Unlike \code{ts} objects, these are lists containing
+##' information about the time-series as well as the data and the
+##' time-series (\code{ts} object) itself.
+##' \cr \cr
+##' If a \code{ts} object is used to create the \code{iNZightTS} object,
+##' all the domain information is extracted from that object.
+##'\cr \cr
+##' In case of \code{data} being a data.frame or path to a \code{.csv}
+##' file and \code{start} being omitted, the starting date and the
+##' \code{freq} is extracted from the column that includes the time
+##' information. This column is either named \code{"Time"} or is the first
+##' column. If \code{end} is omitted, all of the data will be used for the
+##' time-series.
+##'
+##' @title iNZightTS (Time-Series) Objects
+##' 
+##' @aliases iNZightMTS
+##'
+##' @param data a \code{data.frame} containing time information and observation or a
+##' path to a \code{.csv} file with such information or a \code{ts} object
+##'
+##' @param start the time of the first observation. Either a single number or a vector
+##' of two integers, which specify a natural time unit and a (1-based)
+##' number of samples into the time unit
+##'
+##' @param end the time of the last observation, specified in the same way as \code{start}
+##'
+##' @param freq the number of observations per unit of time
+##'
+##' @param var the column number or name for the observations used from \code{data}
+##' in the actual time series
+##'
+##' @param ... additional information passed to \code{read.csv()} and used when
+##' \code{data} is a path
+##'
+##' @seealso \code{\link{ts}}, \code{\link{print.iNZightTS}}, \code{\link{rawplot}}
+##'
+##' @examples # create from a ts object
+##' z <- iNZightTS(UKgas)
+##' rawplot(z)
+##'
+##' # create from a data.frame
+##' x <- iNZightTS(data.frame(Return = rnorm(100), Time = 1:100), var = "Return")
+##'
+##' # create from a data.frame with modified time frame
+##' y <- iNZightTS(data.frame(Return = rnorm(100)), start = c(1990, 1), end =
+##' c(1993, 5), freq = 12, var = 1)
+##' rawplot(y)
+##'
+##' @export
 iNZightTS <-
     function(data, start=1, end=numeric(), freq=1, var=2, ...) {
 
@@ -35,13 +89,13 @@ iNZightTS <-
                 time.col <- 1
 
             ts.struc <- get.ts.structure(data[, time.col])
-            
+
             if (missing(start))
                 start <- ts.struc$start
-            
+
             if (missing(freq))
                 freq <- ts.struc$frequency
-            
+
             if (any(c(is.na(start), is.na(freq))))
                 stop("There is an error in your time series, a hole in the series perhaps?")
 
@@ -69,7 +123,7 @@ iNZightTS <-
         class(inzightts) <- "iNZightTS"
         if (length(inzightts$currVar) > 1)
             class(inzightts) <- c("iNZightMTS", "iNZightTS")
-        
+
         inzightts
     }
 
@@ -78,11 +132,11 @@ get.ts.structure <-
     function(vardata) {
         if (is.factor(vardata))
             vardata <- as.character(vardata)
-        
+
         if (any(is.na(vardata))) {
             return(list(start = NA, freq = NA))
         }
-        
+
         if (is.numeric(vardata)) {
             if (any(vardata != round(vardata)))
                 return(list(start = NA, frequency = NA))
@@ -90,7 +144,7 @@ get.ts.structure <-
             if (any(nchar(vardata) > 4))
                 return(list(start = NA, frequency = NA))
         }
-        
+
         ## What frequency is the data at (monthly, quarterly, yearly)
         firstval <- vardata[1]
         if (nchar(firstval) > 7)
@@ -107,7 +161,7 @@ get.ts.structure <-
         start <- as.integer(substring(firstval, 1 ,4))
         if (interval != "A")
             start <- c(start, as.integer(substring(firstval, 6)))
-        
+
         ## Checking that we have no holes in the time variable itself
         n <- length(vardata)
         lastyear <- if (is.character(vardata))
@@ -133,7 +187,7 @@ get.ts.structure <-
                 return(list(start = NA, frequency = NA))
             }
         }
-        
+
         if (interval == "M") {
             n.in.first.year <- freq - start[2] + 1
             n.rest <- n - n.in.first.year
@@ -148,7 +202,7 @@ get.ts.structure <-
                 return(list(start = NA, frequency = NA))
             }
         }
-        
+
         list(start = start, frequency = freq)
     }
 
