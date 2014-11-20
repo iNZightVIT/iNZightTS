@@ -1,13 +1,37 @@
+##' Draws a plot of a given \code{iNZightTS} object with the trend superimposed.
+##'
+##' If animate is set to \code{TRUE}, a scatterplot of all points in the
+##' time series will appear followed by slowly drawn lines connecting the
+##' points, simulating the drawing of a time series by hand.
+##'
+##' @title Draw a simple time series plot
+##'
+##' @param obj an \code{iNZightTS} object
+##'
+##' @param multiplicative logical. If \code{TRUE}, a multiplicative model is used,
+##' otherwise an additive model is used by default.
+##' 
+##' @param xlab a title for the x axis
+##' 
+##' @param ylab a title for the y axis
+##'
+##' @param animate animate the plotting process?
+##'
+##' @param e \code{NULL} by default to support animation stop
+##'
+##' @keywords timeseries
+##'
+##' @export
 rawplot <-
   function(obj, multiplicative = FALSE, ylab = "", xlab = "", animate = FALSE,
            e = NULL) {
-    
-    # the e argument to support animation stop 
+
+    # the e argument to support animation stop
     if (is.null(e)) {
       e <- new.env()
       e$stopAnimation <- FALSE
     }
-    
+
     if (any(grepl("^iNZightMTS$", class(data))))
         stop("Time-Series must be univariate")
 
@@ -61,16 +85,16 @@ rawplot <-
                                name = "line", gp = gpar(col = "black", lwd = 2)),
                      linesGrob(x.units, unit(smooth, "native"), name = "smooth",
                                gp = gpar(col = "red"), vp = vpPath("parent", "plot")),
-                     
+
                      yaxisGrob(vp = vpPath("parent", "plot"), name = "yAxis",
                                gp = gpar(cex = .8)),
-                     textGrob(ylab, x= 0, y = 0.5, vjust = -6, 
+                     textGrob(ylab, x= 0, y = 0.5, vjust = -6,
                               rot = 90,
                               vp = vpPath("parent", "plot"), name = "yAxisLabel",
                               gp = gpar(cex = .8)),
                      xaxisGrob(vp = vpPath("parent", "plot"), name = "xAxis",
                                gp = gpar(cex = .8)),
-                     textGrob(xlab, x= 0.5, y = 0, vjust = 5, 
+                     textGrob(xlab, x= 0.5, y = 0, vjust = 5,
                               vp = vpPath("parent", "plot"), name = "xAxisLabel",
                               gp = gpar(cex = .8)),
                      textGrob(paste(headtitle,"for", obj$currVar),
@@ -108,7 +132,7 @@ rawplot <-
             pauseImage(image, speed)
         }
 
-        
+
          if (! get("stopAnimation", envir = e)) {
         pauseImage(image, 5)
         image <- removeGrob(image, "points")
@@ -119,7 +143,7 @@ rawplot <-
              image <- addGrob(image, final.line)
              image <- addGrob(image, final.smooth)
          }
-        
+
     }
     drawImage(image)
 }

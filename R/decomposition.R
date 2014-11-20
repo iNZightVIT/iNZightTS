@@ -6,8 +6,8 @@ decomposition <-
         x.units <- xlist$x.units
 
         if (obj$freq > 1) {
-            if (multiplicative) 
-                tsObj <- log(obj$tsObj) 
+            if (multiplicative)
+                tsObj <- log(obj$tsObj)
             else
                 tsObj <- obj$tsObj
             decomp <- stl(tsObj, "periodic")
@@ -18,7 +18,7 @@ decomposition <-
           trend.comp <-
                 loess(log(obj$data[1:length(obj$tsObj), obj$currVar]) ~ x)$fitted +
                     obj$tsObj * 0
-            
+
             residuals.comp <- log(obj$tsObj) - trend.comp
             seasons.comp <- obj$tsObj * 0
             decomp <- list()
@@ -31,7 +31,7 @@ decomposition <-
             trend.comp <-
               loess(obj$data[1:length(obj$tsObj), obj$currVar] ~ x)$fitted +
               obj$tsObj * 0
-            
+
             residuals.comp <- obj$tsObj - trend.comp
             seasons.comp <- obj$tsObj * 0
             decomp <- list()
@@ -46,7 +46,7 @@ decomposition <-
 
         ## x and y coordinates
         Y <- obj$tsObj
-        
+
         if (multiplicative) {
 
           y <- log(obj$tsObj@.Data)
@@ -72,7 +72,7 @@ decomposition <-
 
 
         Y <- obj$tsObj@.Data
-        
+
         ## We want each component plotted on the same scale, so we need
         ## to find the y-axis interval for the most variable component
         minmax <- apply(decompData, 2, function(x) range(x))
@@ -80,27 +80,27 @@ decomposition <-
         ranges[2] <- max(y) - min(y)
 
         expandBy <- (max(y) - min(y)) * 0.1
-        
+
         expandBy.trend <- (max(Y) - min(Y)) * 0.1
-        
-        
+
+
         #if (multiplicative)  #%
           y <- obj$tsObj@.Data  #%
         ## here we edit the viewport y values to provide an extra gap at
         ## the top of each panel
-        trend.vp.y <- y 
-        
-        
+        trend.vp.y <- y
+
+
         trend.vp.y[which.max(y)] <- max(y) + expandBy.trend
         trend.vp.y[which.min(y)] <- min(y) - expandBy.trend
-        
-        
+
+
         season.vp.y <- y.season
 
         max.index <- ifelse(obj$freq > 1, which.max(y.season), 1)
         season.vp.y[max.index] <- max(y.season) + expandBy
 
-        if (obj$freq == 1) 
+        if (obj$freq == 1)
           season.vp.y[2] <- -expandBy
 
         random.vp.y <- y.random
@@ -113,9 +113,9 @@ decomposition <-
         ## Need to find the proportion of the plot each subplot will be
         ## allocated, and create the viewports
         props <- ranges/sum(ranges)
-        
-        
-        
+
+
+
         ## The following defines the viewport layout for the plot
         ## parent.vp holds everything - with a main central viewport
         ## and 4 viewports around it that act as margins
@@ -171,7 +171,7 @@ decomposition <-
                       vp = vpPath("parent", "plots", "trend"),
                       name = "trendYaxis",
                       gp = gpar(cex = .8))
-        grobs$trendYlab <- 
+        grobs$trendYlab <-
           textGrob(ylab, x= 0, y= 0.5, rot = 90,
                    vjust = -5,
                    vp = vpPath("parent", "plots", "trend"),
@@ -257,12 +257,12 @@ decomposition <-
             xaxisGrob(gp = gpar(cex = .8),
                       vp = vpPath("parent", "plots", "random"),
                       name = "Xaxis")
-        
+
         grobs$XaxisLabel <-
-          textGrob(xlab, x= 0.5, y= 0, vjust = 3, 
+          textGrob(xlab, x= 0.5, y= 0, vjust = 3,
                    vp = vpPath("parent", "plots", "random"),
                    name = "XaxisLabel")
-        
+
         grobs$randomLabel <-
             textGrob("Residuals",
                      vp = vpPath("parent", "plots", "random"),
@@ -270,10 +270,10 @@ decomposition <-
                      gp = gpar(cex = .9, col = "black", fontface = "bold"),
                      x = unit(0.02, "npc"), y = unit(0.97, "npc"),
                      hjust = 0, vjust = 1)
-        
-        
-        
-        data.name = ifelse(ylab=="", "data", ylab) 
+
+
+
+        data.name = ifelse(ylab=="", "data", ylab)
         grobs$statusText <-
             textGrob(paste0("Decomposition of ", data.name, ":", obj$currVar),
                      vp = vpPath("parent", "head"),
@@ -285,7 +285,7 @@ decomposition <-
         ## return a list with all the variables we need
         decompVars <- list(tree = image, ranges = ranges, props = props,
                            data.name = data.name,
-                           raw = obj$tsObj@.Data, 
+                           raw = obj$tsObj@.Data,
                            components = decompData,
                            #currentName =  obj$currVar,
                            #components = decomp$time.series,
@@ -296,7 +296,40 @@ decomposition <-
     }
 
 
-
+##' Decomposes a time series into trend, seasonal and residual components
+##' using \code{loess}.
+##'
+##' If the frequency is greater than 1, the components are found using the
+##' \code{\link{stl}} function with \code{s.window} set to \code{TRUE}
+##' (effectively replacing smoothing by taking the mean).
+##' If the frequency is 1, the trend component is found directly by using
+##' \code{\link{loess}} and the residuals are the difference between trend
+##' and actual values.
+##' The trend, seasonal and residual components are plotted on the same
+##' scale allowing for easy visual analysis.
+##'
+##' @title Plot a Time Series Decomposition
+##'
+##' @param obj an \code{iNZightTS} object
+##' 
+##' @param xlab a title for the x axis
+##' 
+##' @param ylab a title for the y axis
+##' 
+##' @param multiplicative logical. If \code{TRUE}, a multiplicative model is used,
+##' otherwise an additive model is used by default.
+##'
+##' @return The original \code{iNZightTS} object with an item \code{decompVars}
+##' appended, containing results from the decomposition.
+##'
+##' @references R. B. Cleveland, W. S. Cleveland, J.E. McRae, and I. Terpenning (1990) STL: A Seasonal-Trend Decomposition Procedure Based on Loess. Journal of Official Statistics, 6, 3iV73.
+##'
+##' @seealso \code{\link{stl}}, \code{\link{loess}}, \code{\link{iNZightTS}}
+##'
+##' @examples z <- iNZightTS(ldeaths)
+##' y <- decompositionplot(z)
+##'
+##' @export
 decompositionplot <-
     function(obj, ylab = "", xlab = "", multiplicative=FALSE) {
         vars <- decomposition(obj, ylab, xlab, multiplicative = multiplicative)

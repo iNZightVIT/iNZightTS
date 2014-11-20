@@ -1,3 +1,22 @@
+##' This function plots the seasonal components of a time series together
+##' with the estimated seasonal effects of that series.
+##'
+##' The resulting window will contain two plots. On the left, every
+##' seasonal subseries of the time series is plotted. On the right will be
+##' the average seasonal effect of the series.
+##'
+##' @title Plot Seasonal Subseries from a Time Series
+##'
+##' @param obj an \code{iNZightTS} object
+##'
+##' @param ... Further arguments to be passed onto specific methods.
+##'
+##' @seealso \code{\link{iNZightTS}}
+##'
+##' @examples x <- iNZightTS(UKgas)
+##' seasonplot(x)
+##'
+##' @export
 seasonplot <-
 function(obj, ...)
     UseMethod("seasonplot")
@@ -10,9 +29,9 @@ function(obj, s, season.labels=NULL, year.labels=FALSE, year.labels.left=FALSE,
     type="o", main, ylab="", xlab=NULL, col=1, labelgap=0.1, ...)
 {
   x <- obj
-  
-    
-    
+
+
+
   if(missing(main))
     main = paste("Seasonal plot:", deparse(substitute(x)))
   if(missing(s))
@@ -22,7 +41,7 @@ function(obj, s, season.labels=NULL, year.labels=FALSE, year.labels.left=FALSE,
 
   if (as.integer(s) == 1)
     return("No seasonal pattern for a time series data with 1 frequency.")
-  
+
   # Pad series
   tsx <- x
   if(start(x)[2]>1)
@@ -103,7 +122,7 @@ function(obj, multiplicative = FALSE, ...) {
     newdevice(width = 9, height = 7)
 
     freq = obj$freq
-   
+
     s = obj$start[2]
     n = length(obj$tsObj)
     r = n - (freq + 1 - s)
@@ -122,9 +141,9 @@ function(obj, multiplicative = FALSE, ...) {
     season = obj$decompVars$components[,"seasonal"]
     season = if (s > 1) season[-(1:(freq + 1 - s))][1:freq]
     else season[1:freq]
-    
-    
-    
+
+
+
     season.ts = ts(season, start = c(1, 1), frequency = freq)
 
     if (freq == 12) {
@@ -146,14 +165,14 @@ function(obj, multiplicative = FALSE, ...) {
         xlab = "Season"
     }
 
-    
-    
+
+
     h.lines <- ifelse(obj$decompVars$multiplicative, 1, 0)  #%
-    
+
     title.main = paste(ifelse(multiplicative, "Multiplicative", "Additive"), "seasonal effects")
     plot(season.ts, type = "n", ylab = NULL, xlab = xlab,
          xaxt = "n", main = title.main)
-    
+
     abline(h = h.lines, col = "#aaaaaa", lty = "dashed")
     lines(season.ts, type = "o", lwd = 2, cex = 1.2)
     axis(1, at = get.x(season.ts)$x, labels = labs)

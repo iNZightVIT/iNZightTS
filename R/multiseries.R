@@ -1,3 +1,37 @@
+##' Draw a plot to compare 2 or more timeseries with each
+##' other. The resulting plot contains the original timeseries as well as
+##' plots showing the season effects of each timeseries, if the frequency
+##' is greater than 1.
+##'
+##' \code{x} is an \code{\link{iNZightMTS}} object containing some
+##' data for which timeseries objects can be created. The data columns
+##' used for the plotting are those that are used in the \code{\link{iNZightMTS}}
+##' object.
+##' \cr \cr
+##' The frequency used for the plotting is also stored in \code{x}.
+##'
+##' @title Compare multiple timeseries
+##'
+##' @param x iNZightMTS object containing data
+##'
+##' @param ... Further arguments to be passed onto specific methods.
+##'
+##' @seealso \code{\link{iNZightTS}}
+##'
+##' @examples # Frequency > 1
+##' y <- iNZightTS(Seatbelts)
+##' multiseries(y)
+##'
+##' # Frequency = 1
+##' # Casulties for Jan of each year
+##' X <- Seatbelts[12*(1:15), -8]
+##' X <- as.ts(X)
+##' z <- iNZightTS(X)
+##' multiseries(z)
+##'
+##' @keywords timeseries
+##'
+##' @export
 multiseries <-
 function(x,...) {
     if (!any(grepl("^iNZightMTS$", class(x))))
@@ -174,14 +208,14 @@ function(vars, multiplicative = FALSE, ylab="", ...) {
         if (i == 1)  {
           if(nchar(ylab)>8)
             list.grobs[[y1labelName]] =
-            textGrob(ylab, x = 0, rot= 90, vjust = -6, 
+            textGrob(ylab, x = 0, rot= 90, vjust = -6,
                      vp = vpPath("parent", panelName, vpName),
                      just = c("right","center"),
                      gp = gpar(cex = 0.8),
                      name = y1labelName)
           else
             list.grobs[[y1labelName]] =
-            textGrob(ylab, x = 0, rot= 90, vjust = -6, 
+            textGrob(ylab, x = 0, rot= 90, vjust = -6,
                      vp = vpPath("parent", panelName, vpName),
                      gp = gpar(cex = 0.8),
                      name = y1labelName)
@@ -300,7 +334,7 @@ function(vars, multiplicative = FALSE, ylab= "",...) {
           deTrend = raw.y.vals / trend.y.vals
         else
           deTrend = raw.y.vals - trend.y.vals
-        
+
         season.y.vals = listVars[[i]]$decompVars$components[,"seasonal"]@.Data
         joint.y.vals = trend.y.vals + season.y.vals
 
@@ -387,17 +421,17 @@ function(vars, multiplicative = FALSE, ylab= "",...) {
 
         trend.y.vals = listVars[[i]]$decompVars$components[,"trend"]@.Data
         season.y.vals = listVars[[i]]$decompVars$components[,"seasonal"]@.Data
-        
+
         if (whether.multi)
           joint.y.vals = trend.y.vals * season.y.vals
         else
           joint.y.vals = trend.y.vals + season.y.vals   # * if multiplicative
         ordered.vals = numeric(freq)
         ordered.vals[subset] = season.y.vals[1:freq]
-        
+
         raw.y.vals = listVars[[i]]$decompVars$raw
 
-        
+
         rectName = paste("trend", "border", i, sep = ".")
         trendName = paste("trend", "series", i, sep = ".")
         rawName = paste("raw", "series", i, sep = ".")
@@ -411,8 +445,8 @@ function(vars, multiplicative = FALSE, ylab= "",...) {
         list.grobs[[rectName]] =
           rectGrob(vp = vpPath("parent", panelName, vpName),
                    name = rectName, gp = gpar(fill=NA))
-        
-        
+
+
         list.grobs[[gridlinesName]] =
             segmentsGrob(x0 = unit(x.at, "native"),
                          y0 = unit(vpObj$yscale[1], "native"),
@@ -448,20 +482,20 @@ function(vars, multiplicative = FALSE, ylab= "",...) {
         if (i == 1)  {
           if(nchar(ylab)>8)
             list.grobs[[y1labelName]] =
-              textGrob(ylab, x = 0, rot= 90, vjust = -5, 
+              textGrob(ylab, x = 0, rot= 90, vjust = -5,
                        vp = vpPath("parent", panelName, vpName),
                        just = c("right","center"),
                        gp = gpar(cex = 0.8),
                        name = y1labelName)
           else
             list.grobs[[y1labelName]] =
-            textGrob(ylab, x = 0, rot= 90, vjust = -5, 
+            textGrob(ylab, x = 0, rot= 90, vjust = -5,
                      vp = vpPath("parent", panelName, vpName),
                      gp = gpar(cex = 0.8),
                      name = y1labelName)
           }
 
-        
+
         list.grobs[[labelName]] =
             textGrob(varNames[i], x = 0, y = unit(1, "mm"),
                      just = c("left", "bottom"),
@@ -513,9 +547,9 @@ function(vars, multiplicative = FALSE, ylab= "",...) {
           deTrend = raw.y.vals / trend.y.vals
         else
           deTrend = raw.y.vals - trend.y.vals
-        
 
-        
+
+
         #deTrend = raw.y.vals - trend.y.vals
         for (j in 1:numSeries) {
             ind = ind1:ind2
@@ -541,7 +575,7 @@ function(vars, multiplicative = FALSE, ylab= "",...) {
                       vp = vpPath("parent", panelName, vpName),
                       name = y0Name)
 
-        
+
 
         list.grobs[[lineName]] =
             linesGrob(x = unit(1:freq, "native"),
@@ -568,9 +602,9 @@ function(vars, multiplicative = FALSE, ylab= "",...) {
                      gp = gpar(cex = 0.8, fontface = "bold.italic"),
                      name = labelName)
 
-        seasonsLabel.input <- 
-          paste(ifelse(multiplicative, "Multiplicative", "Additive"), 
-                "Seasonal Effects") 
+        seasonsLabel.input <-
+          paste(ifelse(multiplicative, "Multiplicative", "Additive"),
+                "Seasonal Effects")
         list.grobs$seasonsLabel =
         textGrob(seasonsLabel.input, vp = vpPath("parent", "seasons.head"),
                  name = "seasonsLabel")
