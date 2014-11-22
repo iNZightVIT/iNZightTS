@@ -3,6 +3,8 @@
 \encoding{UTF-8}
 
 \section{Changes in version 1.1.3}{
+  Release date: 17 September 2014
+  
   \subsection{MINOR CHANGES}{
     \itemize{
       \item added x label to additional plots
@@ -11,6 +13,8 @@
 }
 
 \section{Changes in version 1.1.2}{
+  Release date: 4 April 2014
+  
   \subsection{MINOR CHANGES}{
     \itemize{
       \item y-axis label support now on all plots.
@@ -25,6 +29,8 @@
 }
 
 \section{Changes in version 1.1.1}{
+  Release date: 27 March 2014
+  
   \subsection{MINOR CHANGES}{
     \itemize{
       \item New functionality using proportion values to calcualate `x`,
@@ -41,6 +47,8 @@
 }
 
 \section{Changes in version 1.1.0}{
+  Release date: 18 January 2014
+  
   \subsection{CHANGES}{
     \itemize{
       \item No user-visible changes to the package, however re-released with the
