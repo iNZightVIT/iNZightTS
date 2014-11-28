@@ -44,6 +44,7 @@ function(x,...) {
 }
 
 
+##' @export
 multiseries.1 <-
 function(vars, multiplicative = FALSE, ylab="", ...) {
     ##########################################
@@ -278,6 +279,7 @@ function(vars, multiplicative = FALSE, ylab="", ...) {
 
 
 
+##' @export
 multiseries.2p <-
 function(vars, multiplicative = FALSE, ylab= "",...) {
     ##########################################

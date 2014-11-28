@@ -24,6 +24,7 @@ function(obj, ...)
 
 
 
+##' @export
 seasonplot.forecast <-
 function(obj, s, season.labels=NULL, year.labels=FALSE, year.labels.left=FALSE,
     type="o", main, ylab="", xlab=NULL, col=1, labelgap=0.1, ...)
@@ -110,7 +111,7 @@ function(obj, s, season.labels=NULL, year.labels=FALSE, year.labels.left=FALSE,
 
 
 
-
+##' @export
 seasonplot.iNZightTS <-
 function(obj, multiplicative = FALSE, ...) {
 
