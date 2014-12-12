@@ -143,7 +143,7 @@ function(image, pause = 1) {
           dev.hold(1)
       drawImage(image)
       if (exists("dev.flush"))
-          dev.flush(1)
+          dev.flush(dev.flush())
   }
 }
 
