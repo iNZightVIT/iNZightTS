@@ -121,8 +121,7 @@ function(image) {
     plot.new()
 
   # Draws current image in device.
-  if (exists("dev.hold"))
-    dev.hold(1)
+
   grid.newpage()
   grid.draw(image)
 
@@ -139,11 +138,7 @@ function(image) {
 pauseImage <-
 function(image, pause = 1) {
   for (i in 1:pause) {
-      if (exists("dev.hold"))
-          dev.hold(1)
       drawImage(image)
-      if (exists("dev.flush"))
-          dev.flush(dev.flush())
   }
 }
 
