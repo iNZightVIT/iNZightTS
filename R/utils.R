@@ -137,12 +137,10 @@ function(image) {
 
 pauseImage <-
 function(image, pause = 1) {
-    try(dev.hold(), TRUE)
   for (i in 1:pause) {
       drawImage(image)
       
   }
-    try(dev.flush(dev.flush()), TRUE)
 }
 
 
