@@ -1,4 +1,4 @@
-
+##' @export
 compareplot <-
   function(x,...) {
     if (!any(grepl("^iNZightMTS$", class(x))))
