@@ -172,7 +172,7 @@ decomposition <-
                       name = "trendYaxis",
                       gp = gpar(cex = .8))
         grobs$trendYlab <-
-          textGrob(ylab, x= 0, y= 0.5, rot = 90,
+          textGrob(ylab, x = 0, y = 0.5, rot = 90,
                    vjust = -5,
                    vp = vpPath("parent", "plots", "trend"),
                    name = "trendYlab")
@@ -259,7 +259,7 @@ decomposition <-
                       name = "Xaxis")
 
         grobs$XaxisLabel <-
-          textGrob(xlab, x= 0.5, y= 0, vjust = 3,
+          textGrob(xlab, x = 0.5, y = 0, vjust = 5,
                    vp = vpPath("parent", "plots", "random"),
                    name = "XaxisLabel")
 
