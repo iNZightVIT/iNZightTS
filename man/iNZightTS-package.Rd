@@ -23,7 +23,7 @@ Marco Kuper, originally developed by Simon Potter and David Banks.
 Maintainer: Marco Kuper \url{<MarcoKuper42@gmail.com>}
 }
 \seealso{
-\code{\link{iNZight}}
+\code{iNZight}
 }
 \keyword{iNZight}
 

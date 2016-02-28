@@ -19,7 +19,9 @@
 ##'
 ##' @keywords iNZight
 ##'
-##' @seealso \code{\link{iNZight}}
+##' @seealso \code{iNZight}
+##'
+##' @import grid
 ##'
 ##' @name iNZightTS-package
 NULL
