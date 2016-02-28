@@ -90,26 +90,17 @@ function(vars.decomp, vpName, lineCol = "red",
 newdevice <-
 function(width, height, ...) {
 
-    if ("package:shiny" %in% search()){
-      # we should let shiny to set their default graphics device
-      # setting any width and height here force shiny popup a new window to you
-      
-      return()
+    if ("package:shiny" %in% search()) {
+        ## we should let shiny to set their default graphics device
+        ## setting any width and height here force shiny popup a new window to you
+        return()
     }
-    # The windows device works fine (for now), only attempt to speed up
-    # any other devices that we're going to be using.
-    # We speed them up by getting rid of bufferring.
-    if ("Acinonyx" %in% rownames(installed.packages())) {
-        # Acinonyx uses pixels rather than inches, convert inches to
-        # pixels to determine dims. Assume 90 dpi.
-        width.in <- round(width * 90)
-        height.in <- round(height * 90)
-        Acinonyx::idev(width = width.in, height = height.in)
+    
+    if (requireNamespace("iNZightTools", quietly = TRUE)) {
+        iNZightTools::newdevice(width = width, height = height, ...)
     } else {
-        if (.Platform$OS.type != "windows" && Sys.info()["sysname"] != "Darwin")
-            dev.new(width = width, height = height, type = "nbcairo", ...)
-        else
-            dev.new(width = width, height = height, ...)
+        dev.new(width = width, height = height)
+        warning("If you experience graphical issues, we suggest installing iNZightTools.")
     }
 }
 
