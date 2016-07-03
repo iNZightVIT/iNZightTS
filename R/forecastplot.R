@@ -58,7 +58,9 @@ forecastplot <-
     if (multiplicative)
         AtsObj <- log(tsObj)
 
-    hw.fit <- HoltWinters(AtsObj)
+      hw.fit <- try(HoltWinters(AtsObj), TRUE)
+      if (inherits(hw.fit, "try-error")) stop("Holt-Winters could not converge.")
+      
     temp.fit <<- hw.fit
     pred <- predict(hw.fit, n.ahead = ahead, prediction.interval = TRUE)
     if (multiplicative){
