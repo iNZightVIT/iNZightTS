@@ -17,7 +17,7 @@
 ##' time-series.
 ##'
 ##' @title iNZightTS (Time-Series) Objects
-##' 
+##'
 ##' @aliases iNZightMTS
 ##'
 ##' @param data a \code{data.frame} containing time information and observation or a
@@ -88,7 +88,10 @@ iNZightTS <-
             if (is.na(time.col))
                 time.col <- 1
 
-            ts.struc <- get.ts.structure(data[, time.col])
+            ts.struc <- try(get.ts.structure(data[, time.col]), silent = TRUE)
+            if (inherits(ts.struc, "try-error")) {
+              ts.struc <- list(start = NA, frequency = NA)
+            }
 
             if (missing(start))
                 start <- ts.struc$start
@@ -205,4 +208,3 @@ get.ts.structure <-
 
         list(start = start, frequency = freq)
     }
-
