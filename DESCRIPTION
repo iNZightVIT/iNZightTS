@@ -1,8 +1,8 @@
 Package: iNZightTS
 Type: Package
 Title: Time Series for iNZight
-Version: 1.1.6
-Date: 2015-03-02
+Version: 1.1.7
+Date: 2015-09-23
 Authors@R: c(person("Tom", "Elliott", role = c("aut", "cre"),
     email = "tell029@aucklanduni.ac.nz"),
     person("Junjie", "Zeng",   role = "aut"),
