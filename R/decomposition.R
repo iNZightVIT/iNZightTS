@@ -1,28 +1,22 @@
-
-
 decomposition <-
     function(obj, ylab = "", xlab = "", trendCol = "black", seasonCol = "#45a8ff",
-             randCol = seasonCol, multiplicative=FALSE, t = 0) {
+             randCol = seasonCol, multiplicative=FALSE) {
         xlist <- get.x(obj$tsObj)
         x <- xlist$x
         x.units <- xlist$x.units
-        
-        
-        n = length(obj$data)
-        
+
         if (obj$freq > 1) {
             if (multiplicative)
                 tsObj <- log(obj$tsObj)
             else
                 tsObj <- obj$tsObj
-            decomp <- stl(tsObj, "periodic",t.window = nextodd((1.5*frequency(data)/(1-1.5/(10*n+1))) +
-                                                                 0.2 * n * t/100)))
+            decomp <- stl(tsObj, "periodic")
         }
         else {
           ## freq == 1, non seasonal fitted.
           if (multiplicative)  {
           trend.comp <-
-                loess(log(obj$data[1:length(obj$tsObj), obj$currVar]) ~ x, span = 0.07+ t/100 )$fitted +
+                loess(log(obj$data[1:length(obj$tsObj), obj$currVar]) ~ x)$fitted +
                     obj$tsObj * 0
 
             residuals.comp <- log(obj$tsObj) - trend.comp
@@ -319,9 +313,6 @@ decomposition <-
 ##' @param obj an \code{iNZightTS} object
 ##' 
 ##' @param xlab a title for the x axis
-##' 
-##' @param t a control of smoothness of the trend of the time series with frequency bigger than 1
-##' 
 ##' 
 ##' @param ylab a title for the y axis
 ##' 
