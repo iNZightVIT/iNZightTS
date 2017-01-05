@@ -147,4 +147,18 @@ function(image, grobs) {
   }
   image
 }
-              
+     
+
+### a function to choose next odd integer
+### this function is used for input of the contro of smoothness of trend
+
+
+nextodd <- function(x) {
+  x <- round(x)
+  if (x%%2 == 0) 
+    x <- x + 1
+  as.integer(x)
+}
+
+
+
