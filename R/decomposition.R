@@ -7,7 +7,7 @@ decomposition <-
         x <- xlist$x
         x.units <- xlist$x.units
         
-        
+      
         n = length(obj$data)
         
         if (obj$freq > 1) {
