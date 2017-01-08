@@ -90,6 +90,8 @@ function(vars.decomp, vpName, lineCol = "red",
 newdevice <-
 function(width, height, ...) {
 
+    return(NULL)
+
     if ("package:shiny" %in% search()) {
         ## we should let shiny to set their default graphics device
         ## setting any width and height here force shiny popup a new window to you
