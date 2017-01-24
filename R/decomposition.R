@@ -1,4 +1,3 @@
-#' @export
 decomposition <-
     function(obj, ylab = "", xlab = "", trendCol = "black", seasonCol = "#45a8ff",
              randCol = seasonCol, multiplicative=FALSE) {
