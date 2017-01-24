@@ -1,3 +1,4 @@
+#' @export
 decomposition <-
     function(obj, ylab = "", xlab = "", trendCol = "black", seasonCol = "#45a8ff",
              randCol = seasonCol, multiplicative=FALSE) {
@@ -311,11 +312,11 @@ decomposition <-
 ##' @title Plot a Time Series Decomposition
 ##'
 ##' @param obj an \code{iNZightTS} object
-##' 
+##'
 ##' @param xlab a title for the x axis
-##' 
+##'
 ##' @param ylab a title for the y axis
-##' 
+##'
 ##' @param multiplicative logical. If \code{TRUE}, a multiplicative model is used,
 ##' otherwise an additive model is used by default.
 ##'
