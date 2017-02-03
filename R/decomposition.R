@@ -6,17 +6,17 @@ decomposition <-
         xlist <- get.x(obj$tsObj)
         x <- xlist$x
         x.units <- xlist$x.units
-        
-      
+
+
         n = length(obj$data)
-        
+
         if (obj$freq > 1) {
             if (multiplicative)
                 tsObj <- log(obj$tsObj)
             else
                 tsObj <- obj$tsObj
             decomp <- stl(tsObj, "periodic",t.window = nextodd((1.5*frequency(data)/(1-1.5/(10*n+1))) +
-                                                                 0.2 * n * t/100)))
+                                                                 0.2 * n * t/100))
         }
         else {
           ## freq == 1, non seasonal fitted.
@@ -319,10 +319,10 @@ decomposition <-
 ##' @param obj an \code{iNZightTS} object
 ##'
 ##' @param xlab a title for the x axis
-##' 
+##'
 ##' @param t a control of smoothness of the trend of the time series with frequency bigger than 1
-##' 
-##' 
+##'
+##'
 ##'
 ##' @param ylab a title for the y axis
 ##'
