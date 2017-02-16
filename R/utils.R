@@ -34,7 +34,7 @@ get.x2 <-
       start.x = s[1] + (s[2] - 1) * step.x
       end.x = start.x + step.x * (length(tsObj) - 1)
     }
-    
+
     x = seq(start.x, end.x, by = step.x)
     x = order(x)
     x = x/max(x)
@@ -86,7 +86,7 @@ function(vars.decomp, vpName, lineCol = "red",
 }
 
 
-
+##' importFrom iNZightTools newdevice
 newdevice <-
 function(width, height, ...) {
 
@@ -97,7 +97,7 @@ function(width, height, ...) {
         ## setting any width and height here force shiny popup a new window to you
         return()
     }
-    
+
     if (requireNamespace("iNZightTools", quietly = TRUE)) {
         iNZightTools::newdevice(width = width, height = height, ...)
     } else {
@@ -132,7 +132,7 @@ pauseImage <-
 function(image, pause = 1) {
   for (i in 1:pause) {
       drawImage(image)
-      
+
   }
 }
 
@@ -147,7 +147,7 @@ function(image, grobs) {
   }
   image
 }
-     
+
 
 ### a function to choose next odd integer
 ### this function is used for input of the contro of smoothness of trend
@@ -155,10 +155,7 @@ function(image, grobs) {
 
 nextodd <- function(x) {
   x <- round(x)
-  if (x%%2 == 0) 
+  if (x%%2 == 0)
     x <- x + 1
   as.integer(x)
 }
-
-
-
