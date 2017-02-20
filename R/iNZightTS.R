@@ -9,12 +9,23 @@
 ##' If a \code{ts} object is used to create the \code{iNZightTS} object,
 ##' all the domain information is extracted from that object.
 ##'\cr \cr
+##' The function recognises the following time variable formatS without case sensitive:
+##'  \itemize{
+##'   \item "(Y)yyyy" annually data e.g."(Y)1991" 
+##'   \item "(Y)yyyyMmm" monthly data e.g."(Y)1991M01"
+##'   \item "(Y)yyyyQqq" quarterly data e.g."(Y)1991Q01"
+##'   \item "(Y)yyyyWww" weekly data with yearly seasonality e.g."(Y)1991W01"
+##'   \item "(Y)yyyyDdd" daily data with yearly seasonality e.g."(Y)1991D01"
+##'   \item "WwwDdd"  daily data with weekly seasonality e.g. "W01D01"
+##'   \item "DddHdd" hourly data with daily swasonality e.g. "D01H01"
+##' }
 ##' In case of \code{data} being a data.frame or path to a \code{.csv}
 ##' file and \code{start} being omitted, the starting date and the
 ##' \code{freq} is extracted from the column that includes the time
 ##' information. This column is either named \code{"Time"} or is the first
 ##' column. If \code{end} is omitted, all of the data will be used for the
 ##' time-series.
+##'
 ##'
 ##' @title iNZightTS (Time-Series) Objects
 ##'

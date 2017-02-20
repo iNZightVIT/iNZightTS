@@ -342,7 +342,7 @@ decomposition <-
 ##' @export
 decompositionplot <-
     function(obj, ylab = "", xlab = "", multiplicative=FALSE) {
-        vars <- decomposition(obj, ylab, xlab, multiplicative = multiplicative)
+        vars <- decomposition(obj, ylab, xlab, multiplicative = multiplicative, t = 0)
         newdevice(width = 6, height = 5)
         drawImage(vars$decompVars$tree)
         vars
