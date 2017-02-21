@@ -19,6 +19,9 @@
 ##'   \item "WwwDdd"  daily data with weekly seasonality e.g. "W01D01"
 ##'   \item "DddHdd" hourly data with daily swasonality e.g. "D01H01"
 ##' }
+##' The length of digits of each time unit could be fiexable and allowing space between the 
+##' time unit
+##' \cr \cr
 ##' In case of \code{data} being a data.frame or path to a \code{.csv}
 ##' file and \code{start} being omitted, the starting date and the
 ##' \code{freq} is extracted from the column that includes the time
