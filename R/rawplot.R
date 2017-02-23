@@ -10,9 +10,9 @@
 ##'
 ##' @param multiplicative logical. If \code{TRUE}, a multiplicative model is used,
 ##' otherwise an additive model is used by default.
-##' 
+##'
 ##' @param xlab a title for the x axis
-##' 
+##'
 ##' @param ylab a title for the y axis
 ##'
 ##' @param animate animate the plotting process?
@@ -23,7 +23,7 @@
 ##'
 ##' @export
 rawplot <-
-  function(obj, multiplicative = FALSE, ylab = "", xlab = "", animate = FALSE,
+  function(obj, multiplicative = FALSE, ylab = "", xlab = "", animate = FALSE, t = 0,
            e = NULL) {
 
     # the e argument to support animation stop
@@ -46,7 +46,7 @@ rawplot <-
 
     ### We want a trend line, so do a decomposition
     if (frequency(tsObj) > 1) {
-        decomp = decomposition(obj, ylab = "", multiplicative = multiplicative)$decompVars
+        decomp = decomposition(obj, ylab = "", multiplicative = multiplicative, t = t)$decompVars
         if (multiplicative)
           smooth = exp(log(decomp$components[,"trend"]))
         else

@@ -46,7 +46,7 @@ function(x,...) {
 
 ##' @export
 multiseries.1 <-
-function(vars, multiplicative = FALSE, ylab="", ...) {
+function(vars, multiplicative = FALSE, ylab="", t = 0, ...) {
     ##########################################
     # Plot multiple plots time series which have frequency 1
     # in one window.
@@ -73,7 +73,7 @@ function(vars, multiplicative = FALSE, ylab="", ...) {
         curr.vars$data = vardata
         curr.vars$tsObj = ts(vars$data[, i], vars$start, vars$end, vars$freq)
         curr.vars$currVar = i
-        curr.vars = decomposition(curr.vars, ylab = "", multiplicative = multiplicative)
+        curr.vars = decomposition(curr.vars, ylab = "", multiplicative = multiplicative, t = t)
         name = gsub("[[:space:]]+", "_", curr.vars$currVar)
         listVars[[name]] = curr.vars
     }
@@ -274,14 +274,16 @@ function(vars, multiplicative = FALSE, ylab="", ...) {
     image = gTree(name = "image", children = list.grobs,
                   childrenvp = final.vptree)
 
+    dev.hold()
     drawImage(image)
+    dev.flush()
 }
 
 
 
 ##' @export
 multiseries.2p <-
-function(vars, multiplicative = FALSE, ylab= "",...) {
+function(vars, multiplicative = FALSE, ylab= "", t = 0, ...) {
     ##########################################
     # Plot multiple plots time series which have frequency > 1
     # in one window.
@@ -308,7 +310,7 @@ function(vars, multiplicative = FALSE, ylab= "",...) {
         curr.vars$data = vardata
         curr.vars$tsObj = ts(vars$data[, i], vars$start, vars$end, vars$freq)
         curr.vars$currVar = i
-        curr.vars = decomposition(curr.vars, ylab = "", multiplicative = multiplicative)
+        curr.vars = decomposition(curr.vars, ylab = "", multiplicative = multiplicative, t = t)
         whether.multi <- curr.vars$decompVars$multiplicative #%
         name = gsub("[[:space:]]+", "_", curr.vars$currVar)
         listVars[[name]] = curr.vars
@@ -710,5 +712,7 @@ function(vars, multiplicative = FALSE, ylab= "",...) {
     image = gTree(name = "image", children = list.grobs,
                   childrenvp = final.vptree)
 
+    dev.hold()
     drawImage(image)
+    dev.flush()
 }
