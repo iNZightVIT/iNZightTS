@@ -15,16 +15,26 @@ decomposition <-
                 tsObj <- log(obj$tsObj)
             else
                 tsObj <- obj$tsObj
-            decomp <- stl(tsObj, "periodic",t.window = nextodd((1.5*frequency(data)/(1-1.5/(10*n+1))) +
-                                                                 0.2 * n * t/100))
+            ### t.window is the smallest odd integer ranges from about 1.5*frequceny to 2*frequency
+            ### the actual minimum value is  1.5 * frequency/(1 - 1.5/s.window)
+            ### where s.window = 10* number of observation +1 by putting 'periodic'
+            ### t is set to be proportion of 0.5 *frequency 
+            ### when t =0, the t.window takes the default value/ minimum value -the least smoothness
+            ### when t = 1. the t.window takes the maximum value - the most smoothnuess
+            decomp <- stl(tsObj, "periodic",t.window = nextodd(ceiling(1.5*frequency(data)/(1-1.5/(10*n+1)) +
+                                                                         0.5 * frequency(data) * t)))
         }
         else {
           ## freq == 1, non seasonal fitted.
           if (multiplicative)  {
-          trend.comp <-
-                loess(log(obj$data[1:length(obj$tsObj), obj$currVar]) ~ x, span = 0.07+ t/100 )$fitted +
-                    obj$tsObj * 0
-
+            ### according to internet, the span value varies from about 0.1 to 2 
+            ### 0.1 gives nearly no smoothness, while 2 gives nearly maximum smoothness
+            ### therefore here, the span ranges from 0.1 to 2
+            ### the default is 0.75
+            trend.comp <-
+              loess(log(obj$data[1:length(obj$tsObj), obj$currVar]) ~ x, span = 0.1 + 1.9*t )$fitted +
+              obj$tsObj * 0
+         
             residuals.comp <- log(obj$tsObj) - trend.comp
             seasons.comp <- obj$tsObj * 0
             decomp <- list()
