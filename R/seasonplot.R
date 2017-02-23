@@ -113,7 +113,7 @@ function(obj, s, season.labels=NULL, year.labels=FALSE, year.labels.left=FALSE,
 
 ##' @export
 seasonplot.iNZightTS <-
-function(obj, multiplicative = FALSE, ...) {
+function(obj, multiplicative = FALSE, t = 0, ...) {
 
     # if there is no season component to the ts, can't create season plot
     if (length(obj$start) == 1)
@@ -131,6 +131,7 @@ function(obj, multiplicative = FALSE, ...) {
     cols = colorRampPalette(c("darkorange", "blue"))(numSeries)
     title = paste("Seasonal plot for", obj$currVar)
 
+    dev.hold()
     opar = par(mfrow = c(1, 2), cex.axis = 0.9)
     on.exit(par(opar))
 
@@ -138,7 +139,7 @@ function(obj, multiplicative = FALSE, ...) {
                year.labels = TRUE, year.labels.left = TRUE,
                main = title,...)
 
-    obj = decomposition(obj, ylab = "", multiplicative = multiplicative)
+    obj = decomposition(obj, ylab = "", multiplicative = multiplicative, t = t)
     season = obj$decompVars$components[,"seasonal"]
     season = if (s > 1) season[-(1:(freq + 1 - s))][1:freq]
     else season[1:freq]
@@ -171,10 +172,12 @@ function(obj, multiplicative = FALSE, ...) {
     h.lines <- ifelse(obj$decompVars$multiplicative, 1, 0)  #%
 
     title.main = paste(ifelse(multiplicative, "Multiplicative", "Additive"), "seasonal effects")
+
     plot(season.ts, type = "n", ylab = NULL, xlab = xlab,
          xaxt = "n", main = title.main)
 
     abline(h = h.lines, col = "#aaaaaa", lty = "dashed")
     lines(season.ts, type = "o", lwd = 2, cex = 1.2)
     axis(1, at = get.x(season.ts)$x, labels = labs)
+    dev.flush()
 }
