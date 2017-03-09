@@ -46,7 +46,7 @@ function(x,...) {
 
 ##' @export
 multiseries.1 <-
-function(vars, multiplicative = FALSE, ylab="", t = 0, ...) {
+function(vars, multiplicative = FALSE, xlab = "Time", ylab="", t = 0, ...) {
     ##########################################
     # Plot multiple plots time series which have frequency 1
     # in one window.
@@ -228,7 +228,7 @@ function(vars, multiplicative = FALSE, ylab="", t = 0, ...) {
                           paste("trendStack", n, sep = "")),
               gp = gpar(cex = 0.8), name = "xAxis1")
     list.grobs$xAxisLabel1 =
-        textGrob("Time", vp = vpPath("parent", "trends.bottom"),
+        textGrob(xlab, vp = vpPath("parent", "trends.bottom"),
                  name = "xAxisLabel1", gp = gpar(cex = 0.8),
                  y = unit(3, "mm"), vjust = 0)
 
@@ -283,7 +283,7 @@ function(vars, multiplicative = FALSE, ylab="", t = 0, ...) {
 
 ##' @export
 multiseries.2p <-
-function(vars, multiplicative = FALSE, ylab= "", t = 0, ...) {
+function(vars, multiplicative = FALSE, xlab = "Time", ylab= "", t = 0, ...) {
     ##########################################
     # Plot multiple plots time series which have frequency > 1
     # in one window.
@@ -616,21 +616,21 @@ function(vars, multiplicative = FALSE, ylab= "", t = 0, ...) {
 
         if (freq == 12) {
             labs = substring(month.abb, 1, 1)
-            xlab = "Month"
+            xlab2 = "Month"
         }
         else if (freq == 4) {
             labs = paste(month.abb[c(1, 4, 7, 10)],
                          month.abb[c(3, 6, 9, 12)],
                          sep = " - ")
-            xlab = "Quarter"
+            xlab2 = "Quarter"
         }
         else if (freq == 7) {
             labs = c("Sun","Mon","Tue","Wed","Thu","Fri","Sat")
-            xlab = "Day"
+            xlab2 = "Day"
         }
         else {
             labs = 1:freq
-            xlab = "Season"
+            xlab2 = "Season"
         }
 
         list.grobs$xAxis2 =
@@ -639,7 +639,7 @@ function(vars, multiplicative = FALSE, ylab= "", t = 0, ...) {
                       gp = gpar(cex = 0.8), name = "xAxis2",
                       at = 1:freq, label = labs)
         list.grobs$xAxisLabel2 =
-            textGrob(xlab, vp = vpPath("parent", "seasons.bottom"),
+            textGrob(xlab2, vp = vpPath("parent", "seasons.bottom"),
                      name = "xAxisLabel2", gp = gpar(cex = 0.8),
                      y = unit(3, "mm"), vjust = 0)
     }
@@ -649,7 +649,7 @@ function(vars, multiplicative = FALSE, ylab= "", t = 0, ...) {
                           paste("trendStack", n, sep = "")),
               gp = gpar(cex = 0.8), name = "xAxis1")
     list.grobs$xAxisLabel1 =
-        textGrob("Time", vp = vpPath("parent", "trends.bottom"),
+        textGrob(xlab, vp = vpPath("parent", "trends.bottom"),
                  name = "xAxisLabel1", gp = gpar(cex = 0.8),
                  y = unit(3, "mm"), vjust = 0)
 

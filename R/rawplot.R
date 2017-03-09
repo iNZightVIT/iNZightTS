@@ -145,5 +145,7 @@ rawplot <-
          }
 
     }
+    dev.hold()
     drawImage(image)
+    dev.flush()
 }

@@ -12,7 +12,7 @@ compareplot <-
 
 
 compareplot.1 <-
-  function(vars, ylab = "", multiplicative = FALSE, t = 0) {
+  function(vars, xlab = "Time", ylab = "", multiplicative = FALSE, t = 0) {
     ##########################################
     # Plot comparison of multiple time series which have frequency > 1
     # in one window.
@@ -276,7 +276,7 @@ compareplot.1 <-
                   gp = gpar(cex = 0.8), name = "xAxis1")
 
       list.grobs$xAxisLabel1 =
-        textGrob("Time", vp = vpPath("parent", "trends.bottom"),
+        textGrob(xlab, vp = vpPath("parent", "trends.bottom"),
                  name = "xAxisLabel1", gp = gpar(cex = 0.8),
                  y = unit(3, "mm"), vjust = 0)
 
@@ -377,7 +377,7 @@ compareplot.1 <-
 
 
 compareplot.2p <-
-  function(vars, ylab = "", multiplicative = FALSE, t = 0) {
+  function(vars, xlab = "Time", ylab = "", multiplicative = FALSE, t = 0) {
     ##########################################
     # Plot comparison of multiple time series which have frequency > 1
     # in one window.
@@ -659,7 +659,7 @@ compareplot.2p <-
                   gp = gpar(cex = 0.8), name = "xAxis1")
 
       list.grobs$xAxisLabel1 =
-        textGrob("Time", vp = vpPath("parent", "trends.bottom"),
+        textGrob(xlab, vp = vpPath("parent", "trends.bottom"),
                  name = "xAxisLabel1", gp = gpar(cex = 0.8),
                  y = unit(3, "mm"), vjust = 0)
 
