@@ -11,7 +11,7 @@
 ##'\cr \cr
 ##' The function recognises the following time variable formatS without case sensitive:
 ##'  \itemize{
-##'   \item "(Y)yyyy" annually data e.g."(Y)1991" 
+##'   \item "(Y)yyyy" annually data e.g."(Y)1991"
 ##'   \item "(Y)yyyyMmm" monthly data e.g."(Y)1991M01"
 ##'   \item "(Y)yyyyQqq" quarterly data e.g."(Y)1991Q01"
 ##'   \item "(Y)yyyyWww" weekly data with yearly seasonality e.g."(Y)1991W01"
@@ -19,7 +19,7 @@
 ##'   \item "WwwDdd"  daily data with weekly seasonality e.g. "W01D01"
 ##'   \item "DddHdd" hourly data with daily swasonality e.g. "D01H01"
 ##' }
-##' The length of digits of each time unit could be fiexable and allowing space between the 
+##' The length of digits of each time unit could be fiexable and allowing space between the
 ##' time unit
 ##' \cr \cr
 ##' In case of \code{data} being a data.frame or path to a \code{.csv}
@@ -67,7 +67,8 @@
 ##'
 ##' @export
 iNZightTS <-
-    function(data, start=1, end=numeric(), freq=1, var=2, ...) {
+    function(data, start=1, end=numeric(), freq=1, var=2,
+             time.col = grep("time", names(data), ignore.case = TRUE)[1], ...) {
 
         inzightts <- list()
 
@@ -98,7 +99,7 @@ iNZightTS <-
 
             ## try to find the time column
             ## search through the names
-            time.col <- grep("time", names(data), ignore.case = TRUE)[1]
+
             if (is.na(time.col))
                 time.col <- 1
 
