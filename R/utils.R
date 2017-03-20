@@ -114,9 +114,10 @@ function(image) {
     plot.new()
 
   # Draws current image in device.
-
+  dev.hold()
   grid.newpage()
   grid.draw(image)
+  dev.flush()
 
   # On some devices (notably on Mac) we end up being unable to
   # see anything besides a single frame due to buffering.
@@ -131,8 +132,9 @@ function(image) {
 pauseImage <-
 function(image, pause = 1) {
   for (i in 1:pause) {
+      dev.hold()
       drawImage(image)
-
+      dev.flush()
   }
 }
 
