@@ -4,7 +4,8 @@
 \alias{decompositionplot}
 \title{Plot a Time Series Decomposition}
 \usage{
-decompositionplot(obj, ylab = "", xlab = "", multiplicative = FALSE)
+decompositionplot(obj, ylab = "", xlab = "", multiplicative = FALSE,
+  t = 0)
 }
 \arguments{
 \item{obj}{an \code{iNZightTS} object}
@@ -16,7 +17,7 @@ decompositionplot(obj, ylab = "", xlab = "", multiplicative = FALSE)
 \item{multiplicative}{logical. If \code{TRUE}, a multiplicative model is used,
 otherwise an additive model is used by default.}
 
-\item{t}{a control of smoothness of the trend of the time series with frequency bigger than 1}
+\item{t}{a control of smoothness of the trend of the time series with frequency bigger than 1 ranges from 0 to 1}
 }
 \value{
 The original \code{iNZightTS} object with an item \code{decompVars}

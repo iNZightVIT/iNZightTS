@@ -1,3 +1,12 @@
+# Version 1.2
+__Release date__: 24 March 2017
+
+- Main change is addition of smoothing parameter to plots
+- Improved time variable detection, including weekly, daily, hourly data
+- Better use of x and y axis labels
+- Other minor bug fixes
+
+
 # Version 1.1
 __Release date__: 18 January 2014
 

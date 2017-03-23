@@ -17,7 +17,7 @@
 ##'   \item "(Y)yyyyWww" weekly data with yearly seasonality e.g."(Y)1991W01"
 ##'   \item "(Y)yyyyDdd" daily data with yearly seasonality e.g."(Y)1991D01"
 ##'   \item "WwwDdd"  daily data with weekly seasonality e.g. "W01D01"
-##'   \item "DddHdd" hourly data with daily swasonality e.g. "D01H01"
+##'   \item "DddHhh" hourly data with daily swasonality e.g. "D01H01"
 ##' }
 ##' The length of digits of each time unit could be fiexable and allowing space between the
 ##' time unit
@@ -67,7 +67,7 @@
 ##'
 ##' @export
 iNZightTS <-
-    function(data, start=1, end=numeric(), freq=1, var=2,
+    function(data, start=1, end, freq=1, var=2,
              time.col = grep("time", names(data), ignore.case = TRUE)[1], ...) {
 
         inzightts <- list()

@@ -4,7 +4,8 @@
 \alias{forecastplot}
 \title{Forecast plot}
 \usage{
-forecastplot(vars, ylab = "", multiplicative = FALSE, show = TRUE)
+forecastplot(vars, xlab = "Time", ylab = "", multiplicative = FALSE,
+  show = TRUE)
 }
 \arguments{
 \item{vars}{\code{iNZightTS} object}
