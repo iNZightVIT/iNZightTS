@@ -9,12 +9,26 @@
 ##' If a \code{ts} object is used to create the \code{iNZightTS} object,
 ##' all the domain information is extracted from that object.
 ##'\cr \cr
+##' The function recognises the following time variable formatS without case sensitive:
+##'  \itemize{
+##'   \item "(Y)yyyy" annually data e.g."(Y)1991"
+##'   \item "(Y)yyyyMmm" monthly data e.g."(Y)1991M01"
+##'   \item "(Y)yyyyQqq" quarterly data e.g."(Y)1991Q01"
+##'   \item "(Y)yyyyWww" weekly data with yearly seasonality e.g."(Y)1991W01"
+##'   \item "(Y)yyyyDdd" daily data with yearly seasonality e.g."(Y)1991D01"
+##'   \item "WwwDdd"  daily data with weekly seasonality e.g. "W01D01"
+##'   \item "DddHhh" hourly data with daily swasonality e.g. "D01H01"
+##' }
+##' The length of digits of each time unit could be fiexable and allowing space between the
+##' time unit
+##' \cr \cr
 ##' In case of \code{data} being a data.frame or path to a \code{.csv}
 ##' file and \code{start} being omitted, the starting date and the
 ##' \code{freq} is extracted from the column that includes the time
 ##' information. This column is either named \code{"Time"} or is the first
 ##' column. If \code{end} is omitted, all of the data will be used for the
 ##' time-series.
+##'
 ##'
 ##' @title iNZightTS (Time-Series) Objects
 ##'
@@ -53,7 +67,8 @@
 ##'
 ##' @export
 iNZightTS <-
-    function(data, start=1, end=numeric(), freq=1, var=2, ...) {
+    function(data, start=1, end, freq=1, var=2,
+             time.col = grep("time", names(data), ignore.case = TRUE)[1], ...) {
 
         inzightts <- list()
 
@@ -84,7 +99,7 @@ iNZightTS <-
 
             ## try to find the time column
             ## search through the names
-            time.col <- grep("time", names(data), ignore.case = TRUE)[1]
+
             if (is.na(time.col))
                 time.col <- 1
 
@@ -131,80 +146,277 @@ iNZightTS <-
     }
 
 
+
+
+
+is.leapyear=function(year){
+  return(((year %% 4 == 0) & (year %% 100 != 0)) | (year %% 400 == 0))
+}
+
+
+
 get.ts.structure <-
-    function(vardata) {
-        if (is.factor(vardata))
-            vardata <- as.character(vardata)
+  function(vardata) {
+    ## check for factor and converting if it is factor
+    if (is.factor(vardata))
+      vardata <- as.character(vardata)
 
-        if (any(is.na(vardata))) {
-            return(list(start = NA, freq = NA))
-        }
-
-        if (is.numeric(vardata)) {
-            if (any(vardata != round(vardata)))
-                return(list(start = NA, frequency = NA))
-            vardata <- as.character(vardata)
-            if (any(nchar(vardata) > 4))
-                return(list(start = NA, frequency = NA))
-        }
-
-        ## What frequency is the data at (monthly, quarterly, yearly)
-        firstval <- vardata[1]
-        if (nchar(firstval) > 7)
-            return(list(start = NA, frequency = NA))
-        if (nchar(firstval) > 4) {
-            interval <- substring(firstval, 5, 5)
-            freq <- ifelse(interval == "Q", 4, 12)
-        } else {
-            interval <- "A"
-            freq <- 1
-        }
-
-        ## form the start value (used when we create ts objects)
-        start <- as.integer(substring(firstval, 1 ,4))
-        if (interval != "A")
-            start <- c(start, as.integer(substring(firstval, 6)))
-
-        ## Checking that we have no holes in the time variable itself
-        n <- length(vardata)
-        lastyear <- if (is.character(vardata))
-            as.integer(substring(tail(vardata, 1), 1, 4))
-        else
-            tail(vardata, 1)
-        if (interval == "A") {
-            valid.time <- all(as.character(start:(start + (n - 1))) == vardata)
-            if (! valid.time) {
-                return(list(start = NA, frequency = NA))
-            }
-        }
-
-        if (interval == "Q") {
-            n.in.first.year <- freq - start[2] + 1
-            n.rest <- n - n.in.first.year
-            expected.years <- c(rep(start[1], n.in.first.year),
-                                rep((start[1] + 1):lastyear, each = freq, length.out = n.rest))
-            expected.quarters <- c(start[2]:(start[2] + (n.in.first.year - 1)),
-                                   rep(1:4, length.out = n.rest))
-            expected.times <- paste(expected.years, "Q", expected.quarters, sep = "")
-            if (length(expected.times) != length(vardata) || ! all(vardata == expected.times)) {
-                return(list(start = NA, frequency = NA))
-            }
-        }
-
-        if (interval == "M") {
-            n.in.first.year <- freq - start[2] + 1
-            n.rest <- n - n.in.first.year
-            expected.years <- c(rep(start[1], n.in.first.year),
-                                rep((start[1] + 1):lastyear, each = freq, length.out = n.rest))
-            expected.months <- c(start[2]:(start[2] + (n.in.first.year - 1)),
-                                 rep(1:12, length.out = n.rest))
-            expected.times <- paste(expected.years, "M",
-                                    sprintf("%02d", expected.months), sep = "")
-            if (length(expected.times) != length(vardata) ||
-                ! all(vardata == expected.times)) {
-                return(list(start = NA, frequency = NA))
-            }
-        }
-
-        list(start = start, frequency = freq)
+    ## check for NA return NA if there is
+    if (any(is.na(vardata))) {
+      return(list(start = NA, frequency = NA))
     }
+
+    ## check for numeric value with decimal place
+    if (is.numeric(vardata)) {
+      if (any(vardata != round(vardata)))
+        return(list(start = NA, frequency = NA))
+      vardata <- as.character(vardata)
+      ## if the variable is numeric, it can only be yearly data with only 4 digits
+      if (any(nchar(vardata) > 4))
+        return(list(start = NA, frequency = NA))
+    }
+
+    ## extract the first and last value
+    firstval <- vardata[1]
+
+    lastval <- vardata[length(vardata)]
+
+
+
+    ### extract the first and the last year by fingding the first few digits if the
+    ### time variable starts with Y or just digits
+    if(all(grepl("^[Y]?[0-9]+", vardata,ignore.case = TRUE))){
+
+      ## find the location of the year
+      first.year.loc = regexpr("[Y]?[0-9]+", firstval,ignore.case = TRUE)
+
+      last.year.loc = regexpr("[Y]?[0-9]+", lastval,ignore.case = TRUE)
+
+
+      ##check if there is a Y in the year and substring the year
+      if(attr(first.year.loc, "match.length") == 4){
+        first.year = as.numeric(substr(firstval,first.year.loc,
+                                       attr(first.year.loc,"match.length") + first.year.loc -1))
+
+        last.year =  as.numeric(substr(lastval, last.year.loc,
+                                       attr(last.year.loc,"match.length") + last.year.loc -1))
+      } else  {
+        first.year = as.numeric(substr(firstval,first.year.loc + 1,
+                                       attr(first.year.loc,"match.length") + first.year.loc -1))
+
+        last.year =  as.numeric(substr(lastval, last.year.loc + 1,
+                                       attr(last.year.loc,"match.length") + last.year.loc -1))
+      }
+    }
+    ### if the frequency is yearly and check for holes in the series by
+    ### comparing the numerber of observation with the number of year
+    ### calculated by the first year and last year
+    if(all(grepl("^[Y]?[0-9]+$", vardata,ignore.case = TRUE))){
+
+
+      if (last.year - first.year +1 == length(vardata)){
+
+        return(list(start = c(first.year), frequency = 1))}
+      else
+        ## if the number of observations does not match
+        ## return NAs
+        return(list(start = NA, frequency = NA))
+    }
+
+
+
+
+
+    ### check for mongthly with yearly seasonality "1886M02"
+
+    if(all(grepl("^[Y]?[0-9]+[M][0-9]+$", vardata,ignore.case = TRUE))){
+
+      ## extract the first month and last month
+      first.month.loc = regexpr("[M][0-9]+", firstval,ignore.case = TRUE)
+
+      last.month.loc = regexpr("[M][0-9]+", lastval,ignore.case = TRUE)
+
+      first.month = as.numeric(substr(firstval, first.month.loc + 1,
+                                      attr(first.month.loc, "match.length") + first.month.loc -1))
+
+      last.month = as.numeric(substr(lastval, last.month.loc + 1,
+                                     attr(last.month.loc, "match.length") + last.month.loc -1))
+
+      ## check for holes in the obervation by comparing the number of
+      ## observations and the number of month calculated by the using the
+      ## number of years and month
+      ## it works if the observation is in same year
+      if ( 12 - first.month + 1 + last.month + (last.year - first.year - 1)*12 == length(vardata)){
+
+        return(list(start = c(first.year, first.month),frequency = 12))}
+
+      else
+        ## if the numbers do not match, return NAs
+        return(list(start = NA, frequency = NA))
+    }
+
+
+    ### check for quarterly with yearly seasonality "1994Q03"
+
+    if(all(grepl("^[Y]?[0-9]+[Q][0-9]+$", vardata,ignore.case = TRUE))){
+
+      ## extract the quarters
+      first.quarter.loc = regexpr("[Q][0-9]+", firstval,ignore.case = TRUE)
+
+      last.quarter.loc = regexpr("[Q][0-9]+", lastval,ignore.case = TRUE)
+
+      first.quarter = as.numeric(substr(firstval, first.quarter.loc + 1,
+                                        attr(first.quarter.loc, "match.length") + first.quarter.loc -1))
+
+      last.quarter = as.numeric(substr(lastval, last.quarter.loc + 1,
+                                       attr(last.quarter.loc, "match.length") + last.quarter.loc -1))
+
+      ## check for holes in the observation by comparing the
+      ## number of observations and the number of quaters calculated by
+      ## the number of years and the number of quaters
+      if ( 4 - first.quarter + 1 + last.quarter + (last.year - first.year -1)*4 == length(vardata)){
+
+        return(list(start = c(first.year, first.quarter),frequency = 4))}
+      else
+        ## if the numbers do not match, return NAs
+        return(list(start = NA, frequency = NA))
+    }
+
+
+
+    ### check for weekly with yearly seasonality "1990W01"
+
+    if(all(grepl("^[Y]?[0-9]+[W][0-9]+$", vardata,ignore.case = TRUE))){
+
+      ## extract the first and last week
+      first.week.loc = regexpr("[W][0-9]+", firstval,ignore.case = TRUE)
+
+      last.week.loc = regexpr("[W][0-9]+", lastval,ignore.case = TRUE)
+
+      first.week = as.numeric(substr(firstval, first.week.loc + 1,
+                                     attr(first.week.loc, "match.length") + first.week.loc -1))
+
+      last.week = as.numeric(substr(lastval, last.week.loc + 1,
+                                    attr(last.week.loc, "match.length") + last.week.loc -1))
+
+      ## check for holes by comparing the number of observations and the number
+      ## of the weeks calculated by years and weeks
+      if ( 52 - first.week + 1 + last.week + (last.year - first.year -1)*52 == length(vardata)){
+
+        return(list( start = c(first.year, first.week),frequency = 52))}
+      else
+        ## if numbers do not match, return NAs
+        return(list(start = NA, frequency = NA))
+    }
+
+
+
+    ### check for daily with yearly seasonality "1991D1"
+    if(all(grepl("^[Y]?[0-9]+[D][0-9]+$", vardata, ignore.case = TRUE))){
+
+      ## extract the days in first and last value
+      first.day.loc = regexpr("[D][0-9]+", firstval, ignore.case = TRUE)
+
+      last.day.loc = regexpr("[D][0-9]+", lastval, ignore.case = TRUE)
+
+      first.day = as.numeric(substr(firstval, first.day.loc + 1,
+                                    attr(first.day.loc, "match.length")+ first.day.loc - 1))
+
+      last.day = as.numeric(substr(lastval, last.day.loc + 1,
+                                   attr(last.day.loc, "match.length")+ last.day.loc - 1))
+
+      ## generate a sequence of year without the first and last year
+      if(last.year - first.year > 2){
+
+        years = seq(first.year+1, last.year-1)
+
+      }else {
+        years = -1}
+
+
+      if(365 - first.day + 1 + last.day + 365*(last.year - first.year-1) + sum(is.leapyear(years))+
+         (is.leapyear(first.year)& (first.day <= 59 )) == length(vardata)){
+
+        return(list(start = c(first.year, first.day), frequency = 365.25))}
+      else
+
+        return(list(start = NA, frequency = NA))
+    }
+
+
+
+
+    ### check for daily data in weekly seasonality "W01D01"
+    if(all(grepl("^[w][0-9]+[D][0-9]+$", vardata, ignore.case = TRUE))){
+
+
+      ## extract the week and days from the first and last value
+      first.week.loc = regexpr("[w][0-9]+", firstval, ignore.case = TRUE)
+
+      last.week.loc = regexpr("[w][0-9]+", lastval, ignore.case = TRUE)
+
+      first.week = as.numeric(substr(firstval, first.week.loc + 1,
+                                     attr(first.week.loc, "match.length") + first.week.loc-1))
+
+      last.week = as.numeric(substr(lastval, last.week.loc + 1,
+                                    attr(last.week.loc, "match.length") + last.week.loc-1))
+
+      first.day.loc = regexpr("[D][0-9]+", firstval, ignore.case = TRUE)
+
+      last.day.loc = regexpr("[D][0-9]+", lastval, ignore.case = TRUE)
+
+      first.day  = as.numeric(substr(firstval, first.day.loc + 1,
+                                     attr(first.day.loc, "match.length") + first.day.loc - 1))
+
+      last.day  = as.numeric(substr(lastval, first.day.loc + 1,
+                                    attr(last.day.loc, "match.length") + last.day.loc - 1))
+
+      ## check holes by comparin the number of observations and the number of days obtained
+      ## by calculation using the weeks and the days
+      if( 7 - first.day + 1  + last.day + (last.week -first.week - 1)*7 == length(vardata)){
+
+        return(list( start = c(first.week, first.day),frequency = 7))}
+      else
+
+        return(list(start = NA, frequency = NA))
+
+    }
+
+    ## hourly in daily seasonality "D01H01"
+
+    if(all(grepl("^[D][0-9]+[H][0-9]+$", vardata, ignore.case = TRUE))){
+
+      ## extract the days and the hours from the first and last value
+      first.day.loc = regexpr("[d][0-9]+", firstval, ignore.case = TRUE)
+
+      last.day.loc = regexpr("[D][0-9]+", lastval, ignore.case = TRUE)
+
+      first.day  = as.numeric(substr(firstval, first.day.loc + 1,
+                                     attr(first.day.loc, "match.length") + first.day.loc - 1))
+
+      last.day  = as.numeric(substr(lastval, last.day.loc + 1,
+                                    attr(last.day.loc, "match.length") + last.day.loc - 1))
+      first.hour.loc = regexpr("[h][0-9]+", firstval, ignore.case = TRUE)
+
+      last.hour.loc = regexpr("[h][0-9]+", lastval, ignore.case = TRUE)
+
+      first.hour = as.numeric(substr(firstval, first.hour.loc + 1,
+                                     attr(first.hour.loc, "match.length") + first.hour.loc -1 ))
+
+      last.hour = as.numeric(substr(lastval, last.hour.loc + 1,
+                                    attr(last.hour.loc, "match.length") + last.hour.loc - 1))
+
+      ## check for holes by comparing the number of the observation and the
+      ## number obtained by calculation using the days and hours obtained above
+      if( 24 - first.hour +1 + last.hour + (last.day - first.day - 1)*24 == length(vardata)){
+
+        return(list(start = c(first.day, first.hour), freq  = 24))}
+      else
+
+        return(list(start = NA, frequency = NA))
+
+    }
+    else ## if  the varable does not match all the format above
+      ## return  NA
+      return(list(start = NA, frequency = NA))
+  }

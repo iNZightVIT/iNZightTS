@@ -5,7 +5,8 @@
 \alias{iNZightTS}
 \title{iNZightTS (Time-Series) Objects}
 \usage{
-iNZightTS(data, start = 1, end = numeric(), freq = 1, var = 2, ...)
+iNZightTS(data, start = 1, end, freq = 1, var = 2,
+  time.col = grep("time", names(data), ignore.case = TRUE)[1], ...)
 }
 \arguments{
 \item{data}{a \code{data.frame} containing time information and observation or a
@@ -37,6 +38,19 @@ time-series (\code{ts} object) itself.
 \cr \cr
 If a \code{ts} object is used to create the \code{iNZightTS} object,
 all the domain information is extracted from that object.
+\cr \cr
+The function recognises the following time variable formatS without case sensitive:
+ \itemize{
+  \item "(Y)yyyy" annually data e.g."(Y)1991"
+  \item "(Y)yyyyMmm" monthly data e.g."(Y)1991M01"
+  \item "(Y)yyyyQqq" quarterly data e.g."(Y)1991Q01"
+  \item "(Y)yyyyWww" weekly data with yearly seasonality e.g."(Y)1991W01"
+  \item "(Y)yyyyDdd" daily data with yearly seasonality e.g."(Y)1991D01"
+  \item "WwwDdd"  daily data with weekly seasonality e.g. "W01D01"
+  \item "DddHhh" hourly data with daily swasonality e.g. "D01H01"
+}
+The length of digits of each time unit could be fiexable and allowing space between the
+time unit
 \cr \cr
 In case of \code{data} being a data.frame or path to a \code{.csv}
 file and \code{start} being omitted, the starting date and the

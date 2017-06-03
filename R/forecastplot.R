@@ -9,7 +9,7 @@
 ##' @title Forecast plot
 ##'
 ##' @param vars \code{iNZightTS} object
-##' 
+##'
 ##' @param multiplicative logical. If \code{TRUE}, a multiplicative model is used,
 ##' otherwise an additive model is used by default.
 ##'
@@ -35,10 +35,10 @@
 ##'
 ##' @examples z <- iNZightTS(ldeaths)
 ##' forecastplot(z)
-##' 
+##'
 ##' @export
 forecastplot <-
-    function(vars, ylab="", multiplicative = FALSE, show = TRUE) {
+    function(vars, xlab = "Time", ylab="", multiplicative = FALSE, show = TRUE) {
       if (as.integer(vars$freq) == 1)
         return("forecastplot need a time series object with more than 1 frequency.")
     width <- 7
@@ -60,8 +60,8 @@ forecastplot <-
 
       hw.fit <- try(HoltWinters(AtsObj), TRUE)
       if (inherits(hw.fit, "try-error")) stop("Holt-Winters could not converge.")
-      
-    temp.fit <<- hw.fit
+
+    temp.fit <- hw.fit
     pred <- predict(hw.fit, n.ahead = ahead, prediction.interval = TRUE)
     if (multiplicative){
     hw.fit$fitted <- exp(hw.fit$fitted)
@@ -126,7 +126,7 @@ forecastplot <-
                              name = "yAxis", gp = gpar(cex = 0.9))
     grobs$xAxis <- xaxisGrob(vp = vpPath("parent", "plot"),
                              name = "xAxis", gp = gpar(cex = 0.9))
-    grobs$xLabel <- textGrob("Time", y = 0.3, name = "xLabel",
+    grobs$xLabel <- textGrob(xlab, y = 0.3, name = "xLabel",
                              vp = vpPath("parent", "bottom"))
     grobs$yLabel <- textGrob(ylab, x = 0, y = 0.5, name = "yLabel",
                              rot = 90, vjust = -5.5, vp = vpPath("parent", "plot"))

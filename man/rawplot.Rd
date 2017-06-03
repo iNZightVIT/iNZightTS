@@ -5,7 +5,7 @@
 \title{Draw a simple time series plot}
 \usage{
 rawplot(obj, multiplicative = FALSE, ylab = "", xlab = "",
-  animate = FALSE, e = NULL)
+  animate = FALSE, t = 0, e = NULL)
 }
 \arguments{
 \item{obj}{an \code{iNZightTS} object}
