@@ -14,10 +14,10 @@ Depends:
     R (>= 2.13)
 Imports:
     grid,
-	grDevices,
-	graphics,
-	stats,
-	utils
+    grDevices,
+    graphics,
+    stats,
+    utils
 Description: Time Series functionality for iNZight, allowing users to draw, decompose, and forcast with ease.
 License: GPL-2
 RoxygenNote: 6.0.1
