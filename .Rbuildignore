@@ -1,2 +1,3 @@
 ^Makefile$
 ^.*\.md$
+^\.travis\.yml$
