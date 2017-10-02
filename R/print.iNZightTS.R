@@ -14,7 +14,10 @@
 ##'
 ##' @seealso \code{\link{print}}, \code{\link{iNZightTS}}
 ##'
-##' @examples print(iNZightTS(UKgas))
+##' @examples
+##' \dontrun{
+##' print(iNZightTS(UKgas))
+##' }
 ##'
 ##' @export
 print.iNZightTS <-

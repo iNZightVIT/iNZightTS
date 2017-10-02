@@ -21,11 +21,12 @@ seasonal subseries of the time series is plotted. On the right will be
 the average seasonal effect of the series.
 }
 \examples{
+\dontrun{
 x <- iNZightTS(UKgas)
 seasonplot(x)
+}
 
 }
 \seealso{
 \code{\link{iNZightTS}}
 }
-

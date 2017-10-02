@@ -17,13 +17,12 @@ Date: \tab 2014-02-25\cr
 License: \tab GPL-2\cr
 }
 }
+\seealso{
+\code{iNZight}
+}
 \author{
 Marco Kuper, originally developed by Simon Potter and David Banks.
 
 Maintainer: Marco Kuper \url{<MarcoKuper42@gmail.com>}
 }
-\seealso{
-\code{iNZight}
-}
 \keyword{iNZight}
-

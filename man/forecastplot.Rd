@@ -10,6 +10,8 @@ forecastplot(vars, xlab = "Time", ylab = "", multiplicative = FALSE,
 \arguments{
 \item{vars}{\code{iNZightTS} object}
 
+\item{xlab}{x axis label}
+
 \item{ylab}{a title for the y axis}
 
 \item{multiplicative}{logical. If \code{TRUE}, a multiplicative model is used,
@@ -33,8 +35,10 @@ observations is calculated by 2 * \code{freq}, where \code{freq} is
 the frequency of the time series object.
 }
 \examples{
+\dontrun{
 z <- iNZightTS(ldeaths)
 forecastplot(z)
+}
 
 }
 \references{
@@ -51,4 +55,3 @@ Forecasting sales by exponentially weighted moving averages,
 \code{\link{iNZightTS}},
 \code{\link{HoltWinters}}
 }
-

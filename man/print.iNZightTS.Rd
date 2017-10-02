@@ -22,10 +22,11 @@ which the \code{iNZightTS} object has been created. The default is set
 to \code{FALSE} and only the \code{head()} of the data will be printed.
 }
 \examples{
+\dontrun{
 print(iNZightTS(UKgas))
+}
 
 }
 \seealso{
 \code{\link{print}}, \code{\link{iNZightTS}}
 }
-

@@ -10,10 +10,11 @@
 ##'
 ##' @param vars \code{iNZightTS} object
 ##'
+##' @param xlab x axis label
+##' @param ylab a title for the y axis
+##'
 ##' @param multiplicative logical. If \code{TRUE}, a multiplicative model is used,
 ##' otherwise an additive model is used by default.
-##'
-##' @param ylab a title for the y axis
 ##'
 ##' @param show logical. If \code{TRUE}, draw the plot by default.
 ##'
@@ -33,8 +34,11 @@
 ##' @seealso \code{\link{iNZightTS}},
 ##' \code{\link{HoltWinters}}
 ##'
-##' @examples z <- iNZightTS(ldeaths)
+##' @examples
+##' \dontrun{
+##' z <- iNZightTS(ldeaths)
 ##' forecastplot(z)
+##' }
 ##'
 ##' @export
 forecastplot <-

@@ -19,4 +19,3 @@ visitorsM2
 A dataset containing monthly visitor numbers for several countries.
 }
 \keyword{datasets}
-

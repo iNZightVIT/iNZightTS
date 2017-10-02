@@ -15,10 +15,10 @@ decomposition <-
                 tsObj <- log(obj$tsObj)
             else
                 tsObj <- obj$tsObj
-            ### t.window is the smallest odd integer ranges from about 1.5*frequceny to 2*frequency 
+            ### t.window is the smallest odd integer ranges from about 1.5*frequceny to 2*frequency
             ### the actual minimum value is  1.5 * frequency/(1 - 1.5/s.window)
             ### where s.window = 10* number of observation +1 by putting 'periodic'
-            ### t is set to be proportion of 0.5 *frequency 
+            ### t is set to be proportion of 0.5 *frequency
             ### when t =0, the t.window takes the default value/ minimum value -the least smoothness
             ### when t = 1. the t.window takes the maximum value - the most smoothnuess
             decomp <- stl(tsObj, "periodic",t.window = nextodd(ceiling(1.5*frequency(data)/(1-1.5/(10*n+1)) +
@@ -27,7 +27,7 @@ decomposition <-
         else {
           ## freq == 1, non seasonal fitted.
           if (multiplicative)  {
-            ### according to internet, the span value varies from about 0.1 to 2 
+            ### according to internet, the span value varies from about 0.1 to 2
             ### 0.1 gives nearly no smoothness, while 2 gives nearly maximum smoothness
             ### therefore here, the span ranges from 0.1 to 2
             ### the default is 0.75
@@ -347,9 +347,11 @@ decomposition <-
 ##'
 ##' @seealso \code{\link{stl}}, \code{\link{loess}}, \code{\link{iNZightTS}}
 ##'
-##' @examples z <- iNZightTS(ldeaths)
+##' @examples
+##' \dontrun{
+##' z <- iNZightTS(ldeaths)
 ##' y <- decompositionplot(z)
-##'
+##' }
 ##' @export
 decompositionplot <-
     function(obj, ylab = "", xlab = "", multiplicative=FALSE, t = 0) {

@@ -19,4 +19,3 @@ visitorsA2
 A dataset containing annual visitor numbers for several countries.
 }
 \keyword{datasets}
-

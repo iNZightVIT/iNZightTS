@@ -87,31 +87,32 @@ function(vars.decomp, vpName, lineCol = "red",
 
 
 ##' importFrom iNZightTools newdevice
+##' @param ... additional arguments to dev function
 newdevice <-
-function(width, height, ...) {
-
+function(...) {
+    warning("Depreciated. Use iNZightTools::newdevice() instead.")
     return(NULL)
 
-    if ("package:shiny" %in% search()) {
-        ## we should let shiny to set their default graphics device
-        ## setting any width and height here force shiny popup a new window to you
-        return()
-    }
+    ## if ("package:shiny" %in% search()) {
+    ##     ## we should let shiny to set their default graphics device
+    ##     ## setting any width and height here force shiny popup a new window to you
+    ##     return()
+    ## }
 
-    if (requireNamespace("iNZightTools", quietly = TRUE)) {
-        iNZightTools::newdevice(width = width, height = height, ...)
-    } else {
-        dev.new(width = width, height = height)
-        warning("If you experience graphical issues, we suggest installing iNZightTools.")
-    }
+    ## if (requireNamespace("iNZightTools", quietly = TRUE)) {
+    ##     iNZightTools::newdevice(width = width, height = height, ...)
+    ## } else {
+    ##     dev.new(width = width, height = height)
+    ##     warning("If you experience graphical issues, we suggest installing iNZightTools.")
+    ## }
 }
 
 
 
 drawImage <-
 function(image) {
-  if ("Acinonyx" %in% rownames(installed.packages()))
-    plot.new()
+  ## if ("Acinonyx" %in% rownames(installed.packages()))
+  ##   plot.new()
 
   # Draws current image in device.
   dev.hold()

@@ -38,9 +38,10 @@ The trend, seasonal and residual components are plotted on the same
 scale allowing for easy visual analysis.
 }
 \examples{
+\dontrun{
 z <- iNZightTS(ldeaths)
 y <- decompositionplot(z)
-
+}
 }
 \references{
 R. B. Cleveland, W. S. Cleveland, J.E. McRae, and I. Terpenning (1990) STL: A Seasonal-Trend Decomposition Procedure Based on Loess. Journal of Official Statistics, 6, 3iV73.
@@ -48,4 +49,3 @@ R. B. Cleveland, W. S. Cleveland, J.E. McRae, and I. Terpenning (1990) STL: A Se
 \seealso{
 \code{\link{stl}}, \code{\link{loess}}, \code{\link{iNZightTS}}
 }
-

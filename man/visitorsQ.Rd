@@ -6,7 +6,7 @@
 \title{Visitors (quarterly)}
 \format{A data frame with 54 rows and 5 variables:
 \describe{
-  \item{Time}{The time variable (year/quarter)}
+  \item{Date}{The time variable (year/quarter)}
   \item{Australia}{Visitor counts for Australia}
   \item{China..People.s.Republic.of}{Visitor counts for China}
   \item{Japan}{Visitor counts for Japan}
@@ -19,4 +19,3 @@ visitorsQ
 A dataset containing quarterly visitor numbers for several countries.
 }
 \keyword{datasets}
-

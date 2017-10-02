@@ -1,3 +1,15 @@
+##' Plot a multiple time series object to compare several series
+##'
+##' @title Plot multiple time series
+##' @param x Multiple time series object
+##' @param vars iNZightTS object with the data and frequency information included
+##' @param xlab x axis label
+##' @param ylab y axis label
+##' @param multiplicative logical, if TRUE multiplcative series will be used
+##' @param t smoothing parameter
+##' @param ... additional arguments
+##' @return NULL
+##' @author iNZight
 ##' @export
 compareplot <-
   function(x,...) {
@@ -10,7 +22,7 @@ compareplot <-
     }
   }
 
-
+##' @describeIn compareplot For series with frequency = 1
 compareplot.1 <-
   function(vars, xlab = "Time", ylab = "", multiplicative = FALSE, t = 0) {
     ##########################################
@@ -375,7 +387,7 @@ compareplot.1 <-
   }
 
 
-
+##' @describeIn compareplot For series with frequency > 1
 compareplot.2p <-
   function(vars, xlab = "Time", ylab = "", multiplicative = FALSE, t = 0) {
     ##########################################

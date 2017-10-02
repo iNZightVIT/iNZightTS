@@ -1,4 +1,12 @@
-#' @export
+##' Recompose a time series object, with optional animation.
+##'
+##' @title Recompose a decomposed time series
+##' @param vars.decomp a decomposed time series object
+##' @param animate logical, if \code{TRUE} the plot will be animated
+##' @param e environment to use (for controlling animation timings)
+##' @return the recomposed series
+##' @author iNZight
+##' @export
 recompose <-
   function(vars.decomp, animate = TRUE,e = NULL) {
 
@@ -154,7 +162,7 @@ recompose <-
 
 
 shiftLineUp <-
-  function(vars.decomp, vpName, destination.y.parent, n.steps = 15, animate = TRUE, e=tsenv) {
+  function(vars.decomp, vpName, destination.y.parent, n.steps = 15, animate = TRUE, e) {
     lineGrobName = paste(vpName, "Line", sep = "")
     line.attr = get.line.coords(vars.decomp, vpName, lineGrobName)
 
@@ -201,7 +209,7 @@ shiftLineUp <-
 
 
 add.seasonal <-
-  function(trend.attr, vars.decomp, animate = TRUE, e= tsenv) {
+  function(trend.attr, vars.decomp, animate = TRUE, e) {
     decomp = vars.decomp$decompVars
     season.copy = getGrob(decomp$tree, "season.copy")
     y0.copy = getGrob(decomp$tree, "season.y0.copy")
@@ -284,7 +292,7 @@ add.seasonal <-
 
 
 add.random <-
-  function(trend.attr, vars.decomp, animate = TRUE, e=tsenv) {
+  function(trend.attr, vars.decomp, animate = TRUE, e) {
     decomp = vars.decomp$decompVars
     random.copy = getGrob(decomp$tree, "random.copy")
     y0.copy = getGrob(decomp$tree, "random.y0.copy")

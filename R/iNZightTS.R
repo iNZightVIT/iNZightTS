@@ -5,10 +5,10 @@
 ##' objects. Unlike \code{ts} objects, these are lists containing
 ##' information about the time-series as well as the data and the
 ##' time-series (\code{ts} object) itself.
-##' \cr \cr
+##'
 ##' If a \code{ts} object is used to create the \code{iNZightTS} object,
 ##' all the domain information is extracted from that object.
-##'\cr \cr
+##'
 ##' The function recognises the following time variable formatS without case sensitive:
 ##'  \itemize{
 ##'   \item "(Y)yyyy" annually data e.g."(Y)1991"
@@ -21,7 +21,7 @@
 ##' }
 ##' The length of digits of each time unit could be fiexable and allowing space between the
 ##' time unit
-##' \cr \cr
+##'
 ##' In case of \code{data} being a data.frame or path to a \code{.csv}
 ##' file and \code{start} being omitted, the starting date and the
 ##' \code{freq} is extracted from the column that includes the time
@@ -34,26 +34,34 @@
 ##'
 ##' @aliases iNZightMTS
 ##'
-##' @param data a \code{data.frame} containing time information and observation or a
-##' path to a \code{.csv} file with such information or a \code{ts} object
+##' @param data a \code{data.frame} containing time information and
+##'             observation or a path to a \code{.csv} file with
+##'             such information or a \code{ts} object
 ##'
-##' @param start the time of the first observation. Either a single number or a vector
-##' of two integers, which specify a natural time unit and a (1-based)
-##' number of samples into the time unit
+##' @param start the time of the first observation.
+##'              Either a single number or a vector
+##'              of two integers, which specify a natural time unit
+##'              and a (1-based) number of samples into the time unit
 ##'
-##' @param end the time of the last observation, specified in the same way as \code{start}
+##' @param end the time of the last observation, specified in the
+##'            same way as \code{start}
 ##'
 ##' @param freq the number of observations per unit of time
 ##'
-##' @param var the column number or name for the observations used from \code{data}
-##' in the actual time series
+##' @param var the column number or name for the observations used
+##'            from \code{data} in the actual time series
 ##'
+##' @param time.col which column cotains the time variable
+##' @param ignore.case logical, ignore the case?
 ##' @param ... additional information passed to \code{read.csv()} and used when
 ##' \code{data} is a path
 ##'
-##' @seealso \code{\link{ts}}, \code{\link{print.iNZightTS}}, \code{\link{rawplot}}
+##' @seealso \code{\link{ts}}, \code{\link{print.iNZightTS}},
+##'          \code{\link{rawplot}}
 ##'
-##' @examples # create from a ts object
+##' @examples
+##' \dontrun{
+##' # create from a ts object
 ##' z <- iNZightTS(UKgas)
 ##' rawplot(z)
 ##'
@@ -64,6 +72,7 @@
 ##' y <- iNZightTS(data.frame(Return = rnorm(100)), start = c(1990, 1), end =
 ##' c(1993, 5), freq = 12, var = 1)
 ##' rawplot(y)
+##' }
 ##'
 ##' @export
 iNZightTS <-

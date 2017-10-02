@@ -7,18 +7,24 @@
 ##' data for which timeseries objects can be created. The data columns
 ##' used for the plotting are those that are used in the \code{\link{iNZightMTS}}
 ##' object.
-##' \cr \cr
+##' 
 ##' The frequency used for the plotting is also stored in \code{x}.
 ##'
 ##' @title Compare multiple timeseries
 ##'
 ##' @param x iNZightMTS object containing data
-##'
+##' @param vars iNZightTS object with the data and frequency information included
+##' @param multiplicative logical, use multiplicate series?
+##' @param xlab x axis label
+##' @param ylab y axis label
+##' @param t smoothing parameter
 ##' @param ... Further arguments to be passed onto specific methods.
 ##'
 ##' @seealso \code{\link{iNZightTS}}
 ##'
-##' @examples # Frequency > 1
+##' @examples
+##' \dontrun{
+##' # Frequency > 1
 ##' y <- iNZightTS(Seatbelts)
 ##' multiseries(y)
 ##'
@@ -28,6 +34,7 @@
 ##' X <- as.ts(X)
 ##' z <- iNZightTS(X)
 ##' multiseries(z)
+##' }
 ##'
 ##' @keywords timeseries
 ##'
@@ -44,6 +51,7 @@ function(x,...) {
 }
 
 
+##' @describeIn multiseries drawn in one window
 ##' @export
 multiseries.1 <-
 function(vars, multiplicative = FALSE, xlab = "Time", ylab="", t = 0, ...) {
@@ -281,6 +289,7 @@ function(vars, multiplicative = FALSE, xlab = "Time", ylab="", t = 0, ...) {
 
 
 
+##' @describeIn multiseries plot in different panels
 ##' @export
 multiseries.2p <-
 function(vars, multiplicative = FALSE, xlab = "Time", ylab= "", t = 0, ...) {

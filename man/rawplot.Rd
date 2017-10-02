@@ -19,6 +19,8 @@ otherwise an additive model is used by default.}
 
 \item{animate}{animate the plotting process?}
 
+\item{t}{smoothing parameter}
+
 \item{e}{\code{NULL} by default to support animation stop}
 }
 \description{
@@ -30,4 +32,3 @@ time series will appear followed by slowly drawn lines connecting the
 points, simulating the drawing of a time series by hand.
 }
 \keyword{timeseries}
-

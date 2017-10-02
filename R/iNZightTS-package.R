@@ -21,7 +21,7 @@
 ##'
 ##' @seealso \code{iNZight}
 ##'
-##' @import grid
+##' @import grid grDevices graphics stats utils
 ##'
 ##' @name iNZightTS-package
 NULL

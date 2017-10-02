@@ -1,3 +1,8 @@
+# Version 1.3
+__Release date__: 02 October 2017
+
+- Bug fixes and package improvements to pass CRAN checks
+
 # Version 1.2
 __Release date__: 24 March 2017
 

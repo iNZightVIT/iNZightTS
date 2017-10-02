@@ -17,4 +17,3 @@ seaice
 A dataset containing sea ice measurements from 1990 to 2011.
 }
 \keyword{datasets}
-

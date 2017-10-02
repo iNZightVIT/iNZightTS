@@ -2,14 +2,32 @@
 % Please edit documentation in R/multiseries.R
 \name{multiseries}
 \alias{multiseries}
+\alias{multiseries.1}
+\alias{multiseries.2p}
 \title{Compare multiple timeseries}
 \usage{
 multiseries(x, ...)
+
+multiseries.1(vars, multiplicative = FALSE, xlab = "Time", ylab = "",
+  t = 0, ...)
+
+multiseries.2p(vars, multiplicative = FALSE, xlab = "Time", ylab = "",
+  t = 0, ...)
 }
 \arguments{
 \item{x}{iNZightMTS object containing data}
 
 \item{...}{Further arguments to be passed onto specific methods.}
+
+\item{vars}{iNZightTS object with the data and frequency information included}
+
+\item{multiplicative}{logical, use multiplicate series?}
+
+\item{xlab}{x axis label}
+
+\item{ylab}{y axis label}
+
+\item{t}{smoothing parameter}
 }
 \description{
 Draw a plot to compare 2 or more timeseries with each
@@ -22,10 +40,18 @@ is greater than 1.
 data for which timeseries objects can be created. The data columns
 used for the plotting are those that are used in the \code{\link{iNZightMTS}}
 object.
-\cr \cr
+
 The frequency used for the plotting is also stored in \code{x}.
 }
+\section{Functions}{
+\itemize{
+\item \code{multiseries.1}: drawn in one window
+
+\item \code{multiseries.2p}: plot in different panels
+}}
+
 \examples{
+\dontrun{
 # Frequency > 1
 y <- iNZightTS(Seatbelts)
 multiseries(y)
@@ -36,10 +62,10 @@ X <- Seatbelts[12*(1:15), -8]
 X <- as.ts(X)
 z <- iNZightTS(X)
 multiseries(z)
+}
 
 }
 \seealso{
 \code{\link{iNZightTS}}
 }
 \keyword{timeseries}
-

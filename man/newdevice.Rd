@@ -4,9 +4,11 @@
 \alias{newdevice}
 \title{importFrom iNZightTools newdevice}
 \usage{
-newdevice(width, height, ...)
+newdevice(...)
+}
+\arguments{
+\item{...}{additional arguments to dev function}
 }
 \description{
 importFrom iNZightTools newdevice
 }
-

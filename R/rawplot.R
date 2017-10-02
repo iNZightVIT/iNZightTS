@@ -11,12 +11,13 @@
 ##' @param multiplicative logical. If \code{TRUE}, a multiplicative model is used,
 ##' otherwise an additive model is used by default.
 ##'
-##' @param xlab a title for the x axis
-##'
 ##' @param ylab a title for the y axis
+##'
+##' @param xlab a title for the x axis
 ##'
 ##' @param animate animate the plotting process?
 ##'
+##' @param t smoothing parameter
 ##' @param e \code{NULL} by default to support animation stop
 ##'
 ##' @keywords timeseries
