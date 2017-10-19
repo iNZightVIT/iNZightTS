@@ -3,6 +3,15 @@ __Release date__: 02 October 2017
 
 - Bug fixes and package improvements to pass CRAN checks
 
+## Patches
+
+### 1.3-1 - 20/10/2017
+
+- Modify missing-values error message
+
+
+***
+
 # Version 1.2
 __Release date__: 24 March 2017
 
@@ -11,6 +20,8 @@ __Release date__: 24 March 2017
 - Better use of x and y axis labels
 - Other minor bug fixes
 
+
+***
 
 # Version 1.1
 __Release date__: 18 January 2014

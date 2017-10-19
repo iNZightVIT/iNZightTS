@@ -124,7 +124,7 @@ iNZightTS <-
                 freq <- ts.struc$frequency
 
             if (any(c(is.na(start), is.na(freq))))
-                stop("There is an error in your time series, a hole in the series perhaps?")
+                stop("Unable to construct time series object: missing values, perhaps?")
 
             inzightts$start <- start
             inzightts$freq <- freq
