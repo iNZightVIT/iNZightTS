@@ -150,7 +150,7 @@ compareplot.1 <-
     ### Form the gTree
     list.grobs = gList()
     dims = c(7.5, 6.5)
-    newdevice(width = dims[1], height = dims[2])
+    # newdevice(width = dims[1], height = dims[2])
 
     ### Trends part
     #vpName = paste("trendStack", i, sep = "")
@@ -552,7 +552,7 @@ compareplot.2p <-
     ### Form the gTree
     list.grobs = gList()
     dims = c(9, 7)
-    newdevice(width = dims[1], height = dims[2])
+    # newdevice(width = dims[1], height = dims[2])
 
       ### Trends part
       #vpName = paste("trendStack", i, sep = "")

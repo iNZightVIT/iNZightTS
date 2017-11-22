@@ -86,12 +86,10 @@ function(vars.decomp, vpName, lineCol = "red",
 }
 
 
-##' importFrom iNZightTools newdevice
 ##' @param ... additional arguments to dev function
 newdevice <-
 function(...) {
     warning("Depreciated. Use iNZightTools::newdevice() instead.")
-    return(NULL)
 
     ## if ("package:shiny" %in% search()) {
     ##     ## we should let shiny to set their default graphics device

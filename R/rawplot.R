@@ -104,9 +104,12 @@ rawplot <-
                               vp = vpPath("parent", "head")))
 
     image = gTree(name = "image", children = grobList, childrenvp = plot.vptree)
-    newdevice(width = width, height = height)
+    # newdevice(width = width, height = height)
 
     if (animate) {
+        ## When animating, we need to use a new device, possibly ... =/
+        # iNZightTools::newdevice(width = width, height = height)
+
         final.line <- getGrob(image, "line")
         final.smooth <- getGrob(image, "smooth")
         image <- removeGrob(image, "line")

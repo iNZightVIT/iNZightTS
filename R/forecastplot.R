@@ -163,7 +163,7 @@ forecastplot <-
 
 
     if (show){
-      newdevice(width = 7, height = 4)
+      # newdevice(width = 7, height = 4)
       drawImage(tree)
     }
     pred

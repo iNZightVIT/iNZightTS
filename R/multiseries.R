@@ -151,7 +151,7 @@ function(vars, multiplicative = FALSE, xlab = "Time", ylab="", t = 0, ...) {
     ### Form the gTree
     list.grobs = gList()
     dims = c(7.5, 6.5)
-    newdevice(width = dims[1], height = dims[2])
+    # newdevice(width = dims[1], height = dims[2])
     for (i in 1:n) {
         ### Trends part
         vpName = paste("trendStack", i, sep = "")
@@ -422,7 +422,7 @@ function(vars, multiplicative = FALSE, xlab = "Time", ylab= "", t = 0, ...) {
     ### Form the gTree
     list.grobs = gList()
     dims = c(9, 7)
-    newdevice(width = dims[1], height = dims[2])
+    # newdevice(width = dims[1], height = dims[2])
     for (i in 1:n) {
         ### Trends part
         vpName = paste("trendStack", i, sep = "")
