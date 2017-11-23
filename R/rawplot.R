@@ -18,20 +18,15 @@
 ##' @param animate animate the plotting process?
 ##'
 ##' @param t smoothing parameter
-##' @param e \code{NULL} by default to support animation stop
+##' @param aspect the aspect ratio of the plot; 
+##'        it will be about ASPECT times wider than it is high
 ##'
 ##' @keywords timeseries
 ##'
 ##' @export
 rawplot <-
-  function(obj, multiplicative = FALSE, ylab = "", xlab = "", animate = FALSE, t = 0,
-           e = NULL) {
-
-    # the e argument to support animation stop
-    if (is.null(e)) {
-      e <- new.env()
-      e$stopAnimation <- FALSE
-    }
+  function(obj, multiplicative = FALSE, ylab = obj$currVar, xlab = "Date",
+           animate = FALSE, t = 10, aspect = 3) {
 
     if (any(grepl("^iNZightMTS$", class(data))))
         stop("Time-Series must be univariate")
@@ -59,97 +54,44 @@ rawplot <-
     ### Height of the plotting viewport needs to be scale.factor times the height
     ### of the trend viewport in the decomposition plot
 
+    value <- obj$currVar
+    ts.df <- data.frame(Date = as.numeric(time(tsObj)),
+                        value = as.matrix(tsObj),
+                        smooth = as.matrix(smooth))
+    
+    headtitle <- paste("Time series plot for", obj$currVar)
 
-    plotHeight = 2
+    xr <- diff(range(x))
+    yr <- diff(range(y))
+    asp <- xr / yr / aspect
 
-    parent.vp = viewport(layout = grid.layout(3, 3,
-                                              heights = unit(c(1, plotHeight, 1),
-                                                             c("null", "inches", "null")),
-                                              widths = unit(c(1.2, 1, .2),
-                                                            c("inches", "null", "inches"))),
-                         name = "parent")
-    head.vp = viewport(layout.pos.row = 1, layout.pos.col = 1:2, name = "head")
-    left.vp = viewport(layout.pos.row = 2, layout.pos.col = 1, name = "left")
-    right.vp = viewport(layout.pos.row = 2, layout.pos.col = 3, name = "right")
-    bottom.vp = viewport(layout.pos.row = 3, layout.pos.col = 1:2, name = "bottom")
+    tsplot <- ggplot(ts.df, aes(x = Date, y = value)) +
+        coord_fixed(ratio = asp) +
+        # theme(panel.grid.minor.y = element_blank()) +
+        xlab(xlab) + ylab(ylab) # + ggtitle(headtitle)
 
-    plot.vp = viewport(name = "plot", layout.pos.row = 2, layout.pos.col = 2,
-                       xscale = extendrange(r = range(x)),
-                       yscale = extendrange(r = range(y, smooth)))
-    plot.vptree = vpTree(parent.vp, vpList(head.vp, left.vp, plot.vp, right.vp,
-                         bottom.vp))
-
-    ### The following creates a gTree which contains all of our grobs
-    headtitle <- ifelse(ylab != "", ylab, "Time series plot")
-    grobList = gList(rectGrob(vp = vpPath("parent", "plot"), name = "border"),
-                     linesGrob(x.units, y.units, vp = vpPath("parent", "plot"),
-                               name = "line", gp = gpar(col = "black", lwd = 2)),
-                     linesGrob(x.units, unit(smooth, "native"), name = "smooth",
-                               gp = gpar(col = "red"), vp = vpPath("parent", "plot")),
-
-                     yaxisGrob(vp = vpPath("parent", "plot"), name = "yAxis",
-                               gp = gpar(cex = .8)),
-                     textGrob(ylab, x= 0, y = 0.5, vjust = -6,
-                              rot = 90,
-                              vp = vpPath("parent", "plot"), name = "yAxisLabel",
-                              gp = gpar(cex = .8)),
-                     xaxisGrob(vp = vpPath("parent", "plot"), name = "xAxis",
-                               gp = gpar(cex = .8)),
-                     textGrob(xlab, x= 0.5, y = 0, vjust = 5,
-                              vp = vpPath("parent", "plot"), name = "xAxisLabel",
-                              gp = gpar(cex = .8)),
-                     textGrob(paste(headtitle,"for", obj$currVar),
-                              hjust = 0.5, vjust = -1.5, y = 0,
-                              name = "topLabel",
-                              vp = vpPath("parent", "head")))
-
-    image = gTree(name = "image", children = grobList, childrenvp = plot.vptree)
-    # newdevice(width = width, height = height)
 
     if (animate) {
-        ## When animating, we need to use a new device, possibly ... =/
-        # iNZightTools::newdevice(width = width, height = height)
+        ## Do a bunch of things to animate the plot ...
+        dev.hold()
+        print(tsplot + geom_point())
+        dev.flush()
 
-        final.line <- getGrob(image, "line")
-        final.smooth <- getGrob(image, "smooth")
-        image <- removeGrob(image, "line")
-        image <- removeGrob(image, "smooth")
-        n.points <- length(final.line$x)
-
-        # Drawing initial points
-        p <- pointsGrob(x = final.line$x, y = final.line$y,
-                        vp = vpPath("parent", "plot"), size = unit(2, "mm"),
-                        pch = 19, name = "points", gp = gpar(col = "black"))
-        image <- addGrob(image, p)
-        pauseImage(image, 200)
-
-        for (i in 1:n.points) {
-            if ((get("stopAnimation", envir = e) && i < n.points))
-                next
-            l <- linesGrob(x = final.line$x[1:i], y = final.line$y[1:i],
-                           vp = vpPath("parent", "plot"),
-                           name = "line", gp = gpar(col = "black", lwd = 2))
-            image <- addGrob(image, l)
-            speed <- if (i < 20) 30
-                     else if (i < 60) 10
-                     else 1
-            pauseImage(image, speed)
+        Sys.sleep(1)
+        for (i in 2:nrow(ts.df)) {
+            dev.hold()
+            print(tsplot + geom_point() + geom_line(data = ts.df[1:i, ]))
+            dev.flush()
+            Sys.sleep(ifelse(i > 9, 0.05, 0.5))
         }
-
-
-         if (! get("stopAnimation", envir = e)) {
-        pauseImage(image, 5)
-        image <- removeGrob(image, "points")
-        pauseImage(image, 5)
-        image <- addGrob(image, final.smooth)
-         } else {
-             image <- removeGrob(image, "points")
-             image <- addGrob(image, final.line)
-             image <- addGrob(image, final.smooth)
-         }
-
+        Sys.sleep(1)
     }
+
+
+    tsplot <- tsplot + geom_line() + geom_line(aes(x = Date, y = smooth), color = "red")
     dev.hold()
-    drawImage(image)
+    print(tsplot)
     dev.flush()
+
+    invisible(tsplot)
 }
