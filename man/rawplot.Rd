@@ -4,8 +4,8 @@
 \alias{rawplot}
 \title{Draw a simple time series plot}
 \usage{
-rawplot(obj, multiplicative = FALSE, ylab = "", xlab = "",
-  animate = FALSE, t = 0, e = NULL)
+rawplot(obj, multiplicative = FALSE, ylab = obj$currVar, xlab = "Date",
+  animate = FALSE, t = 10, aspect = 3)
 }
 \arguments{
 \item{obj}{an \code{iNZightTS} object}
@@ -21,7 +21,8 @@ otherwise an additive model is used by default.}
 
 \item{t}{smoothing parameter}
 
-\item{e}{\code{NULL} by default to support animation stop}
+\item{aspect}{the aspect ratio of the plot; 
+it will be about ASPECT times wider than it is high}
 }
 \description{
 Draws a plot of a given \code{iNZightTS} object with the trend superimposed.
