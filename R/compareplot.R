@@ -11,16 +11,30 @@
 ##' @return NULL
 ##' @author iNZight
 ##' @export
-compareplot <-
+plot.iNZightMTS <-
   function(x,...) {
     if (!any(grepl("^iNZightMTS$", class(x))))
+      stop("x is not an iNZightMTS object")
+    if (x$freq > 1) {
+      NextMethod()
+      # compareplot.2p(x, ...)
+    } else {
+      compareplot.1(x, ...)
+    }
+  }
+
+##' Comparison plot - depreciated
+##' @export
+compareplot <- function(x, ...) {
+  cat("Depreciated: use `plot()` instead.\n")
+  if (!any(grepl("^iNZightMTS$", class(x))))
       stop("x is not an iNZightMTS object")
     if (x$freq > 1) {
       compareplot.2p(x, ...)
     } else {
       compareplot.1(x, ...)
     }
-  }
+}
 
 ##' @describeIn compareplot For series with frequency = 1
 compareplot.1 <-

@@ -130,7 +130,7 @@ decomposition <-
         ## allocated, and create the viewports
         props <- ranges/sum(ranges)
 
-
+        
 
         ## The following defines the viewport layout for the plot
         ## parent.vp holds everything - with a main central viewport

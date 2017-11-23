@@ -4,7 +4,7 @@
 \alias{compareplot}
 \alias{compareplot.1}
 \alias{compareplot.2p}
-\title{Plot multiple time series}
+\title{Comparison plot - depreciated}
 \usage{
 compareplot(x, ...)
 
@@ -14,23 +14,8 @@ compareplot.1(vars, xlab = "Time", ylab = "", multiplicative = FALSE,
 compareplot.2p(vars, xlab = "Time", ylab = "", multiplicative = FALSE,
   t = 0)
 }
-\arguments{
-\item{x}{Multiple time series object}
-
-\item{...}{additional arguments}
-
-\item{vars}{iNZightTS object with the data and frequency information included}
-
-\item{xlab}{x axis label}
-
-\item{ylab}{y axis label}
-
-\item{multiplicative}{logical, if TRUE multiplcative series will be used}
-
-\item{t}{smoothing parameter}
-}
 \description{
-Plot a multiple time series object to compare several series
+Comparison plot - depreciated
 }
 \section{Functions}{
 \itemize{
@@ -39,6 +24,3 @@ Plot a multiple time series object to compare several series
 \item \code{compareplot.2p}: For series with frequency > 1
 }}
 
-\author{
-iNZight
-}

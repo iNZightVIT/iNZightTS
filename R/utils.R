@@ -86,7 +86,6 @@ function(vars.decomp, vpName, lineCol = "red",
 }
 
 
-##' @param ... additional arguments to dev function
 newdevice <-
 function(...) {
     warning("Depreciated. Use iNZightTools::newdevice() instead.")
