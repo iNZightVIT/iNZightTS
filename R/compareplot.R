@@ -20,16 +20,28 @@ plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE,
     p1 <- NextMethod(x, multiplicative = multiplicative, ylab = ylab, 
                      xlab = xlab, title = title, t = t, aspect = aspect,
                      plot = FALSE)
-    ## extract legend?
-    tmp <- ggplot_gtable(ggplot_build(p1 + labs(color = "")))
-    legend <- tmp$grobs[[which(sapply(tmp$grobs, function(x) x$name) == "guide-box")]]
     p1 <- p1 + theme(legend.position = 'none')
     p2 <- compareseasons(x, multiplicative = multiplicative, t = 0)
+    
+    ## extract legend
+    tmp <- ggplot_gtable(ggplot_build(p2))
+    legend <- tmp$grobs[[which(sapply(tmp$grobs, function(x) x$name) == "guide-box")]]
+    p2 <- p2 + theme(legend.position = 'none')
+
+    ## ensure LHS axes are the same widths
+    p1 <- ggplot_gtable(ggplot_build(p1))
+    p2 <- ggplot_gtable(ggplot_build(p2))
+    max.width <- unit.pmax(p1$widths[2:3], p2$widths[2:3])
+    p1$widths[2:3] <- max.width
+    p2$widths[2:3] <- max.width
+
+    dev.hold()
     gridExtra::grid.arrange(
       p1, p2, legend,
-      layout_matrix = rbind(c(1, 1, 1), c(3, 2, NA)),
-      heights = c(6, 4), widths = c(4, 6, 0.5)
+      layout_matrix = rbind(c(1, 1), c(2, 3)),
+      heights = c(6, 4), widths = c(6, 4)
     )
+    dev.flush()
   } else {
     compareplot.1(x, ...)
   }
@@ -63,10 +75,6 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0) {
     name <- gsub("[[:space:]]+", "_", curr.vars$currVar)
     listVars[[name]] <- curr.vars
   }
-
-  ggplot()
-
-  # whether.multi <- curr.vars$decompVars$multiplicative 
 
   n <- length(varNums)
   x.vals <- get.x2(listVars[[1]]$tsObj)
@@ -111,16 +119,16 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0) {
 
 
   p <- ggplot(seasonData, aes(x = season, y = value,
-                              group = group, color = group)) +
+                              group = group, color = group, shape = group)) +
+    geom_hline(yintercept = as.numeric(multiplicative), linetype = 2) +
     geom_line(lwd = 1) +
-    geom_point(aes(shape = group), size = 2, stroke = 2, fill = "white") +
-    ggtitle(effects) + ylab("") + xlab(xlab) +
-    theme(legend.position = 'none')
-  assign("p2", p, .GlobalEnv)
-  assign("labs", labs, .GlobalEnv)
+    geom_point(size = 2, stroke = 2, fill = "white") +
+    ggtitle(effects) + ylab("") + xlab(xlab) + labs(color = "", shape = "")
+
   if (is.character(labs)) {
     p <- p + scale_x_continuous(breaks = 1:freq, labels = labs)
   }
+
   p
 }
 

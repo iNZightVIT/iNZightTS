@@ -122,7 +122,7 @@ plot.iNZightTS <-
 
 
     tsplot <- tsplot + geom_line(lwd = 1)
-    print(ts.df[ts.df$Date == max(ts.df$Date), ])
+    
     if (!is.null(smooth))
         tsplot <- 
             if (multiseries)
@@ -130,8 +130,8 @@ plot.iNZightTS <-
                           linetype = "22", lwd = 1) +
                 geom_point(aes(x = Date, y = smooth, shape = variable, color = variable), 
                            data = ts.df[ts.df$Date == max(ts.df$Date), ],
-                           size = 2, stroke = 2) +
-                scale_shape_discrete(seq_along(obj$currVar) - 1, solid = FALSE, guide = FALSE)
+                           size = 2, stroke = 2)
+                # scale_shape_discrete(seq_along(obj$currVar), solid = FALSE, guide = FALSE)
             else
                 tsplot + geom_line(aes(x = Date, y = smooth), color = "red")
 

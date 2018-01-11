@@ -4,12 +4,11 @@
 \alias{plot.iNZightTS}
 \title{Draw a simple time series plot}
 \usage{
-\method{plot}{iNZightTS}(obj, multiplicative = FALSE, ylab = obj$currVar,
-  xlab = "Date", title = "\%var", animate = FALSE, t = 10, aspect = 3)
+\method{plot}{iNZightTS}(x, multiplicative = FALSE, ylab = obj$currVar,
+  xlab = "Date", title = "\%var", animate = FALSE, t = 10, aspect = 3,
+  plot = TRUE)
 }
 \arguments{
-\item{obj}{an \code{iNZightTS} object}
-
 \item{multiplicative}{logical. If \code{TRUE}, a multiplicative model is used,
 otherwise an additive model is used by default.}
 
@@ -17,12 +16,18 @@ otherwise an additive model is used by default.}
 
 \item{xlab}{a title for the x axis}
 
-\item{animate}{animate the plotting process?}
+\item{animate}{logical, if true the graph is animated}
 
 \item{t}{smoothing parameter}
 
 \item{aspect}{the aspect ratio of the plot; 
 it will be about ASPECT times wider than it is high}
+
+\item{plot}{logical, if \code{FALSE}, the graph isn't drawn}
+
+\item{obj}{an \code{iNZightTS} object}
+
+\item{tilte}{a title for the graph}
 }
 \description{
 Draws a plot of a given \code{iNZightTS} object with the trend superimposed.
