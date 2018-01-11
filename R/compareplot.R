@@ -11,17 +11,119 @@
 ##' @return NULL
 ##' @author iNZight
 ##' @export
-plot.iNZightMTS <-
-  function(x,...) {
-    if (!any(grepl("^iNZightMTS$", class(x))))
-      stop("x is not an iNZightMTS object")
-    if (x$freq > 1) {
-      NextMethod()
-      # compareplot.2p(x, ...)
-    } else {
-      compareplot.1(x, ...)
-    }
+plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE, 
+                            ylab = 'Value', xlab = "Date", title = "%var",
+                            t = 10, aspect = 2) {
+  if (!any(grepl("^iNZightMTS$", class(x))))
+    stop("x is not an iNZightMTS object")
+  if (x$freq > 1) {
+    p1 <- NextMethod(x, multiplicative = multiplicative, ylab = ylab, 
+                     xlab = xlab, title = title, t = t, aspect = aspect,
+                     plot = FALSE)
+    ## extract legend?
+    tmp <- ggplot_gtable(ggplot_build(p1 + labs(color = "")))
+    legend <- tmp$grobs[[which(sapply(tmp$grobs, function(x) x$name) == "guide-box")]]
+    p1 <- p1 + theme(legend.position = 'none')
+    p2 <- compareseasons(x, multiplicative = multiplicative, t = 0)
+    gridExtra::grid.arrange(
+      p1, p2, legend,
+      layout_matrix = rbind(c(1, 1, 1), c(3, 2, NA)),
+      heights = c(6, 4), widths = c(4, 6, 0.5)
+    )
+  } else {
+    compareplot.1(x, ...)
   }
+}
+
+
+
+compareseasons <- function(x, multiplicative = FALSE, t = 0) {
+  varNums <- seq_along(x$currVar)
+  trendCol <- "black"
+  trendSeasonCol <- "#0e8c07"
+  rawCol <- "black"
+  seasonCol <- "red"
+  groupCol <-  hcl(h = seq(30, 300, by = 270 / (length(x$currVar) - 1)), 
+                   c = 50, l = 70)
+  groupCol.text <- hcl(h = seq(30, 300, by = 270 / (length(x$currVar) - 1)), 
+                       c = 50, l = 40)
+
+  ### put all the necessary "x" variables into a list
+  listVars <- vector("list")
+  varNames <- character(0)
+  for (i in x$currVar) {
+    # add the time and the data for the ts
+    vardata <- cbind(x$data[, 1, drop = FALSE], x$data[, i, drop = FALSE])
+    curr.vars <- x
+    curr.vars$data <- vardata
+    curr.vars$tsObj <- ts(x$data[, i], x$start, x$end, x$freq)
+    curr.vars$currVar <- i
+    curr.vars <- decomposition(curr.vars, ylab = "", multiplicative = multiplicative, t = t)
+
+    name <- gsub("[[:space:]]+", "_", curr.vars$currVar)
+    listVars[[name]] <- curr.vars
+  }
+
+  ggplot()
+
+  # whether.multi <- curr.vars$decompVars$multiplicative 
+
+  n <- length(varNums)
+  x.vals <- get.x2(listVars[[1]]$tsObj)
+  freq <- listVars[[1]]$freq
+  startSeason <- listVars[[1]]$start[2]
+  subset <- 1:freq
+  if (startSeason > 1) {
+    subset <- c(startSeason:freq, 1:(startSeason-1))
+  } else {
+    subset <- 1:freq
+  }
+
+  seasonData = matrix(ncol = 3, nrow = 0)
+  for (i in varNums) {
+      season.y.vals <- listVars[[i]]$decompVars$components[, "seasonal"]@.Data
+      ordered.vals = numeric(freq)
+      ordered.vals[subset] = season.y.vals[1:freq]
+      seasonData <- rbind(seasonData, 
+                          cbind(group = i, season = 1:freq, value = ordered.vals))
+  }
+  seasonData <- as.data.frame(seasonData)
+  seasonData$group <- factor(seasonData$group, levels = 1:freq, labels = x$currVar)
+
+  effects <- ifelse(multiplicative, "Multiplicative Seasonal effects", "Additive Seasonal effects")
+  labs <- 1:freq
+  xlab = "Season"
+
+  if (freq == 12) {
+    labs = substring(month.abb, 1, 1)
+    xlab = "Month"
+  }
+  if (freq == 4) {
+    labs = paste(month.abb[c(1, 4, 7, 10)],
+                 month.abb[c(3, 6, 9, 12)],
+                 sep = " - ")
+    xlab = "Quarter"
+  }
+  if (freq == 7) {
+    labs = c("Sun","Mon","Tue","Wed","Thu","Fri","Sat")
+    xlab = "Day"
+  }
+
+
+  p <- ggplot(seasonData, aes(x = season, y = value,
+                              group = group, color = group)) +
+    geom_line(lwd = 1) +
+    geom_point(aes(shape = group), size = 2, stroke = 2, fill = "white") +
+    ggtitle(effects) + ylab("") + xlab(xlab) +
+    theme(legend.position = 'none')
+  assign("p2", p, .GlobalEnv)
+  assign("labs", labs, .GlobalEnv)
+  if (is.character(labs)) {
+    p <- p + scale_x_continuous(breaks = 1:freq, labels = labs)
+  }
+  p
+}
+
 
 ##' Comparison plot - depreciated
 ##' @export

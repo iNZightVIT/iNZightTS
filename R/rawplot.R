@@ -7,32 +7,33 @@
 ##' @title Draw a simple time series plot
 ##'
 ##' @param obj an \code{iNZightTS} object
-##'
 ##' @param multiplicative logical. If \code{TRUE}, a multiplicative model is used,
 ##' otherwise an additive model is used by default.
-##'
 ##' @param ylab a title for the y axis
-##'
 ##' @param xlab a title for the x axis
-##'
-##' @param animate animate the plotting process?
-##'
+##' @param tilte a title for the graph
+##' @param animate logical, if true the graph is animated
 ##' @param t smoothing parameter
 ##' @param aspect the aspect ratio of the plot; 
 ##'        it will be about ASPECT times wider than it is high
+##' @param plot logical, if \code{FALSE}, the graph isn't drawn
 ##'
 ##' @keywords timeseries
 ##'
+##' @import ggplot2
+##'
 ##' @export
 plot.iNZightTS <- 
-  function(obj, multiplicative = FALSE, ylab = obj$currVar, xlab = "Date",
+  function(x, multiplicative = FALSE, ylab = obj$currVar, xlab = "Date",
            title = "%var",
-           animate = FALSE, t = 10, aspect = 3) {
+           animate = FALSE, t = 10, aspect = 3,
+           plot = TRUE) {
 
     # if (any(grepl("^iNZightMTS$", class(data))))
     #     stop("Time-Series must be univariate")
 
     ### x and y coordinates of the time series tsObj
+    obj <- x
     tsObj = obj$tsObj
     xlist = get.x(tsObj)
     x = xlist$x
@@ -84,7 +85,7 @@ plot.iNZightTS <-
     ts.df <- ts.df %>%
         tidyr::gather(key = "variable", value = "value",
                       colnames(ts.df)[-1], factor_key = TRUE) %>%
-        mutate(variable = forcats::lvls_revalue(variable, 
+        dplyr::mutate(variable = forcats::lvls_revalue(variable, 
                                 gsub("value.", "", levels(variable))))
 
     if (!is.null(smooth))
@@ -103,7 +104,7 @@ plot.iNZightTS <-
         xlab(xlab) + ylab(ylab) + ggtitle(title)
     if (!multiseries) tsplot <- tsplot + scale_colour_manual(values = "black")
 
-    if (animate && !multiseries) {
+    if (plot && animate && !multiseries) {
         ## Do a bunch of things to animate the plot ...
         dev.hold()
         print(tsplot + geom_point())
@@ -121,17 +122,24 @@ plot.iNZightTS <-
 
 
     tsplot <- tsplot + geom_line(lwd = 1)
+    print(ts.df[ts.df$Date == max(ts.df$Date), ])
     if (!is.null(smooth))
-        tsplot <- tsplot + 
-            if (multiseries) 
-                geom_line(aes(x = Date, y = smooth, color = variable),
-                          linetype = "22", lwd = 1)
+        tsplot <- 
+            if (multiseries)
+                tsplot + geom_line(aes(x = Date, y = smooth, color = variable),
+                          linetype = "22", lwd = 1) +
+                geom_point(aes(x = Date, y = smooth, shape = variable, color = variable), 
+                           data = ts.df[ts.df$Date == max(ts.df$Date), ],
+                           size = 2, stroke = 2) +
+                scale_shape_discrete(seq_along(obj$currVar) - 1, solid = FALSE, guide = FALSE)
             else
-                geom_line(aes(x = Date, y = smooth), color = "red")
+                tsplot + geom_line(aes(x = Date, y = smooth), color = "red")
 
-    dev.hold()
-    print(tsplot)
-    dev.flush()
+    if (plot) {
+        dev.hold()
+        print(tsplot)
+        dev.flush()
+    }
 
     invisible(tsplot)
 }
