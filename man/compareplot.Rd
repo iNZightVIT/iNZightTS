@@ -2,25 +2,15 @@
 % Please edit documentation in R/compareplot.R
 \name{compareplot}
 \alias{compareplot}
-\alias{compareplot.1}
-\alias{compareplot.2p}
 \title{Comparison plot - depreciated}
 \usage{
 compareplot(x, ...)
+}
+\arguments{
+\item{x}{an iNZightTS object}
 
-compareplot.1(vars, xlab = "Time", ylab = "", multiplicative = FALSE,
-  t = 0)
-
-compareplot.2p(vars, xlab = "Time", ylab = "", multiplicative = FALSE,
-  t = 0)
+\item{...}{additional arguments passed to `plot()`}
 }
 \description{
 Comparison plot - depreciated
 }
-\section{Functions}{
-\itemize{
-\item \code{compareplot.1}: For series with frequency = 1 (DEPRECIATED)
-
-\item \code{compareplot.2p}: For series with frequency > 1
-}}
-

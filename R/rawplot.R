@@ -17,6 +17,7 @@
 ##' @param aspect the aspect ratio of the plot; 
 ##'        it will be about ASPECT times wider than it is high
 ##' @param plot logical, if \code{FALSE}, the graph isn't drawn
+##' @param col the colour of the smoothed trend line
 ##' @param ... additional arguments (not used)
 ##'
 ##' @keywords timeseries
@@ -28,10 +29,7 @@ plot.iNZightTS <-
   function(x, multiplicative = FALSE, ylab = obj$currVar, xlab = "Date",
            title = "%var",
            animate = FALSE, t = 10, aspect = 3,
-           plot = TRUE, ...) {
-
-    # if (any(grepl("^iNZightMTS$", class(data))))
-    #     stop("Time-Series must be univariate")
+           plot = TRUE, col = "red", ...) {
 
     ### x and y coordinates of the time series tsObj
     obj <- x
@@ -46,35 +44,28 @@ plot.iNZightTS <-
 
     ### We want a trend line, so do a decomposition
     if (!multiseries) {
-        if (frequency(tsObj) > 1) {
-            decomp = decomposition(obj, ylab = "", multiplicative = multiplicative, t = t)$decompVars
-            if (multiplicative)
-              smooth = exp(log(decomp$components[,"trend"]))
-            else
-              smooth = decomp$components[,"trend"]
-        } else {
-            smooth = loess(obj$data[1:length(obj$tsObj), obj$currVar] ~ x)$fitted
-        }
+        decomp = decomposition(obj, ylab = "", multiplicative = multiplicative, t = t)$decompVars
+        if (multiplicative)
+          smooth = exp(log(decomp$components[,"trend"]))
+        else
+          smooth = decomp$components[,"trend"]
         smooth <- as.matrix(smooth)
     } else {
-        if (frequency(tsObj) > 1) {
-            smoothList <- vector("list", length(obj$currVar))
-            names(smoothList) <- obj$currVar
-            for (v in obj$currVar) {
-                subts <- obj
-                subts$tsObj <- obj$tsObj[, v]
-                class(subts) <- "iNZightTS"
-                smoothList[[v]] <- decomposition(subts, ylab = "", multiplicative = multiplicative, t = t)$decompVars
-            }
-            smooth <- do.call(c, lapply(smoothList, function(s) {
-                if (multiplicative)
-                    return(exp(log(s$components[, "trend"])))
-                else
-                    return(s$components[, "trend"])
-            }))
-        } else {
-            smooth <- NULL
+        smoothList <- vector("list", length(obj$currVar))
+        names(smoothList) <- obj$currVar
+        for (v in obj$currVar) {
+            subts <- obj
+            subts$tsObj <- obj$tsObj[, v]
+            subts$currVar <- v
+            class(subts) <- "iNZightTS"
+            smoothList[[v]] <- decomposition(subts, ylab = "", multiplicative = multiplicative, t = t)$decompVars
         }
+        smooth <- do.call(c, lapply(smoothList, function(s) {
+            if (multiplicative)
+                return(exp(log(s$components[, "trend"])))
+            else
+                return(s$components[, "trend"])
+        }))
     }
 
     ### Height of the plotting viewport needs to be scale.factor times the height
@@ -85,9 +76,12 @@ plot.iNZightTS <-
                         value = as.matrix(tsObj))
     ts.df <- ts.df %>%
         tidyr::gather(key = "variable", value = "value",
-                      colnames(ts.df)[-1], factor_key = TRUE) %>%
-        dplyr::mutate(variable = forcats::lvls_revalue(variable, 
-                                gsub("value.", "", levels(variable))))
+                      colnames(ts.df)[-1], factor_key = TRUE)
+    ts.df <- 
+        dplyr::mutate(ts.df, variable = 
+            forcats::lvls_revalue(ts.df$variable, 
+                                  gsub("value.", "", 
+                                        levels(ts.df$variable))))
 
     if (!is.null(smooth))
         ts.df$smooth <- smooth
@@ -95,15 +89,17 @@ plot.iNZightTS <-
     if (grepl("%var", title))
         title <- gsub("%var", paste(obj$currVar, collapse = ", "), title)
 
-    xr <- diff(range(ts.df$Date))
-    yr <- diff(range(ts.df$value))
-    asp <- xr / yr / aspect # + ifelse(multiseries, 2, 0))
 
     tsplot <- ggplot(ts.df, aes_(x = ~Date, y = ~value, 
                                  group = ~variable, colour = ~variable)) +
-        coord_fixed(ratio = asp) +
         xlab(xlab) + ylab(ylab) + ggtitle(title)
-    if (!multiseries) tsplot <- tsplot + scale_colour_manual(values = "black")
+    if (!is.null(aspect)) {
+        xr <- diff(range(ts.df$Date))
+        yr <- diff(range(ts.df$value))
+        asp <- xr / yr / aspect
+        tsplot <- tsplot + coord_fixed(ratio = asp)
+    }
+    if (!multiseries) tsplot <- tsplot + scale_colour_manual(values = "black", guide = FALSE)
 
     if (plot && animate && !multiseries) {
         ## Do a bunch of things to animate the plot ...
@@ -121,20 +117,20 @@ plot.iNZightTS <-
         Sys.sleep(1)
     }
 
-
     tsplot <- tsplot + geom_line(lwd = 1)
     
-    if (!is.null(smooth))
+    if (!is.null(smooth)) {
         tsplot <- 
             if (multiseries)
-                tsplot + geom_line(aes(x = Date, y = smooth, color = variable),
+                tsplot + geom_line(aes_(x = ~Date, y = ~smooth, color = ~variable),
                           linetype = "22", lwd = 1) +
-                geom_point(aes(x = Date, y = smooth, shape = variable, color = variable), 
+                geom_point(aes_(x = ~Date, y = ~smooth, shape = ~variable, color = ~variable), 
                            data = ts.df[ts.df$Date == max(ts.df$Date), ],
-                           size = 2, stroke = 2)
-                # scale_shape_discrete(seq_along(obj$currVar), solid = FALSE, guide = FALSE)
+                           size = 2, stroke = 2) +
+                labs(color = "", shape = "")
             else
-                tsplot + geom_line(aes(x = Date, y = smooth), color = "red")
+                tsplot + geom_line(aes_(x = ~Date, y = ~smooth), color = col)
+    }
 
     if (plot) {
         dev.hold()

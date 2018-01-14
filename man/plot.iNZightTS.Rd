@@ -6,7 +6,7 @@
 \usage{
 \method{plot}{iNZightTS}(x, multiplicative = FALSE, ylab = obj$currVar,
   xlab = "Date", title = "\%var", animate = FALSE, t = 10, aspect = 3,
-  plot = TRUE, ...)
+  plot = TRUE, col = "red", ...)
 }
 \arguments{
 \item{x}{an \code{iNZightTS} object}
@@ -28,6 +28,8 @@ otherwise an additive model is used by default.}
 it will be about ASPECT times wider than it is high}
 
 \item{plot}{logical, if \code{FALSE}, the graph isn't drawn}
+
+\item{col}{the colour of the smoothed trend line}
 
 \item{...}{additional arguments (not used)}
 }
