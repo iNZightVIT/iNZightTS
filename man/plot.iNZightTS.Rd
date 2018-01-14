@@ -6,15 +6,19 @@
 \usage{
 \method{plot}{iNZightTS}(x, multiplicative = FALSE, ylab = obj$currVar,
   xlab = "Date", title = "\%var", animate = FALSE, t = 10, aspect = 3,
-  plot = TRUE)
+  plot = TRUE, ...)
 }
 \arguments{
+\item{x}{an \code{iNZightTS} object}
+
 \item{multiplicative}{logical. If \code{TRUE}, a multiplicative model is used,
 otherwise an additive model is used by default.}
 
 \item{ylab}{a title for the y axis}
 
 \item{xlab}{a title for the x axis}
+
+\item{title}{a title for the graph}
 
 \item{animate}{logical, if true the graph is animated}
 
@@ -25,9 +29,7 @@ it will be about ASPECT times wider than it is high}
 
 \item{plot}{logical, if \code{FALSE}, the graph isn't drawn}
 
-\item{obj}{an \code{iNZightTS} object}
-
-\item{tilte}{a title for the graph}
+\item{...}{additional arguments (not used)}
 }
 \description{
 Draws a plot of a given \code{iNZightTS} object with the trend superimposed.

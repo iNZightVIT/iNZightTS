@@ -5,20 +5,26 @@
 \title{Plot multiple time series}
 \usage{
 \method{plot}{iNZightMTS}(x, compare = TRUE, multiplicative = FALSE,
-  ylab = "Value", xlab = "Date", title = "\%var", t = 10, aspect = 2)
+  ylab = "Value", xlab = "Date", title = "\%var", t = 10, aspect = 2,
+  ...)
 }
 \arguments{
 \item{x}{Multiple time series object}
 
-\item{multiplicative}{logical, if TRUE multiplcative series will be used}
+\item{compare}{logical, if \code{true}, the series will be graphed in a single plot; 
+otherwise graphed in individual rows}
+
+\item{multiplicative}{logical, if TRUE multiplcative series will be used; otherwise additive}
 
 \item{ylab}{y axis label}
 
 \item{xlab}{x axis label}
 
+\item{title}{the title for the plot}
+
 \item{t}{smoothing parameter}
 
-\item{vars}{iNZightTS object with the data and frequency information included}
+\item{aspect}{aspect ratio (width:height) for the time series}
 
 \item{...}{additional arguments}
 }
@@ -26,5 +32,5 @@
 Plot a multiple time series object to compare several series
 }
 \author{
-iNZight
+Tom Elliott
 }

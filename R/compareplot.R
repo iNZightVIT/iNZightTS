@@ -1,25 +1,30 @@
 ##' Plot a multiple time series object to compare several series
 ##'
 ##' @title Plot multiple time series
+##' 
 ##' @param x Multiple time series object
-##' @param vars iNZightTS object with the data and frequency information included
-##' @param xlab x axis label
+##' @param compare logical, if \code{true}, the series will be graphed in a single plot; 
+##'        otherwise graphed in individual rows
+##' @param multiplicative logical, if TRUE multiplcative series will be used; otherwise additive
 ##' @param ylab y axis label
-##' @param multiplicative logical, if TRUE multiplcative series will be used
+##' @param xlab x axis label
+##' @param title the title for the plot
 ##' @param t smoothing parameter
+##' @param aspect aspect ratio (width:height) for the time series
 ##' @param ... additional arguments
+##'
 ##' @return NULL
-##' @author iNZight
+##' @author Tom Elliott
 ##' @export
 plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE, 
                             ylab = 'Value', xlab = "Date", title = "%var",
-                            t = 10, aspect = 2) {
+                            t = 10, aspect = 2, ...) {
   if (!any(grepl("^iNZightMTS$", class(x))))
     stop("x is not an iNZightMTS object")
   if (x$freq > 1) {
     p1 <- NextMethod(x, multiplicative = multiplicative, ylab = ylab, 
                      xlab = xlab, title = title, t = t, aspect = aspect,
-                     plot = FALSE)
+                     plot = FALSE, ...)
     p1 <- p1 + theme(legend.position = 'none')
     p2 <- compareseasons(x, multiplicative = multiplicative, t = 0)
     
@@ -118,8 +123,8 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0) {
   }
 
 
-  p <- ggplot(seasonData, aes(x = season, y = value,
-                              group = group, color = group, shape = group)) +
+  p <- ggplot(seasonData, aes_(x = ~season, y = ~value,
+                               group = ~group, color = ~group, shape = ~group)) +
     geom_hline(yintercept = as.numeric(multiplicative), linetype = 2) +
     geom_line(lwd = 1) +
     geom_point(size = 2, stroke = 2, fill = "white") +
@@ -146,7 +151,7 @@ compareplot <- function(x, ...) {
     }
 }
 
-##' @describeIn compareplot For series with frequency = 1
+##' @describeIn compareplot For series with frequency = 1 (DEPRECIATED)
 compareplot.1 <-
   function(vars, xlab = "Time", ylab = "", multiplicative = FALSE, t = 0) {
     ##########################################

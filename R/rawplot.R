@@ -6,17 +6,18 @@
 ##'
 ##' @title Draw a simple time series plot
 ##'
-##' @param obj an \code{iNZightTS} object
+##' @param x an \code{iNZightTS} object
 ##' @param multiplicative logical. If \code{TRUE}, a multiplicative model is used,
 ##' otherwise an additive model is used by default.
 ##' @param ylab a title for the y axis
 ##' @param xlab a title for the x axis
-##' @param tilte a title for the graph
+##' @param title a title for the graph
 ##' @param animate logical, if true the graph is animated
 ##' @param t smoothing parameter
 ##' @param aspect the aspect ratio of the plot; 
 ##'        it will be about ASPECT times wider than it is high
 ##' @param plot logical, if \code{FALSE}, the graph isn't drawn
+##' @param ... additional arguments (not used)
 ##'
 ##' @keywords timeseries
 ##'
@@ -27,7 +28,7 @@ plot.iNZightTS <-
   function(x, multiplicative = FALSE, ylab = obj$currVar, xlab = "Date",
            title = "%var",
            animate = FALSE, t = 10, aspect = 3,
-           plot = TRUE) {
+           plot = TRUE, ...) {
 
     # if (any(grepl("^iNZightMTS$", class(data))))
     #     stop("Time-Series must be univariate")
@@ -98,8 +99,8 @@ plot.iNZightTS <-
     yr <- diff(range(ts.df$value))
     asp <- xr / yr / aspect # + ifelse(multiseries, 2, 0))
 
-    tsplot <- ggplot(ts.df, aes(x = Date, y = value, 
-                                group = variable, colour = variable)) +
+    tsplot <- ggplot(ts.df, aes_(x = ~Date, y = ~value, 
+                                 group = ~variable, colour = ~variable)) +
         coord_fixed(ratio = asp) +
         xlab(xlab) + ylab(ylab) + ggtitle(title)
     if (!multiseries) tsplot <- tsplot + scale_colour_manual(values = "black")
@@ -145,6 +146,7 @@ plot.iNZightTS <-
 }
 
 ##' Time series plot - depreciated
+##' @param ... arguments passed to `plot` method
 ##' @export
 rawplot <- function(...) {
     cat("Depreciated: use `plot()` instead.\n")

@@ -6,6 +6,9 @@
 \usage{
 rawplot(...)
 }
+\arguments{
+\item{...}{arguments passed to `plot` method}
+}
 \description{
 Time series plot - depreciated
 }

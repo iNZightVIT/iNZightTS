@@ -19,7 +19,7 @@ Comparison plot - depreciated
 }
 \section{Functions}{
 \itemize{
-\item \code{compareplot.1}: For series with frequency = 1
+\item \code{compareplot.1}: For series with frequency = 1 (DEPRECIATED)
 
 \item \code{compareplot.2p}: For series with frequency > 1
 }}
