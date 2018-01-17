@@ -1,3 +1,14 @@
+# Version 1.4
+__Release date__: 18 January 2018
+
+## Major Changes
+
+- __ggplot2__ is now being used for the (majority of) time series graphs
+
+## Bug fixes
+- various
+
+
 # Version 1.3
 __Release date__: 02 October 2017
 
