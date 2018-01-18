@@ -6,38 +6,33 @@
 ##'
 ##' @title Draw a simple time series plot
 ##'
-##' @param obj an \code{iNZightTS} object
-##'
+##' @param x an \code{iNZightTS} object
 ##' @param multiplicative logical. If \code{TRUE}, a multiplicative model is used,
 ##' otherwise an additive model is used by default.
-##'
 ##' @param ylab a title for the y axis
-##'
 ##' @param xlab a title for the x axis
-##'
-##' @param animate animate the plotting process?
-##'
+##' @param title a title for the graph
+##' @param animate logical, if true the graph is animated
 ##' @param t smoothing parameter
-##' @param e \code{NULL} by default to support animation stop
+##' @param aspect the aspect ratio of the plot; 
+##'        it will be about ASPECT times wider than it is high
+##' @param plot logical, if \code{FALSE}, the graph isn't drawn
+##' @param col the colour of the smoothed trend line
+##' @param ... additional arguments (not used)
 ##'
 ##' @keywords timeseries
 ##'
+##' @import ggplot2
+##'
 ##' @export
-rawplot <-
-  function(obj, multiplicative = FALSE, ylab = "", xlab = "", animate = FALSE, t = 0,
-           e = NULL) {
+plot.iNZightTS <- 
+  function(x, multiplicative = FALSE, ylab = obj$currVar, xlab = "Date",
+           title = "%var",
+           animate = FALSE, t = 10, aspect = 3,
+           plot = TRUE, col = "red", ...) {
 
-    # the e argument to support animation stop
-    if (is.null(e)) {
-      e <- new.env()
-      e$stopAnimation <- FALSE
-    }
-
-    if (any(grepl("^iNZightMTS$", class(data))))
-        stop("Time-Series must be univariate")
-
-    height = 5; width = 6
     ### x and y coordinates of the time series tsObj
+    obj <- x
     tsObj = obj$tsObj
     xlist = get.x(tsObj)
     x = xlist$x
@@ -45,108 +40,111 @@ rawplot <-
     y = tsObj@.Data
     y.units = unit(y, "native")
 
+    multiseries <- inherits(obj, "iNZightMTS")
+
     ### We want a trend line, so do a decomposition
-    if (frequency(tsObj) > 1) {
+    if (!multiseries) {
         decomp = decomposition(obj, ylab = "", multiplicative = multiplicative, t = t)$decompVars
         if (multiplicative)
           smooth = exp(log(decomp$components[,"trend"]))
         else
           smooth = decomp$components[,"trend"]
+        smooth <- as.matrix(smooth)
     } else {
-        smooth = loess(obj$data[1:length(obj$tsObj), obj$currVar] ~ x)$fitted
+        smoothList <- vector("list", length(obj$currVar))
+        names(smoothList) <- obj$currVar
+        for (v in obj$currVar) {
+            subts <- obj
+            subts$tsObj <- obj$tsObj[, v]
+            subts$currVar <- v
+            class(subts) <- "iNZightTS"
+            smoothList[[v]] <- decomposition(subts, ylab = "", multiplicative = multiplicative, t = t)$decompVars
+        }
+        smooth <- do.call(c, lapply(smoothList, function(s) {
+            if (multiplicative)
+                return(exp(log(s$components[, "trend"])))
+            else
+                return(s$components[, "trend"])
+        }))
     }
 
     ### Height of the plotting viewport needs to be scale.factor times the height
     ### of the trend viewport in the decomposition plot
 
+    value <- obj$currVar
+    ts.df <- data.frame(Date = as.numeric(time(tsObj)),
+                        value = as.matrix(tsObj))
+    ts.df <- ts.df %>%
+        tidyr::gather(key = "variable", value = "value",
+                      colnames(ts.df)[-1], factor_key = TRUE)
+    ts.df <- 
+        dplyr::mutate(ts.df, variable = 
+            forcats::lvls_revalue(ts.df$variable, 
+                                  gsub("value.", "", 
+                                        levels(ts.df$variable))))
 
-    plotHeight = 2
+    if (!is.null(smooth))
+        ts.df$smooth <- smooth
 
-    parent.vp = viewport(layout = grid.layout(3, 3,
-                                              heights = unit(c(1, plotHeight, 1),
-                                                             c("null", "inches", "null")),
-                                              widths = unit(c(1.2, 1, .2),
-                                                            c("inches", "null", "inches"))),
-                         name = "parent")
-    head.vp = viewport(layout.pos.row = 1, layout.pos.col = 1:2, name = "head")
-    left.vp = viewport(layout.pos.row = 2, layout.pos.col = 1, name = "left")
-    right.vp = viewport(layout.pos.row = 2, layout.pos.col = 3, name = "right")
-    bottom.vp = viewport(layout.pos.row = 3, layout.pos.col = 1:2, name = "bottom")
-
-    plot.vp = viewport(name = "plot", layout.pos.row = 2, layout.pos.col = 2,
-                       xscale = extendrange(r = range(x)),
-                       yscale = extendrange(r = range(y, smooth)))
-    plot.vptree = vpTree(parent.vp, vpList(head.vp, left.vp, plot.vp, right.vp,
-                         bottom.vp))
-
-    ### The following creates a gTree which contains all of our grobs
-    headtitle <- ifelse(ylab != "", ylab, "Time series plot")
-    grobList = gList(rectGrob(vp = vpPath("parent", "plot"), name = "border"),
-                     linesGrob(x.units, y.units, vp = vpPath("parent", "plot"),
-                               name = "line", gp = gpar(col = "black", lwd = 2)),
-                     linesGrob(x.units, unit(smooth, "native"), name = "smooth",
-                               gp = gpar(col = "red"), vp = vpPath("parent", "plot")),
-
-                     yaxisGrob(vp = vpPath("parent", "plot"), name = "yAxis",
-                               gp = gpar(cex = .8)),
-                     textGrob(ylab, x= 0, y = 0.5, vjust = -6,
-                              rot = 90,
-                              vp = vpPath("parent", "plot"), name = "yAxisLabel",
-                              gp = gpar(cex = .8)),
-                     xaxisGrob(vp = vpPath("parent", "plot"), name = "xAxis",
-                               gp = gpar(cex = .8)),
-                     textGrob(xlab, x= 0.5, y = 0, vjust = 5,
-                              vp = vpPath("parent", "plot"), name = "xAxisLabel",
-                              gp = gpar(cex = .8)),
-                     textGrob(paste(headtitle,"for", obj$currVar),
-                              hjust = 0.5, vjust = -1.5, y = 0,
-                              name = "topLabel",
-                              vp = vpPath("parent", "head")))
-
-    image = gTree(name = "image", children = grobList, childrenvp = plot.vptree)
-    newdevice(width = width, height = height)
-
-    if (animate) {
-        final.line <- getGrob(image, "line")
-        final.smooth <- getGrob(image, "smooth")
-        image <- removeGrob(image, "line")
-        image <- removeGrob(image, "smooth")
-        n.points <- length(final.line$x)
-
-        # Drawing initial points
-        p <- pointsGrob(x = final.line$x, y = final.line$y,
-                        vp = vpPath("parent", "plot"), size = unit(2, "mm"),
-                        pch = 19, name = "points", gp = gpar(col = "black"))
-        image <- addGrob(image, p)
-        pauseImage(image, 200)
-
-        for (i in 1:n.points) {
-            if ((get("stopAnimation", envir = e) && i < n.points))
-                next
-            l <- linesGrob(x = final.line$x[1:i], y = final.line$y[1:i],
-                           vp = vpPath("parent", "plot"),
-                           name = "line", gp = gpar(col = "black", lwd = 2))
-            image <- addGrob(image, l)
-            speed <- if (i < 20) 30
-                     else if (i < 60) 10
-                     else 1
-            pauseImage(image, speed)
-        }
+    if (grepl("%var", title))
+        title <- gsub("%var", paste(obj$currVar, collapse = ", "), title)
 
 
-         if (! get("stopAnimation", envir = e)) {
-        pauseImage(image, 5)
-        image <- removeGrob(image, "points")
-        pauseImage(image, 5)
-        image <- addGrob(image, final.smooth)
-         } else {
-             image <- removeGrob(image, "points")
-             image <- addGrob(image, final.line)
-             image <- addGrob(image, final.smooth)
-         }
-
+    tsplot <- ggplot(ts.df, aes_(x = ~Date, y = ~value, 
+                                 group = ~variable, colour = ~variable)) +
+        xlab(xlab) + ylab(ylab) + ggtitle(title)
+    if (!is.null(aspect)) {
+        xr <- diff(range(ts.df$Date))
+        yr <- diff(range(ts.df$value))
+        asp <- xr / yr / aspect
+        tsplot <- tsplot + coord_fixed(ratio = asp)
     }
-    dev.hold()
-    drawImage(image)
-    dev.flush()
+    if (!multiseries) tsplot <- tsplot + scale_colour_manual(values = "black", guide = FALSE)
+
+    if (plot && animate && !multiseries) {
+        ## Do a bunch of things to animate the plot ...
+        dev.hold()
+        print(tsplot + geom_point())
+        dev.flush()
+
+        Sys.sleep(1)
+        for (i in 2:nrow(ts.df)) {
+            dev.hold()
+            print(tsplot + geom_point() + geom_line(data = ts.df[1:i, ]))
+            dev.flush()
+            Sys.sleep(ifelse(i > 9, 0.05, 0.5))
+        }
+        Sys.sleep(1)
+    }
+
+    tsplot <- tsplot + geom_line(lwd = 1)
+    
+    if (!is.null(smooth)) {
+        tsplot <- 
+            if (multiseries)
+                tsplot + geom_line(aes_(x = ~Date, y = ~smooth, color = ~variable),
+                          linetype = "22", lwd = 1) +
+                geom_point(aes_(x = ~Date, y = ~smooth, shape = ~variable, color = ~variable), 
+                           data = ts.df[ts.df$Date == max(ts.df$Date), ],
+                           size = 2, stroke = 2) +
+                labs(color = "", shape = "")
+            else
+                tsplot + geom_line(aes_(x = ~Date, y = ~smooth), color = col)
+    }
+
+    if (plot) {
+        dev.hold()
+        print(tsplot)
+        dev.flush()
+    }
+
+    invisible(tsplot)
+}
+
+##' Time series plot - depreciated
+##' @param ... arguments passed to `plot` method
+##' @export
+rawplot <- function(...) {
+    cat("Depreciated: use `plot()` instead.\n")
+    plot(...)
 }

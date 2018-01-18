@@ -123,7 +123,7 @@ function(obj, multiplicative = FALSE, t = 0, ...) {
         return("Time Series does not have a seasonal component")
 
 
-    newdevice(width = 9, height = 7)
+    # newdevice(width = 9, height = 7)
 
     freq = obj$freq
 

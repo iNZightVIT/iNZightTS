@@ -22,6 +22,7 @@
 ##' @seealso \code{iNZight}
 ##'
 ##' @import grid grDevices graphics stats utils
+##' @importFrom magrittr '%>%'
 ##'
 ##' @name iNZightTS-package
 NULL

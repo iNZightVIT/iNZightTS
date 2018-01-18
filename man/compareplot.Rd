@@ -2,43 +2,15 @@
 % Please edit documentation in R/compareplot.R
 \name{compareplot}
 \alias{compareplot}
-\alias{compareplot.1}
-\alias{compareplot.2p}
-\title{Plot multiple time series}
+\title{Comparison plot - depreciated}
 \usage{
 compareplot(x, ...)
-
-compareplot.1(vars, xlab = "Time", ylab = "", multiplicative = FALSE,
-  t = 0)
-
-compareplot.2p(vars, xlab = "Time", ylab = "", multiplicative = FALSE,
-  t = 0)
 }
 \arguments{
-\item{x}{Multiple time series object}
+\item{x}{an iNZightTS object}
 
-\item{...}{additional arguments}
-
-\item{vars}{iNZightTS object with the data and frequency information included}
-
-\item{xlab}{x axis label}
-
-\item{ylab}{y axis label}
-
-\item{multiplicative}{logical, if TRUE multiplcative series will be used}
-
-\item{t}{smoothing parameter}
+\item{...}{additional arguments passed to `plot()`}
 }
 \description{
-Plot a multiple time series object to compare several series
-}
-\section{Functions}{
-\itemize{
-\item \code{compareplot.1}: For series with frequency = 1
-
-\item \code{compareplot.2p}: For series with frequency > 1
-}}
-
-\author{
-iNZight
+Comparison plot - depreciated
 }
