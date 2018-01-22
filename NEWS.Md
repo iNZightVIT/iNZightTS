@@ -1,5 +1,5 @@
 # Version 1.4
-__Release date__: 18 January 2018
+__Release date__: 23 January 2018
 
 ## Major Changes
 
