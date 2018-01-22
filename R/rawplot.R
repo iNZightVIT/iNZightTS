@@ -49,7 +49,7 @@ plot.iNZightTS <-
           smooth = exp(log(decomp$components[,"trend"]))
         else
           smooth = decomp$components[,"trend"]
-        smooth <- as.matrix(smooth)
+        smooth <- as.matrix(smooth)[, 1]
     } else {
         smoothList <- vector("list", length(obj$currVar))
         names(smoothList) <- obj$currVar
@@ -88,7 +88,6 @@ plot.iNZightTS <-
 
     if (grepl("%var", title))
         title <- gsub("%var", paste(obj$currVar, collapse = ", "), title)
-
 
     tsplot <- ggplot(ts.df, aes_(x = ~Date, y = ~value, 
                                  group = ~variable, colour = ~variable)) +
