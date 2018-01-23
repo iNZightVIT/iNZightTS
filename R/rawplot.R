@@ -76,7 +76,7 @@ plot.iNZightTS <-
                         value = as.matrix(tsObj))
     ts.df <- ts.df %>%
         tidyr::gather(key = "variable", value = "value",
-                      value, factor_key = TRUE)
+                      -Date, factor_key = TRUE)
     ts.df <- 
         dplyr::mutate(ts.df, variable = 
             forcats::lvls_revalue(ts.df$variable, 
