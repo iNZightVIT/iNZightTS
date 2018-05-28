@@ -142,9 +142,13 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0) {
     curr.vars$currVar <- i
     curr.vars <- decomposition(curr.vars, ylab = "", multiplicative = multiplicative, t = t)
 
+    curr.vars
+
     name <- gsub("[[:space:]]+", "_", curr.vars$currVar)
     listVars[[name]] <- curr.vars
   }
+
+
 
   n <- length(varNums)
   x.vals <- get.x2(listVars[[1]]$tsObj)
@@ -158,12 +162,27 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0) {
   }
 
   seasonData = matrix(ncol = 3, nrow = 0)
+  ## for multiplicative, divide by trend to get seasonal effect; otherwise subtract
+  detrend <- if (multiplicative) `/` else `-`
+
+  timeSeasonData <- data.frame()
   for (i in varNums) {
+      # raw.y.vals <- listVars[[i]]$decompVars$raw
+      # trend.y.vals[,i] <- listVars[[i]]$decompVars$components[,"trend"]@.Data
+
       season.y.vals <- listVars[[i]]$decompVars$components[, "seasonal"]@.Data
       ordered.vals = numeric(freq)
       ordered.vals[subset] = season.y.vals[1:freq]
       seasonData <- rbind(seasonData, 
                           cbind(group = i, season = 1:freq, value = ordered.vals))
+
+      timeSeasonData <- 
+        rbind(timeSeasonData, 
+            data.frame(group = i, 
+                       cycle = as.numeric(floor(time(listVars[[i]]$decompVars$components))),
+                       season = rep(subset, length = length(listVars[[i]]$decompVars$components)),
+                       value = detrend(listVars[[i]]$decompVars$raw, 
+                         listVars[[i]]$decompVars$components[,"trend"]@.Data)))
   }
   seasonData <- as.data.frame(seasonData)
   seasonData$group <- factor(seasonData$group, levels = seq_along(x$currVar), labels = x$currVar)
@@ -187,9 +206,10 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0) {
     xlab = "Day"
   }
 
-
   p <- ggplot(seasonData, aes_(x = ~season, y = ~value,
                                group = ~group, color = ~group, shape = ~group)) +
+    geom_line(aes_(x = ~season, y = ~value, group = ~cycle),
+        data = timeSeasonData %>% filter(group == i))
     geom_hline(yintercept = as.numeric(multiplicative), linetype = 2) +
     geom_line(lwd = 1) +
     geom_point(size = 2, stroke = 2, fill = "white") +
