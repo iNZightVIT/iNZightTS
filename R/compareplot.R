@@ -165,7 +165,9 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0) {
   ## for multiplicative, divide by trend to get seasonal effect; otherwise subtract
   detrend <- if (multiplicative) `/` else `-`
 
-  timeSeasonData <- data.frame()
+  compare <- n == 1
+  if (compare)
+    timeSeasonData <- data.frame()
   for (i in varNums) {
       # raw.y.vals <- listVars[[i]]$decompVars$raw
       # trend.y.vals[,i] <- listVars[[i]]$decompVars$components[,"trend"]@.Data
@@ -176,13 +178,12 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0) {
       seasonData <- rbind(seasonData, 
                           cbind(group = i, season = 1:freq, value = ordered.vals))
 
-      timeSeasonData <- 
-        rbind(timeSeasonData, 
-            data.frame(group = i, 
-                       cycle = as.numeric(floor(time(listVars[[i]]$decompVars$components))),
-                       season = rep(subset, length = length(listVars[[i]]$decompVars$components)),
+      if (compare)
+        timeSeasonData <- 
+            data.frame(cycle = as.numeric(floor(time(listVars[[i]]$decompVars$components))),
+                       season = rep(subset, length = nrow(listVars[[i]]$decompVars$components)),
                        value = detrend(listVars[[i]]$decompVars$raw, 
-                         listVars[[i]]$decompVars$components[,"trend"]@.Data)))
+                         listVars[[i]]$decompVars$components[,"trend"]@.Data))
   }
   seasonData <- as.data.frame(seasonData)
   seasonData$group <- factor(seasonData$group, levels = seq_along(x$currVar), labels = x$currVar)
@@ -207,9 +208,15 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0) {
   }
 
   p <- ggplot(seasonData, aes_(x = ~season, y = ~value,
-                               group = ~group, color = ~group, shape = ~group)) +
-    geom_line(aes_(x = ~season, y = ~value, group = ~cycle),
-        data = timeSeasonData %>% filter(group == i))
+                               group = ~group, color = ~group, shape = ~group))
+
+  if (compare)
+    p <- p +
+      geom_path(aes_(x = ~season, y = ~value, group = ~cycle, colour = NULL, shape = NULL),
+          data = timeSeasonData %>% arrange(cycle, season), 
+          colour = "#cccccc")
+  
+  p <- p +
     geom_hline(yintercept = as.numeric(multiplicative), linetype = 2) +
     geom_line(lwd = 1) +
     geom_point(size = 2, stroke = 2, fill = "white") +
