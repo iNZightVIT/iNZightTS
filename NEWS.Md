@@ -8,6 +8,11 @@ __Release date__: 23 January 2018
 ## Bug fixes
 - various
 
+## Patches
+
+### 1.4.1 - 29/05/2018
+- add the seasonal lines for each cycle back into the separate-series comparison plot
+
 
 # Version 1.3
 __Release date__: 02 October 2017
