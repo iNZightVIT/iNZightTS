@@ -213,8 +213,7 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0) {
   if (compare)
     p <- p +
       geom_path(aes_(x = ~season, y = ~value, group = ~cycle, colour = NULL, shape = NULL),
-          data = timeSeasonData %>% arrange(cycle, season), 
-          colour = "#cccccc")
+          data = timeSeasonData, colour = "#bbbbbb")
   
   p <- p +
     geom_hline(yintercept = as.numeric(multiplicative), linetype = 2) +
