@@ -16,6 +16,7 @@ matrix:
       r: devel
     - os: osx
       r: 3.3
+      warnings_are_errors: false
       brew_packages: libgit2
 
 repos:
