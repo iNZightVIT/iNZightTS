@@ -26,4 +26,4 @@ Imports:
     magrittr
 Description: Time Series functionality for iNZight, allowing users to draw, decompose, and forcast with ease.
 License: GPL-2 | file LICENSE
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1

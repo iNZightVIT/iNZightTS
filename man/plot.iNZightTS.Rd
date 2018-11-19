@@ -5,8 +5,8 @@
 \title{Draw a simple time series plot}
 \usage{
 \method{plot}{iNZightTS}(x, multiplicative = FALSE, ylab = obj$currVar,
-  xlab = "Date", title = "\%var", animate = FALSE, t = 10, aspect = 3,
-  plot = TRUE, col = "red", ...)
+  xlab = "Date", title = "\%var", animate = FALSE, t = 10,
+  aspect = 3, plot = TRUE, col = "red", ...)
 }
 \arguments{
 \item{x}{an \code{iNZightTS} object}

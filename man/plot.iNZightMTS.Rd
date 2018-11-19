@@ -5,8 +5,8 @@
 \title{Plot multiple time series}
 \usage{
 \method{plot}{iNZightMTS}(x, compare = TRUE, multiplicative = FALSE,
-  ylab = "Value", xlab = "Date", title = "\%var", t = 10, aspect = 2,
-  ...)
+  ylab = "Value", xlab = "Date", title = "\%var", t = 10,
+  aspect = 2, ...)
 }
 \arguments{
 \item{x}{Multiple time series object}

@@ -16,12 +16,7 @@ matrix:
       r: devel
     - os: osx
       r: 3.3
-      warnings_are_errors: false
       brew_packages: libgit2
-
-repos:
-  docker: https://r.docker.stat.auckland.ac.nz
-  rforge: https://r-forge.r-project.org/
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo chown -R $(whoami) /usr/local/share; fi
