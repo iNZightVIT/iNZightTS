@@ -14,7 +14,7 @@
 ##' @param title a title for the graph
 ##' @param animate logical, if true the graph is animated
 ##' @param t smoothing parameter
-##' @param aspect the aspect ratio of the plot; 
+##' @param aspect the aspect ratio of the plot;
 ##'        it will be about ASPECT times wider than it is high
 ##' @param plot logical, if \code{FALSE}, the graph isn't drawn
 ##' @param col the colour of the smoothed trend line
@@ -25,7 +25,7 @@
 ##' @import ggplot2
 ##'
 ##' @export
-plot.iNZightTS <- 
+plot.iNZightTS <-
   function(x, multiplicative = FALSE, ylab = obj$currVar, xlab = "Date",
            title = "%var",
            animate = FALSE, t = 10, aspect = 3,
@@ -77,10 +77,10 @@ plot.iNZightTS <-
     ts.df <- ts.df %>%
         tidyr::gather(key = "variable", value = "value",
                       -Date, factor_key = TRUE)
-    ts.df <- 
-        dplyr::mutate(ts.df, variable = 
-            forcats::lvls_revalue(ts.df$variable, 
-                                  gsub("value.", "", 
+    ts.df <-
+        dplyr::mutate(ts.df, variable =
+            forcats::lvls_revalue(ts.df$variable,
+                                  gsub("value.", "",
                                         levels(ts.df$variable))))
 
     if (!is.null(smooth))
@@ -89,7 +89,7 @@ plot.iNZightTS <-
     if (grepl("%var", title))
         title <- gsub("%var", paste(obj$currVar, collapse = ", "), title)
 
-    tsplot <- ggplot(ts.df, aes_(x = ~Date, y = ~value, 
+    tsplot <- ggplot(ts.df, aes_(x = ~Date, y = ~value,
                                  group = ~variable, colour = ~variable)) +
         xlab(xlab) + ylab(ylab) + ggtitle(title)
     if (!is.null(aspect)) {
@@ -117,13 +117,13 @@ plot.iNZightTS <-
     }
 
     tsplot <- tsplot + geom_line(lwd = 1)
-    
+
     if (!is.null(smooth)) {
-        tsplot <- 
+        tsplot <-
             if (multiseries)
                 tsplot + geom_line(aes_(x = ~Date, y = ~smooth, color = ~variable),
                           linetype = "22", lwd = 1) +
-                geom_point(aes_(x = ~Date, y = ~smooth, shape = ~variable, color = ~variable), 
+                geom_point(aes_(x = ~Date, y = ~smooth, shape = ~variable, color = ~variable),
                            data = ts.df[ts.df$Date == max(ts.df$Date), ],
                            size = 2, stroke = 2) +
                 labs(color = "", shape = "")
