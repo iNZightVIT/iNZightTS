@@ -24,3 +24,6 @@ matrix:
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo chown -R $(whoami) /usr/local/share; fi
+
+after_success:
+  - Rscript -e 'covr::codecov()'

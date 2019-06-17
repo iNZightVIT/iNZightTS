@@ -6,7 +6,7 @@
 \usage{
 \method{plot}{iNZightMTS}(x, compare = TRUE, multiplicative = FALSE,
   ylab = "Value", xlab = "Date", title = "\%var", t = 10,
-  aspect = 2, ...)
+  aspect = 2, xlim = c(NA, NA), ...)
 }
 \arguments{
 \item{x}{Multiple time series object}
@@ -25,6 +25,8 @@ otherwise graphed in individual rows}
 \item{t}{smoothing parameter}
 
 \item{aspect}{aspect ratio (width:height) for the time series}
+
+\item{xlim}{limits to control how much of series is shown}
 
 \item{...}{additional arguments}
 }

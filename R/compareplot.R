@@ -11,6 +11,7 @@
 ##' @param title the title for the plot
 ##' @param t smoothing parameter
 ##' @param aspect aspect ratio (width:height) for the time series
+##' @param xlim limits to control how much of series is shown
 ##' @param ... additional arguments
 ##'
 ##' @return NULL
@@ -18,13 +19,13 @@
 ##' @export
 plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE,
                             ylab = 'Value', xlab = "Date", title = "%var",
-                            t = 10, aspect = 2, ...) {
+                            t = 10, aspect = 2, xlim = c(NA, NA), ...) {
   on.exit(dev.flush())
   if (compare) {
     ## fetch the main time series plot
     p1 <- NextMethod(x, multiplicative = multiplicative, ylab = ylab,
                      xlab = xlab, title = title, t = t, aspect = aspect,
-                     plot = FALSE, ...)
+                     plot = FALSE, xlim = xlim, ...)
 
     if (x$freq > 1) {
       ## for time series with freq > 1, show the seasonal effects
@@ -79,7 +80,8 @@ plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE,
 
       plist[[i]] <- plot(subts, multiplicative = multiplicative, ylab = ylab,
                          xlab = xlab, title = title, t = t,
-                         col = "blue", aspect = NULL, plot = FALSE)
+                         col = "blue", aspect = NULL, plot = FALSE,
+                         xlim = xlim)
       if (i < Np) plist[[i]] <- plist[[i]] + xlab("")
 
       if (x$freq > 1) {

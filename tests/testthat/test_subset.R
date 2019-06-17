@@ -44,3 +44,27 @@ test_that("Subset of decomposition plot can be shown", {
     # expect_is(plot(t, show = "decomp"), "ggplot")
     # expect_is(plot(t, show = "recomp", animated = FALSE), "ggplot")
 })
+
+test_that("Subset of season plot", {
+    # s <- seasonplot(t, xlim = c(2000, 2011))
+    # expect_equal(x, 0)
+    # expect_is(plot(t, show = "seasons"), "ggplot")
+})
+
+## multi series
+tm <- iNZightTS(visitorsQ, var = 2:5)
+test_that("Subset of multi series graph works", {
+    expect_warning(
+        p <- plot(tm, xlim = c(2000, 2011)),
+        "Removed \\d+ rows containing missing values"
+    )
+    expect_is(p, "gtable")
+
+
+    ## non-compare version
+    expect_warning(
+        p <- plot(tm, compare = FALSE, xlim = c(2000, 2011)),
+        "Removed \\d+ rows containing missing values"
+    )
+    expect_is(p, "gtable")
+})
