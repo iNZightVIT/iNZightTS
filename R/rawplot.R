@@ -19,6 +19,7 @@
 ##' @param plot logical, if \code{FALSE}, the graph isn't drawn
 ##' @param col the colour of the smoothed trend line
 ##' @param xlim axis limits, specied as dates
+##' @param model.lim limits of the series to use for modelling/forecast
 ##' @param ... additional arguments (not used)
 ##'
 ##' @keywords timeseries
@@ -32,6 +33,7 @@ plot.iNZightTS <-
            animate = FALSE, t = 10, aspect = 3,
            plot = TRUE, col = "red",
            xlim = c(NA, NA),
+           model.lim = NULL,
            ...) {
 
     ### x and y coordinates of the time series tsObj
@@ -47,7 +49,11 @@ plot.iNZightTS <-
 
     ### We want a trend line, so do a decomposition
     if (!multiseries) {
-        decomp = decomposition(obj, ylab = "", multiplicative = multiplicative, t = t)$decompVars
+        decomp = decomposition(obj,
+            ylab = "",
+            multiplicative = multiplicative,
+            t = t,
+            model.lim = model.lim)$decompVars
         if (multiplicative)
           smooth = exp(log(decomp$components[,"trend"]))
         else

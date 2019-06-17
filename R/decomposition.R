@@ -2,11 +2,16 @@
 
 decomposition <-
     function(obj, ylab = "", xlab = "", trendCol = "black", seasonCol = "#45a8ff",
-             randCol = seasonCol, multiplicative=FALSE, t = 0, xlim = c(NA, NA)) {
+             randCol = seasonCol, multiplicative=FALSE, t = 0, xlim = c(NA, NA),
+             model.lim = NULL {
         xlist <- get.x(obj$tsObj)
         x <- xlist$x
         x.units <- xlist$x.units
 
+
+        if (!is.null(model.lim)) {
+
+        }
 
         n = length(obj$data)
 
@@ -21,8 +26,14 @@ decomposition <-
             ### t is set to be proportion of 0.5 *frequency
             ### when t =0, the t.window takes the default value/ minimum value -the least smoothness
             ### when t = 1. the t.window takes the maximum value - the most smoothnuess
-            decomp <- stl(tsObj, "periodic",t.window = nextodd(ceiling(1.5*frequency(data)/(1-1.5/(10*n+1)) +
-                                                                 0.5 * frequency(data) * t)))
+            decomp <- stl(tsObj,
+                "periodic",
+                t.window =
+                    nextodd(ceiling(
+                        1.5 * frequency(data) / (1 - 1.5 / (10*n + 1)) +
+                            0.5 * frequency(data) * t
+                    ))
+                )
         }
         else {
           ## freq == 1, non seasonal fitted.
