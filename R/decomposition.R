@@ -3,7 +3,7 @@
 decomposition <-
     function(obj, ylab = "", xlab = "", trendCol = "black", seasonCol = "#45a8ff",
              randCol = seasonCol, multiplicative=FALSE, t = 0, xlim = c(NA, NA),
-             model.lim = NULL {
+             model.lim = NULL) {
         xlist <- get.x(obj$tsObj)
         x <- xlist$x
         x.units <- xlist$x.units
