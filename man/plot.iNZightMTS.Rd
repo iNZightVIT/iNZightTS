@@ -11,7 +11,7 @@
 \arguments{
 \item{x}{Multiple time series object}
 
-\item{compare}{logical, if \code{true}, the series will be graphed in a single plot; 
+\item{compare}{logical, if \code{true}, the series will be graphed in a single plot;
 otherwise graphed in individual rows}
 
 \item{multiplicative}{logical, if TRUE multiplcative series will be used; otherwise additive}

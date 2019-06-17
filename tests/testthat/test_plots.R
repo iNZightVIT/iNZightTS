@@ -19,6 +19,10 @@ test_that("Season plot is OK", {
     # expect_is(plot(t, show = "seasons"), "ggplot")
 })
 
+test_that("Forecast is fine", {
+    expect_is(forecastplot(t), "mts")
+})
+
 ## multi series
 tm <- iNZightTS(visitorsQ, var = 2:5)
 test_that("Multi series graph works", {
@@ -30,6 +34,7 @@ test_that("Unsupported plots error", {
     expect_error(decompositionplot(tm))
     expect_error(recompose(decompositionplot(tm)))
     expect_error(seasonplot(tm))
+    expect_error(forecaseplot(tm))
 })
 
 ## clean up

@@ -3,7 +3,7 @@ data(visitorsQ)
 
 ## single series
 t <- iNZightTS(visitorsQ)
-test_that("Basic ts graph works", {
+test_that("Subset of time series can be viewed", {
     # p <- plot(t, xlim = as.Date(c("2000-01-01", "2011-01-01")))
     expect_warning(
         p <- plot(t, xlim = c(2000, 2011)),
@@ -25,7 +25,7 @@ test_that("Basic ts graph works", {
     expect_equal(p2$scales$scales[[2]]$limits, c(NA, 2005))
 })
 
-test_that("Decomposition and recomposition plots work", {
+test_that("Subset of decomposition plot can be shown", {
     d <- decompositionplot(t, xlim = c(2000, 2011))
     d1 <- decompositionplot(t, xlim = c(2000, NA))
     d2 <- decompositionplot(t, xlim = c(NA, 2005))

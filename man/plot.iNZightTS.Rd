@@ -6,7 +6,7 @@
 \usage{
 \method{plot}{iNZightTS}(x, multiplicative = FALSE, ylab = obj$currVar,
   xlab = "Date", title = "\%var", animate = FALSE, t = 10,
-  aspect = 3, plot = TRUE, col = "red", ...)
+  aspect = 3, plot = TRUE, col = "red", xlim = c(NA, NA), ...)
 }
 \arguments{
 \item{x}{an \code{iNZightTS} object}
@@ -24,12 +24,14 @@ otherwise an additive model is used by default.}
 
 \item{t}{smoothing parameter}
 
-\item{aspect}{the aspect ratio of the plot; 
+\item{aspect}{the aspect ratio of the plot;
 it will be about ASPECT times wider than it is high}
 
 \item{plot}{logical, if \code{FALSE}, the graph isn't drawn}
 
 \item{col}{the colour of the smoothed trend line}
+
+\item{xlim}{axis limits, specied as dates}
 
 \item{...}{additional arguments (not used)}
 }
