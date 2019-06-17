@@ -2,7 +2,7 @@
 
 decomposition <-
     function(obj, ylab = "", xlab = "", trendCol = "black", seasonCol = "#45a8ff",
-             randCol = seasonCol, multiplicative=FALSE, t = 0) {
+             randCol = seasonCol, multiplicative=FALSE, t = 0, xlim = c(NA, NA)) {
         xlist <- get.x(obj$tsObj)
         x <- xlist$x
         x.units <- xlist$x.units
@@ -130,7 +130,7 @@ decomposition <-
         ## allocated, and create the viewports
         props <- ranges/sum(ranges)
 
-        
+
 
         ## The following defines the viewport layout for the plot
         ## parent.vp holds everything - with a main central viewport
@@ -340,6 +340,8 @@ decomposition <-
 ##' @param multiplicative logical. If \code{TRUE}, a multiplicative model is used,
 ##' otherwise an additive model is used by default.
 ##'
+##' @param xlim axis limits, specified as dates
+##'
 ##' @return The original \code{iNZightTS} object with an item \code{decompVars}
 ##' appended, containing results from the decomposition.
 ##'
@@ -354,8 +356,11 @@ decomposition <-
 ##' }
 ##' @export
 decompositionplot <-
-    function(obj, ylab = "", xlab = "", multiplicative=FALSE, t = 0) {
-        vars <- decomposition(obj, ylab, xlab, multiplicative = multiplicative, t = t)
+    function(obj, ylab = "", xlab = "", multiplicative=FALSE, t = 0,
+             xlim = c(NA, NA)) {
+        vars <- decomposition(obj, ylab, xlab,
+            multiplicative = multiplicative,
+            t = t, xlim = xlim)
         # newdevice(width = 6, height = 5)
         dev.hold()
         drawImage(vars$decompVars$tree)

@@ -18,6 +18,7 @@
 ##'        it will be about ASPECT times wider than it is high
 ##' @param plot logical, if \code{FALSE}, the graph isn't drawn
 ##' @param col the colour of the smoothed trend line
+##' @param xlim axis limits, specied as dates
 ##' @param ... additional arguments (not used)
 ##'
 ##' @keywords timeseries
@@ -29,7 +30,9 @@ plot.iNZightTS <-
   function(x, multiplicative = FALSE, ylab = obj$currVar, xlab = "Date",
            title = "%var",
            animate = FALSE, t = 10, aspect = 3,
-           plot = TRUE, col = "red", ...) {
+           plot = TRUE, col = "red",
+           xlim = c(NA, NA),
+           ...) {
 
     ### x and y coordinates of the time series tsObj
     obj <- x
@@ -89,6 +92,7 @@ plot.iNZightTS <-
     if (grepl("%var", title))
         title <- gsub("%var", paste(obj$currVar, collapse = ", "), title)
 
+
     tsplot <- ggplot(ts.df, aes_(x = ~Date, y = ~value,
                                  group = ~variable, colour = ~variable)) +
         xlab(xlab) + ylab(ylab) + ggtitle(title)
@@ -99,6 +103,11 @@ plot.iNZightTS <-
         tsplot <- tsplot + coord_fixed(ratio = asp)
     }
     if (!multiseries) tsplot <- tsplot + scale_colour_manual(values = "black", guide = FALSE)
+
+    ## x-axis limits
+    if (!all(is.na(xlim))) {
+        tsplot <- tsplot + xlim(xlim[1], xlim[2])
+    }
 
     if (plot && animate && !multiseries) {
         ## Do a bunch of things to animate the plot ...
