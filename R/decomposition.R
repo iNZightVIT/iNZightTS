@@ -4,14 +4,20 @@ decomposition <- function(obj, ylab = "", xlab = "", trendCol = "black",
                           seasonCol = "#45a8ff",
                           randCol = seasonCol, multiplicative=FALSE, t = 0, 
                           xlim = c(NA, NA), model.lim = NULL) {
+    if (!is.null(model.lim)) {
+        ts.sub <- try({
+            window(obj$tsObj, model.lim[1], model.lim[2])
+        }, TRUE)
+        if (inherits(ts.sub, "try-error")) {
+            warning("Invalid modelling window - ignoring.")
+        } else {
+            obj$tsObj <- ts.sub
+        }
+    }
+
     xlist <- get.x(obj$tsObj)
     x <- xlist$x
     x.units <- xlist$x.units
-
-
-    if (!is.null(model.lim)) {
-
-    }
 
     n = length(obj$data)
 
@@ -349,6 +355,7 @@ decomposition <- function(obj, ylab = "", xlab = "", trendCol = "black",
 ##' otherwise an additive model is used by default.
 ##'
 ##' @param xlim axis limits, specified as dates
+##' @param model.lim time limits to use for modelling 
 ##'
 ##' @return The original \code{iNZightTS} object with an item \code{decompVars}
 ##' appended, containing results from the decomposition.
@@ -365,10 +372,10 @@ decomposition <- function(obj, ylab = "", xlab = "", trendCol = "black",
 ##' @export
 decompositionplot <-
     function(obj, ylab = "", xlab = "", multiplicative=FALSE, t = 0,
-             xlim = c(NA, NA)) {
+             xlim = c(NA, NA), model.lim = NULL) {
         vars <- decomposition(obj, ylab, xlab,
             multiplicative = multiplicative,
-            t = t, xlim = xlim)
+            t = t, xlim = xlim, model.lim = model.lim)
         # newdevice(width = 6, height = 5)
         dev.hold()
         drawImage(vars$decompVars$tree)

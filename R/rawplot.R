@@ -44,7 +44,7 @@ plot.iNZightTS <-
     x.units = xlist$x.units
     y = tsObj@.Data
     y.units = unit(y, "native")
-
+    
     multiseries <- inherits(obj, "iNZightMTS")
 
     ### We want a trend line, so do a decomposition
@@ -67,7 +67,11 @@ plot.iNZightTS <-
             subts$tsObj <- obj$tsObj[, v]
             subts$currVar <- v
             class(subts) <- "iNZightTS"
-            smoothList[[v]] <- decomposition(subts, ylab = "", multiplicative = multiplicative, t = t)$decompVars
+            smoothList[[v]] <- decomposition(subts, 
+                ylab = "", 
+                multiplicative = multiplicative, 
+                t = t,
+                model.lim = model.lim)$decompVars
         }
         smooth <- do.call(c, lapply(smoothList, function(s) {
             if (multiplicative)
@@ -92,8 +96,13 @@ plot.iNZightTS <-
                                   gsub("value.", "",
                                         levels(ts.df$variable))))
 
+    fit.df <- ts.df
+    if (!is.null(model.lim)) {
+        fit.df <- 
+            fit.df[fit.df$Date >= model.lim[1] & fit.df$Date <= model.lim[2], ]
+    }
     if (!is.null(smooth))
-        ts.df$smooth <- smooth
+        fit.df$smooth <- smooth
 
     if (grepl("%var", title))
         title <- gsub("%var", paste(obj$currVar, collapse = ", "), title)
@@ -137,13 +146,15 @@ plot.iNZightTS <-
         tsplot <-
             if (multiseries)
                 tsplot + geom_line(aes_(x = ~Date, y = ~smooth, color = ~variable),
-                          linetype = "22", lwd = 1) +
+                    data = fit.df,
+                    linetype = "22", lwd = 1) +
                 geom_point(aes_(x = ~Date, y = ~smooth, shape = ~variable, color = ~variable),
-                           data = ts.df[ts.df$Date == max(ts.df$Date), ],
+                           data = fit.df[fit.df$Date == max(fit.df$Date), ],
                            size = 2, stroke = 2) +
                 labs(color = "", shape = "")
             else
-                tsplot + geom_line(aes_(x = ~Date, y = ~smooth), color = col)
+                tsplot + geom_line(aes_(x = ~Date, y = ~smooth), 
+                    data = fit.df, color = col)
     }
 
     if (plot) {

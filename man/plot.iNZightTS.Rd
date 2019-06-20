@@ -6,7 +6,8 @@
 \usage{
 \method{plot}{iNZightTS}(x, multiplicative = FALSE, ylab = obj$currVar,
   xlab = "Date", title = "\%var", animate = FALSE, t = 10,
-  aspect = 3, plot = TRUE, col = "red", xlim = c(NA, NA), ...)
+  aspect = 3, plot = TRUE, col = "red", xlim = c(NA, NA),
+  model.lim = NULL, ...)
 }
 \arguments{
 \item{x}{an \code{iNZightTS} object}
@@ -32,6 +33,8 @@ it will be about ASPECT times wider than it is high}
 \item{col}{the colour of the smoothed trend line}
 
 \item{xlim}{axis limits, specied as dates}
+
+\item{model.lim}{limits of the series to use for modelling/forecast}
 
 \item{...}{additional arguments (not used)}
 }

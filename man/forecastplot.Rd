@@ -5,7 +5,7 @@
 \title{Forecast plot}
 \usage{
 forecastplot(vars, xlab = "Time", ylab = "", multiplicative = FALSE,
-  show = TRUE)
+  show = TRUE, model.lim = NULL)
 }
 \arguments{
 \item{vars}{\code{iNZightTS} object}
@@ -18,6 +18,8 @@ forecastplot(vars, xlab = "Time", ylab = "", multiplicative = FALSE,
 otherwise an additive model is used by default.}
 
 \item{show}{logical. If \code{TRUE}, draw the plot by default.}
+
+\item{model.lim}{time limits to use for modelling}
 }
 \value{
 A multiple time series of the predicted values with columns fit,

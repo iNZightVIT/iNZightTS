@@ -5,7 +5,7 @@
 \title{Plot a Time Series Decomposition}
 \usage{
 decompositionplot(obj, ylab = "", xlab = "", multiplicative = FALSE,
-  t = 0, xlim = c(NA, NA))
+  t = 0, xlim = c(NA, NA), model.lim = NULL)
 }
 \arguments{
 \item{obj}{an \code{iNZightTS} object}
@@ -20,6 +20,8 @@ otherwise an additive model is used by default.}
 \item{t}{a control of smoothness of the trend of the time series with frequency bigger than 1 ranges from 0 to 1}
 
 \item{xlim}{axis limits, specified as dates}
+
+\item{model.lim}{time limits to use for modelling}
 }
 \value{
 The original \code{iNZightTS} object with an item \code{decompVars}

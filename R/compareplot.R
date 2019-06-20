@@ -12,6 +12,7 @@
 ##' @param t smoothing parameter
 ##' @param aspect aspect ratio (width:height) for the time series
 ##' @param xlim limits to control how much of series is shown
+##' @param model.lim time limits to use for modelling 
 ##' @param ... additional arguments
 ##'
 ##' @return NULL
@@ -19,13 +20,14 @@
 ##' @export
 plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE,
                             ylab = 'Value', xlab = "Date", title = "%var",
-                            t = 10, aspect = 2, xlim = c(NA, NA), ...) {
+                            t = 10, aspect = 2, 
+                            xlim = c(NA, NA), model.lim = NULL, ...) {
   on.exit(dev.flush())
   if (compare) {
     ## fetch the main time series plot
     p1 <- NextMethod(x, multiplicative = multiplicative, ylab = ylab,
                      xlab = xlab, title = title, t = t, aspect = aspect,
-                     plot = FALSE, xlim = xlim, ...)
+                     plot = FALSE, xlim = xlim, model.lim = model.lim, ...)
 
     if (x$freq > 1) {
       ## for time series with freq > 1, show the seasonal effects
@@ -81,11 +83,13 @@ plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE,
       plist[[i]] <- plot(subts, multiplicative = multiplicative, ylab = ylab,
                          xlab = xlab, title = title, t = t,
                          col = "blue", aspect = NULL, plot = FALSE,
-                         xlim = xlim)
+                         xlim = xlim, model.lim = model.lim)
       if (i < Np) plist[[i]] <- plist[[i]] + xlab("")
 
       if (x$freq > 1) {
-        slist[[i]] <- compareseasons(subts, multiplicative = multiplicative, t = t) +
+
+        slist[[i]] <- compareseasons(subts, multiplicative = multiplicative, 
+            t = t, model.lim = model.lim) +
           theme(legend.position = 'none') + ggtitle('')
 
         if (!multiplicative) {
@@ -121,7 +125,12 @@ plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE,
 
 
 
-compareseasons <- function(x, multiplicative = FALSE, t = 0) {
+compareseasons <- function(x, multiplicative = FALSE, t = 0, model.lim = NULL) {
+  if (!is.null(model.lim)) {
+    try({
+      x$tsObj <- window(x$tsObj, model.lim[1], model.lim[2])
+    })
+  }
   varNums <- seq_along(x$currVar)
   trendCol <- "black"
   trendSeasonCol <- "#0e8c07"
@@ -142,7 +151,8 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0) {
     curr.vars$data <- vardata
     curr.vars$tsObj <- ts(x$data[, i], x$start, x$end, x$freq)
     curr.vars$currVar <- i
-    curr.vars <- decomposition(curr.vars, ylab = "", multiplicative = multiplicative, t = t)
+    curr.vars <- decomposition(curr.vars, ylab = "", 
+        multiplicative = multiplicative, t = t)
 
     curr.vars
 

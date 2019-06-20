@@ -17,6 +17,7 @@
 ##' otherwise an additive model is used by default.
 ##'
 ##' @param show logical. If \code{TRUE}, draw the plot by default.
+##' @param model.lim time limits to use for modelling 
 ##'
 ##' @return A multiple time series of the predicted values with columns fit,
 ##' lwr and upr for the predicted values and the lower and upper bounds
@@ -42,7 +43,8 @@
 ##'
 ##' @export
 forecastplot <-
-    function(vars, xlab = "Time", ylab="", multiplicative = FALSE, show = TRUE) {
+    function(vars, xlab = "Time", ylab="", multiplicative = FALSE, show = TRUE,
+             model.lim = NULL) {
       if (as.integer(vars$freq) == 1)
         return("forecastplot need a time series object with more than 1 frequency.")
     width <- 7
@@ -54,6 +56,14 @@ forecastplot <-
     int.col <- "#ff7777"
     band.col <- "#ffdbdb"
     tsObj <- vars$tsObj
+    if (!is.null(model.lim)) {
+        zts <- try(window(tsObj, model.lim[1], model.lim[2]), TRUE)
+        if (inherits(zts, "try-error")) {
+            warning("Invalid window - ignoring.")
+        } else {
+            tsObj <- zts
+        }
+    }
     x.vals <- get.x(tsObj)
     ahead <- 2 * vars$freq
     seasonal.add = ifelse(multiplicative, "multiplicative",
