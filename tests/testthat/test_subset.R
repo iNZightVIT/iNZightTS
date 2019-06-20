@@ -68,3 +68,5 @@ test_that("Subset of multi series graph works", {
     )
     expect_is(p, "gtable")
 })
+
+unlink("Rplots.pdf")
