@@ -17,6 +17,7 @@
 ##' otherwise an additive model is used by default.
 ##'
 ##' @param show logical. If \code{TRUE}, draw the plot by default.
+##' @param xlim limits to use for time axis
 ##' @param model.lim time limits to use for modelling 
 ##'
 ##' @return A multiple time series of the predicted values with columns fit,
@@ -44,7 +45,7 @@
 ##' @export
 forecastplot <-
     function(vars, xlab = "Time", ylab="", multiplicative = FALSE, show = TRUE,
-             model.lim = NULL) {
+             xlim = NULL, model.lim = NULL) {
       if (as.integer(vars$freq) == 1)
         return("forecastplot need a time series object with more than 1 frequency.")
     width <- 7
