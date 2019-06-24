@@ -15,8 +15,15 @@ matrix:
     - os: linux
       r: devel
     - os: osx
-      r: 3.3
+      r: oldrel
       brew_packages: libgit2
+    - os: osx
+      r: release
+      brew_packages: libgit2
+
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo chown -R $(whoami) /usr/local/share; fi
+
+after_success:
+  - Rscript -e 'covr::codecov()'
