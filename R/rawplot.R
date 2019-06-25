@@ -55,6 +55,14 @@ plot.iNZightTS <-
     y.units = unit(y, "native")
 
     xlim <- ifelse(is.na(xlim), range(time(tsObj)), xlim)
+    if (!is.null(model.lim)) {
+        if (model.lim[2] > xlim[2]) {
+            warning("Upper modelling limit cannot be greater than upper x limit")
+            model.lim[2] <- xlim[2]
+        }
+    } else {
+        model.lim <- c(min(time(tsObj)), xlim[2])
+    }
     
     multiseries <- inherits(obj, "iNZightMTS")
 
@@ -77,6 +85,10 @@ plot.iNZightTS <-
                 stop("Holt-Winters could not converge.")
             smooth <- hw.fit$fitted[, 1]
             if (multiplicative) smooth <- exp(smooth)
+            smooth <- data.frame(
+                time = as.numeric(time(hw.fit$fitted)), 
+                smooth = smooth
+            )
         } else {
             decomp = decomposition(obj,
                 ylab = "",
@@ -146,8 +158,16 @@ plot.iNZightTS <-
     if (forecast > 0) {
         # remove first season from the smoother
         # fit.df <- fit.df[-(1:freq),]
-        smooth <- NULL
-
+        fit.df <- fit.df %>% 
+            dplyr::filter(
+                dplyr::between(Date, min(smooth$time), max(smooth$time))
+            )
+        smooth <- smooth %>%
+            dplyr::filter(
+                dplyr::between(time, min(fit.df$Date), max(fit.df$Date))
+            )
+        fit.df$smooth <- smooth$smooth
+        
         # create prediction df
         pred <- predict(hw.fit, 
             n.ahead = forecast, 

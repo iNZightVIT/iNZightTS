@@ -42,6 +42,18 @@ test_that("Subset of season plot", {
     # expect_is(plot(t, show = "seasons"), "ggplot")
 })
 
+test_that("Subset of forecast plot", {
+    expect_is(plot(t, forecast = 4*2, xlim = c(2000, 2010)), "mts")
+    expect_warning(
+        plot(t, 
+            forecast = 4, 
+            xlim = c(2000, 2010), 
+            model.lim = c(2000, 20011)
+        ),
+        "Upper modelling limit cannot be greater than upper x limit"
+    )
+})
+
 ## multi series
 tm <- iNZightTS(visitorsQ, var = 2:5)
 test_that("Subset of multi series graph works", {
