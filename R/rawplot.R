@@ -53,6 +53,8 @@ plot.iNZightTS <-
     x.units = xlist$x.units
     y = tsObj@.Data
     y.units = unit(y, "native")
+
+    xlim <- ifelse(is.na(xlim), range(time(tsObj)), xlim)
     
     multiseries <- inherits(obj, "iNZightMTS")
 
@@ -86,6 +88,9 @@ plot.iNZightTS <-
             else
               smooth = decomp$components[,"trend"]
             smooth <- as.matrix(smooth)[, 1]
+
+            dt <- time(decomp$components)
+            smooth <- smooth[dt >= xlim[1] & dt <= xlim[2]]
         }
     } else {
         smoothList <- vector("list", length(obj$currVar))
@@ -103,9 +108,11 @@ plot.iNZightTS <-
         }
         smooth <- do.call(c, lapply(smoothList, function(s) {
             if (multiplicative)
-                return(exp(log(s$components[, "trend"])))
+                z <- exp(log(s$components[, "trend"]))
             else
-                return(s$components[, "trend"])
+                z <- s$components[, "trend"]
+            dt <- time(s$components)
+            z[dt >= xlim[1] & dt <= xlim[2]]
         }))
     }
 
@@ -125,17 +132,21 @@ plot.iNZightTS <-
                                         levels(ts.df$variable))))
     ## x-axis limits
     if (!all(is.na(xlim))) {
+        # if (forecast == 0)
+        #     smooth <- smooth[ts.df$Date >= xlim[1] & ts.df$Date <= xlim[2]]
         ts.df <- ts.df[ts.df$Date >= xlim[1] & ts.df$Date <= xlim[2], ]
     }
 
     fit.df <- ts.df
     if (!is.null(model.lim)) {
         fit.df <- 
-            fit.df[fit.df$Date >= model.lim[1] & fit.df$Date <= model.lim[2], ]
+            fit.df[fit.df$Date >= model.lim[1] & 
+                   fit.df$Date <= model.lim[2], ]
     }
     if (forecast > 0) {
         # remove first season from the smoother
-        fit.df <- fit.df[-(1:freq),]
+        # fit.df <- fit.df[-(1:freq),]
+        smooth <- NULL
 
         # create prediction df
         pred <- predict(hw.fit, 
@@ -156,10 +167,9 @@ plot.iNZightTS <-
                 upper = as.numeric(pred[, "upr"])
             )
         )
-    }
-
-    if (!is.null(smooth))
+    } else if (!is.null(smooth)) {
         fit.df$smooth <- smooth
+    }
 
     if (grepl("%var", title))
         title <- gsub("%var", paste(obj$currVar, collapse = ", "), title)

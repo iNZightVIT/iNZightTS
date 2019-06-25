@@ -35,7 +35,7 @@ test_that("Unsupported plots error", {
     expect_error(decompositionplot(tm))
     expect_error(recompose(decompositionplot(tm)))
     expect_error(seasonplot(tm))
-    expect_error(forecaseplot(tm))
+    expect_warning(capture.output(forecastplot(tm)))
 })
 
 ## clean up
