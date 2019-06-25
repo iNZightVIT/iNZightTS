@@ -195,7 +195,6 @@ plot.iNZightTS <-
     }
 
     if (forecast > 0) {
-        print(str(pred.df))
         tsplot <- tsplot +
             geom_vline(xintercept = max(fit.df$Date),
                 col = "#555555", lty = "dashed") +
