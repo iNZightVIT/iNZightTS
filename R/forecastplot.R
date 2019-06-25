@@ -38,7 +38,7 @@ forecastplot <-
     function(x, ...) {
 
     cat("Deprecated. Use plot(x, forecast = n) instead.\n")
-    plot(x, ..., forecast = 2 * vars$freq)
+    return(plot(x, ..., forecast = 2 * x$freq))
 
       if (as.integer(vars$freq) == 1)
         return("forecastplot need a time series object with more than 1 frequency.")

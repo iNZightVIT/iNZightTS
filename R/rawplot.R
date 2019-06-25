@@ -20,7 +20,7 @@
 ##' @param col the colour of the smoothed trend line
 ##' @param xlim axis limits, specied as dates
 ##' @param model.lim limits of the series to use for modelling/forecast
-##' @param numeric, how many observations ahead to forecast (default is 0, no forecast)
+##' @param forecast numeric, how many observations ahead to forecast (default is 0, no forecast)
 ##' @param ... additional arguments (not used)
 ##'
 ##' @keywords timeseries
@@ -123,6 +123,11 @@ plot.iNZightTS <-
             forcats::lvls_revalue(ts.df$variable,
                                   gsub("value.", "",
                                         levels(ts.df$variable))))
+    ## x-axis limits
+    if (!all(is.na(xlim))) {
+        ts.df <- ts.df[ts.df$Date >= xlim[1] & ts.df$Date <= xlim[2], ]
+    }
+
     fit.df <- ts.df
     if (!is.null(model.lim)) {
         fit.df <- 
@@ -137,6 +142,9 @@ plot.iNZightTS <-
             n.ahead = forecast, 
             prediction.interval = TRUE
         )
+        if (multiplicative) {
+            pred <- exp(pred)
+        }
         pred.df <- rbind(
             fit.df[nrow(fit.df), c("Date", "variable", "value")] %>% 
                 dplyr::mutate(lower = value, upper = value),
@@ -170,11 +178,6 @@ plot.iNZightTS <-
         tsplot <- tsplot + 
             scale_colour_manual(values = c(col, "black"), guide = FALSE)
 
-    ## x-axis limits
-    if (!all(is.na(xlim))) {
-        tsplot <- tsplot + xlim(xlim[1], xlim[2])
-    }
-
     if (plot && animate && !multiseries) {
         ## Do a bunch of things to animate the plot ...
         dev.hold()
@@ -192,6 +195,7 @@ plot.iNZightTS <-
     }
 
     if (forecast > 0) {
+        print(str(pred.df))
         tsplot <- tsplot +
             geom_vline(xintercept = max(fit.df$Date),
                 col = "#555555", lty = "dashed") +

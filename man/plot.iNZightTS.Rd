@@ -36,9 +36,9 @@ it will be about ASPECT times wider than it is high}
 
 \item{model.lim}{limits of the series to use for modelling/forecast}
 
-\item{...}{additional arguments (not used)}
+\item{forecast}{numeric, how many observations ahead to forecast (default is 0, no forecast)}
 
-\item{numeric, }{how many observations ahead to forecast (default is 0, no forecast)}
+\item{...}{additional arguments (not used)}
 }
 \description{
 Draws a plot of a given \code{iNZightTS} object with the trend superimposed.
