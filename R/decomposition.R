@@ -5,6 +5,8 @@ decomposition <- function(obj, ylab = "", xlab = "", trendCol = "black",
                           randCol = seasonCol, multiplicative=FALSE, t = 0, 
                           xlim = c(NA, NA), model.lim = NULL) {
     if (!is.null(model.lim)) {
+        model.lim <- ifelse(is.na(model.lim), 
+            range(time(obj$tsObj)), model.lim)
         ts.sub <- try({
             window(obj$tsObj, model.lim[1], model.lim[2])
         }, TRUE)

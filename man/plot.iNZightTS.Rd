@@ -6,8 +6,8 @@
 \usage{
 \method{plot}{iNZightTS}(x, multiplicative = FALSE, ylab = obj$currVar,
   xlab = "Date", title = "\%var", animate = FALSE, t = 10,
-  aspect = 3, plot = TRUE, col = "red", xlim = c(NA, NA),
-  model.lim = NULL, ...)
+  aspect = 3, plot = TRUE, col = ifelse(forecast > 0, "#0e8c07",
+  "red"), xlim = c(NA, NA), model.lim = NULL, forecast = 0, ...)
 }
 \arguments{
 \item{x}{an \code{iNZightTS} object}
@@ -36,6 +36,8 @@ it will be about ASPECT times wider than it is high}
 
 \item{model.lim}{limits of the series to use for modelling/forecast}
 
+\item{forecast}{numeric, how many observations ahead to forecast (default is 0, no forecast)}
+
 \item{...}{additional arguments (not used)}
 }
 \description{
@@ -46,4 +48,11 @@ If animate is set to \code{TRUE}, a scatterplot of all points in the
 time series will appear followed by slowly drawn lines connecting the
 points, simulating the drawing of a time series by hand.
 }
+\section{Forecast}{
+
+The predictions and prediction intervals are the result of models
+fitted by the Holt-Winters method. The amount of predicted
+observations is specified by the value of `forecast`.
+}
+
 \keyword{timeseries}

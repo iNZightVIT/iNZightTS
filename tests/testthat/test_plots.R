@@ -15,12 +15,13 @@ test_that("Decomposition and recomposition plots work", {
 })
 
 test_that("Season plot is OK", {
-    expect_equal(seasonplot(t), 0)
+    expect_null(seasonplot(t))
     # expect_is(plot(t, show = "seasons"), "ggplot")
 })
 
 test_that("Forecast is fine", {
-    expect_is(forecastplot(t), "mts")
+    expect_is(plot(t, forecast = 8), "mts")
+    expect_is(plot(t, forecast = 4*2, model.lim = c(2000, 2010)), "mts")
 })
 
 ## multi series
@@ -34,7 +35,7 @@ test_that("Unsupported plots error", {
     expect_error(decompositionplot(tm))
     expect_error(recompose(decompositionplot(tm)))
     expect_error(seasonplot(tm))
-    expect_error(forecaseplot(tm))
+    expect_warning(capture.output(forecastplot(tm)))
 })
 
 ## clean up

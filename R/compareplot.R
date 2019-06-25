@@ -32,7 +32,8 @@ plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE,
     if (x$freq > 1) {
       ## for time series with freq > 1, show the seasonal effects
       p1 <- p1 + theme(legend.position = 'none')
-      p2 <- compareseasons(x, multiplicative = multiplicative, t = 0)
+      p2 <- compareseasons(x, multiplicative = multiplicative, t = 0,
+          model.lim = model.lim)
 
       ## extract legend
       tmp <- ggplot_gtable(ggplot_build(p2))
@@ -126,11 +127,11 @@ plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE,
 
 
 compareseasons <- function(x, multiplicative = FALSE, t = 0, model.lim = NULL) {
-  if (!is.null(model.lim)) {
-    try({
-      x$tsObj <- window(x$tsObj, model.lim[1], model.lim[2])
-    })
-  }
+  # if (!is.null(model.lim)) {
+  #   try({
+  #     x$tsObj <- window(x$tsObj, model.lim[1], model.lim[2])
+  #   })
+  # }
   varNums <- seq_along(x$currVar)
   trendCol <- "black"
   trendSeasonCol <- "#0e8c07"
@@ -152,7 +153,7 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0, model.lim = NULL) {
     curr.vars$tsObj <- ts(x$data[, i], x$start, x$end, x$freq)
     curr.vars$currVar <- i
     curr.vars <- decomposition(curr.vars, ylab = "", 
-        multiplicative = multiplicative, t = t)
+        multiplicative = multiplicative, t = t, model.lim = model.lim)
 
     curr.vars
 
@@ -166,6 +167,10 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0, model.lim = NULL) {
   x.vals <- get.x2(listVars[[1]]$tsObj)
   freq <- listVars[[1]]$freq
   startSeason <- listVars[[1]]$start[2]
+  if (!is.null(model.lim)) {
+    tt <- time(listVars[[1]]$decompVars$components)
+    startSeason <- (tt[1] - floor(tt[1])) * freq + 1
+  }
   subset <- 1:freq
   if (startSeason > 1) {
     subset <- c(startSeason:freq, 1:(startSeason-1))

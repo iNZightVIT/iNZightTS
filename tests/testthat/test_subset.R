@@ -5,24 +5,15 @@ data(visitorsQ)
 t <- iNZightTS(visitorsQ)
 test_that("Subset of time series can be viewed", {
     # p <- plot(t, xlim = as.Date(c("2000-01-01", "2011-01-01")))
-    expect_warning(
-        p <- plot(t, xlim = c(2000, 2011)),
-        "Removed \\d+ rows containing missing values"
-    )
-    expect_warning(
-        p1 <- plot(t, xlim = c(2000, NA)),
-        "Removed \\d+ rows containing missing values"
-    )
-    expect_warning(
-        p2 <- plot(t, xlim = c(NA, 2005)),
-        "Removed \\d+ rows containing missing values"
-    )
+    expect_silent(p <- plot(t, xlim = c(2000, 2011)))
+    expect_silent(p1 <- plot(t, xlim = c(2000, NA)))
+    expect_silent(p2 <- plot(t, xlim = c(NA, 2005)))
     expect_is(p, "ggplot")
     expect_is(p1, "ggplot")
     expect_is(p2, "ggplot")
-    expect_equal(p$scales$scales[[2]]$limits, c(2000, 2011))
-    expect_equal(p1$scales$scales[[2]]$limits, c(2000, NA))
-    expect_equal(p2$scales$scales[[2]]$limits, c(NA, 2005))
+    # expect_equal(p$scales$scales[[2]]$limits, c(2000, 2011))
+    # expect_equal(p1$scales$scales[[2]]$limits, c(2000, NA))
+    # expect_equal(p2$scales$scales[[2]]$limits, c(NA, 2005))
 })
 
 test_that("Subset of decomposition plot can be shown", {
@@ -51,13 +42,22 @@ test_that("Subset of season plot", {
     # expect_is(plot(t, show = "seasons"), "ggplot")
 })
 
+test_that("Subset of forecast plot", {
+    expect_is(plot(t, forecast = 4*2, xlim = c(2000, 2010)), "mts")
+    expect_warning(
+        plot(t, 
+            forecast = 4, 
+            xlim = c(2000, 2010), 
+            model.lim = c(2000, 20011)
+        ),
+        "Upper modelling limit cannot be greater than upper x limit"
+    )
+})
+
 ## multi series
 tm <- iNZightTS(visitorsQ, var = 2:5)
 test_that("Subset of multi series graph works", {
-    expect_warning(
-        p <- plot(tm, xlim = c(2000, 2011)),
-        "Removed \\d+ rows containing missing values"
-    )
+    p <- plot(tm, xlim = c(2000, 2011))
     expect_is(p, "gtable")
 
 
