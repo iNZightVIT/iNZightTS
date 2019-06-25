@@ -34,6 +34,7 @@ test_that("Forecasts uses specified region", {
 
 ## multiseries
 test_that("Decomposition uses sub-portion of the plots (multi)", {
+    expect_silent(plot(tm))
     expect_silent(plot(tm, model.lim = c(2005, 2009.75)))
     expect_warning(
         plot(tm, compare = FALSE, model.lim = c(2005, 2009.75)),

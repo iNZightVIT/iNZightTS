@@ -56,6 +56,10 @@ plot.iNZightTS <-
 
     xlim <- ifelse(is.na(xlim), range(time(tsObj)), xlim)
     if (!is.null(model.lim)) {
+        model.lim <- ifelse(is.na(model.lim), 
+            c(min(time(tsObj)), xlim[2]), 
+            model.lim
+        )
         if (model.lim[2] > xlim[2]) {
             warning("Upper modelling limit cannot be greater than upper x limit")
             model.lim[2] <- xlim[2]
