@@ -30,7 +30,8 @@ function(obj, ...)
 ##' @export
 seasonplot.forecast <-
 function(obj, s, season.labels=NULL, year.labels=FALSE, year.labels.left=FALSE,
-    type="o", main, ylab="", xlab=NULL, col=1, labelgap=0.1, ...)
+         type="o", main, ylab="", xlab=NULL, col=1, labelgap=0.1, 
+         model.lim = NULL, ...)
 {
   x <- obj
 
@@ -116,7 +117,7 @@ function(obj, s, season.labels=NULL, year.labels=FALSE, year.labels.left=FALSE,
 
 ##' @export
 seasonplot.iNZightTS <-
-function(obj, multiplicative = FALSE, t = 0, ...) {
+function(obj, multiplicative = FALSE, t = 0, model.lim = NULL, ...) {
 
     # if there is no season component to the ts, can't create season plot
     if (length(obj$start) == 1)
@@ -140,14 +141,17 @@ function(obj, multiplicative = FALSE, t = 0, ...) {
 
     seasonplot.forecast(obj$tsObj, freq, col = cols, pch = 19,
                year.labels = TRUE, year.labels.left = TRUE,
-               main = title,...)
+               main = title, model.lim = model.lim, ...)
 
-    obj = decomposition(obj, ylab = "", multiplicative = multiplicative, t = t)
+    obj = decomposition(obj, ylab = "", 
+        multiplicative = multiplicative, t = t, model.lim = model.lim)
     season = obj$decompVars$components[,"seasonal"]
+    if (!is.null(model.lim)) {
+        tt <- time(obj$decompVars$components)
+        s <- (tt[1] - floor(tt[1])) * freq + 1
+    }
     season = if (s > 1) season[-(1:(freq + 1 - s))][1:freq]
     else season[1:freq]
-
-
 
     season.ts = ts(season, start = c(1, 1), frequency = freq)
 
@@ -183,4 +187,6 @@ function(obj, multiplicative = FALSE, t = 0, ...) {
     lines(season.ts, type = "o", lwd = 2, cex = 1.2)
     axis(1, at = get.x(season.ts)$x, labels = labs)
     dev.flush()
+
+    invisible(NULL)
 }

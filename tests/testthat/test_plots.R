@@ -15,7 +15,7 @@ test_that("Decomposition and recomposition plots work", {
 })
 
 test_that("Season plot is OK", {
-    expect_equal(seasonplot(t), 0)
+    expect_null(seasonplot(t))
     # expect_is(plot(t, show = "seasons"), "ggplot")
 })
 

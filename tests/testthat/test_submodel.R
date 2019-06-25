@@ -16,6 +16,12 @@ test_that("Decomposition doesn't subset what's actually drawn", {
     expect_equal(range(p$data$Date), c(1998.75, 2012))
 })
 
+test_that("Season plots use sub-set of data", {
+    expect_silent(seasonplot(t))
+    expect_silent(seasonplot(t, model.lim = c(2000, 2010)))
+    expect_silent(seasonplot(t, model.lim = c(2005, 2011)))
+})
+
 test_that("Forecasts uses specified region", {
     f1 <- plot(t, forecast = 8)
     f2 <- plot(t, forecast = 8, model.lim = c(2008, 2009.75))
