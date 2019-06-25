@@ -17,8 +17,12 @@ test_that("Decomposition doesn't subset what's actually drawn", {
 })
 
 test_that("Forecasts uses specified region", {
-    f1 <- forecastplot(t)
-    f2 <- forecastplot(t, model.lim = c(2008, 2009.75))
+    f1 <- plot(t, forecast = 8)
+    f2 <- plot(t, forecast = 8, model.lim = c(2008, 2009.75))
+    expect_is(f1, "mts")
+    expect_is(f2, "mts")
+    expect_equal(range(time(f1)), c(2012.25, 2014))
+    expect_equal(range(time(f2)), c(2010.00, 2011.75))
 })
 
 

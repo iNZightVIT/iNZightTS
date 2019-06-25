@@ -1,4 +1,4 @@
-##' Compare multiple timeseries - DEPRECIATED
+##' Compare multiple timeseries - DEPRECATED
 ##'
 ##' @param x iNZightMTS object containing data
 ##' @param ... Further arguments to be passed to `plot()`
@@ -8,7 +8,7 @@ multiseries <-
 function(x,...) {
     if (!any(grepl("^iNZightMTS$", class(x))))
         stop("x is not an iNZightMTS object")
-    cat("Depreciated. Use plot(x, compare = FALSE) instead.\n")
+    cat("Deprecated. Use plot(x, compare = FALSE) instead.\n")
     plot(x, ..., compare = FALSE)
 }
 

@@ -20,7 +20,8 @@ test_that("Season plot is OK", {
 })
 
 test_that("Forecast is fine", {
-    expect_is(forecastplot(t), "mts")
+    expect_is(plot(t, forecast = 8), "mts")
+    expect_is(plot(t, forecast = 4*2, model.lim = c(2000, 2010)), "mts")
 })
 
 ## multi series

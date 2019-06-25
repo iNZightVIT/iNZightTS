@@ -6,19 +6,10 @@
 ##' observations is calculated by 2 * \code{freq}, where \code{freq} is
 ##' the frequency of the time series object.
 ##'
-##' @title Forecast plot
+##' @title Forecast plot - DEPRECATED
 ##'
-##' @param vars \code{iNZightTS} object
-##'
-##' @param xlab x axis label
-##' @param ylab a title for the y axis
-##'
-##' @param multiplicative logical. If \code{TRUE}, a multiplicative model is used,
-##' otherwise an additive model is used by default.
-##'
-##' @param show logical. If \code{TRUE}, draw the plot by default.
-##' @param xlim limits to use for time axis
-##' @param model.lim time limits to use for modelling 
+##' @param x \code{iNZightTS} object
+##' @param ... args passed on
 ##'
 ##' @return A multiple time series of the predicted values with columns fit,
 ##' lwr and upr for the predicted values and the lower and upper bounds
@@ -44,8 +35,11 @@
 ##'
 ##' @export
 forecastplot <-
-    function(vars, xlab = "Time", ylab="", multiplicative = FALSE, show = TRUE,
-             xlim = NULL, model.lim = NULL) {
+    function(x, ...) {
+
+    cat("Deprecated. Use plot(x, forecast = n) instead.\n")
+    plot(x, ..., forecast = 2 * vars$freq)
+
       if (as.integer(vars$freq) == 1)
         return("forecastplot need a time series object with more than 1 frequency.")
     width <- 7

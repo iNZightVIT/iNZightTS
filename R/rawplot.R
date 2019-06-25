@@ -20,24 +20,33 @@
 ##' @param col the colour of the smoothed trend line
 ##' @param xlim axis limits, specied as dates
 ##' @param model.lim limits of the series to use for modelling/forecast
+##' @param numeric, how many observations ahead to forecast (default is 0, no forecast)
 ##' @param ... additional arguments (not used)
 ##'
 ##' @keywords timeseries
 ##'
 ##' @import ggplot2
 ##'
+##' @section Forecast:
+##' The predictions and prediction intervals are the result of models
+##' fitted by the Holt-Winters method. The amount of predicted
+##' observations is specified by the value of `forecast`.
+##'
 ##' @export
 plot.iNZightTS <-
   function(x, multiplicative = FALSE, ylab = obj$currVar, xlab = "Date",
            title = "%var",
            animate = FALSE, t = 10, aspect = 3,
-           plot = TRUE, col = "red",
+           plot = TRUE, 
+           col = ifelse(forecast > 0, "#0e8c07", "red"),
            xlim = c(NA, NA),
            model.lim = NULL,
+           forecast = 0,
            ...) {
 
     ### x and y coordinates of the time series tsObj
     obj <- x
+    freq <- x$freq
     tsObj = obj$tsObj
     xlist = get.x(tsObj)
     x = xlist$x
@@ -47,18 +56,37 @@ plot.iNZightTS <-
     
     multiseries <- inherits(obj, "iNZightMTS")
 
+    if (multiseries && forecast > 0) {
+        warning("Forecasting not available for multiplots")
+        forecast <- 0
+    }
+
     ### We want a trend line, so do a decomposition
     if (!multiseries) {
-        decomp = decomposition(obj,
-            ylab = "",
-            multiplicative = multiplicative,
-            t = t,
-            model.lim = model.lim)$decompVars
-        if (multiplicative)
-          smooth = exp(log(decomp$components[,"trend"]))
-        else
-          smooth = decomp$components[,"trend"]
-        smooth <- as.matrix(smooth)[, 1]
+        if (forecast > 0) {
+            AtsObj <- tsObj
+            if (!is.null(model.lim)) {
+                AtsObj <- window(AtsObj, model.lim[1], model.lim[2])
+            }
+            if (multiplicative)
+                AtsObj <- log(AtsObj)
+            hw.fit <- try(HoltWinters(AtsObj), TRUE)
+            if (inherits(hw.fit, "try-error")) 
+                stop("Holt-Winters could not converge.")
+            smooth <- hw.fit$fitted[, 1]
+            if (multiplicative) smooth <- exp(smooth)
+        } else {
+            decomp = decomposition(obj,
+                ylab = "",
+                multiplicative = multiplicative,
+                t = t,
+                model.lim = model.lim)$decompVars
+            if (multiplicative)
+              smooth = exp(log(decomp$components[,"trend"]))
+            else
+              smooth = decomp$components[,"trend"]
+            smooth <- as.matrix(smooth)[, 1]
+        }
     } else {
         smoothList <- vector("list", length(obj$currVar))
         names(smoothList) <- obj$currVar
@@ -95,12 +123,33 @@ plot.iNZightTS <-
             forcats::lvls_revalue(ts.df$variable,
                                   gsub("value.", "",
                                         levels(ts.df$variable))))
-
     fit.df <- ts.df
     if (!is.null(model.lim)) {
         fit.df <- 
             fit.df[fit.df$Date >= model.lim[1] & fit.df$Date <= model.lim[2], ]
     }
+    if (forecast > 0) {
+        # remove first season from the smoother
+        fit.df <- fit.df[-(1:freq),]
+
+        # create prediction df
+        pred <- predict(hw.fit, 
+            n.ahead = forecast, 
+            prediction.interval = TRUE
+        )
+        pred.df <- rbind(
+            fit.df[nrow(fit.df), c("Date", "variable", "value")] %>% 
+                dplyr::mutate(lower = value, upper = value),
+            data.frame(
+                Date = as.numeric(time(pred)),
+                variable = "value",
+                value = as.numeric(pred[, "fit"]),
+                lower = as.numeric(pred[, "lwr"]),
+                upper = as.numeric(pred[, "upr"])
+            )
+        )
+    }
+
     if (!is.null(smooth))
         fit.df$smooth <- smooth
 
@@ -117,7 +166,9 @@ plot.iNZightTS <-
         asp <- xr / yr / aspect
         tsplot <- tsplot + coord_fixed(ratio = asp)
     }
-    if (!multiseries) tsplot <- tsplot + scale_colour_manual(values = "black", guide = FALSE)
+    if (!multiseries && forecast == 0) 
+        tsplot <- tsplot + 
+            scale_colour_manual(values = c(col, "black"), guide = FALSE)
 
     ## x-axis limits
     if (!all(is.na(xlim))) {
@@ -140,8 +191,23 @@ plot.iNZightTS <-
         Sys.sleep(1)
     }
 
-    tsplot <- tsplot + geom_line(lwd = 1)
+    if (forecast > 0) {
+        tsplot <- tsplot +
+            geom_vline(xintercept = max(fit.df$Date),
+                col = "#555555", lty = "dashed") +
+            geom_ribbon(aes_(ymin = ~lower, ymax = ~upper),
+                data = pred.df,
+                fill = "#ffdbdb",
+                col = NA
+            ) +
+            geom_line(aes_(y = ~lower, col = "Prediction"), data = pred.df, 
+                lty = "dashed", lwd = 0.4) +
+            geom_line(aes_(y = ~upper, col = "Prediction"), data = pred.df, 
+                lty = "dashed", lwd = 0.4) +
+            geom_line(data = pred.df, col = "#b50000")
+    }
 
+    tsplot <- tsplot + geom_line(aes(col = "Raw data"), lwd = 1)
     if (!is.null(smooth)) {
         tsplot <-
             if (multiseries)
@@ -153,8 +219,20 @@ plot.iNZightTS <-
                            size = 2, stroke = 2) +
                 labs(color = "", shape = "")
             else
-                tsplot + geom_line(aes_(x = ~Date, y = ~smooth), 
-                    data = fit.df, color = col)
+                tsplot + geom_line(aes_(x = ~Date, y = ~smooth, col = "Fitted"), 
+                    data = fit.df)
+    }
+
+    if (forecast > 0) {
+        tsplot <- tsplot + scale_colour_manual(
+            name = "",
+            values = c(
+                "Raw data" = "black",
+                "Fitted" = col,
+                "Prediction" = "#b50000"
+            )
+        ) +
+            theme(legend.position = "bottom")
     }
 
     if (plot) {
@@ -162,6 +240,8 @@ plot.iNZightTS <-
         print(tsplot)
         dev.flush()
     }
+
+    if (forecast > 0) return(pred)
 
     invisible(tsplot)
 }
