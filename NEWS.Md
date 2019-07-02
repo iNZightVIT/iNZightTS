@@ -3,6 +3,7 @@ __Release date__: TBA
 
 - specify (time/horizontal) axies limits to view part of a time series (#16)
 - use only part of a series to create model + forecast (#17)
+- recode forecast plot using `ggplot2`
 
 
 ## iNZightTS 1.4.1
