@@ -22,6 +22,7 @@ matrix:
       brew_packages: libgit2
 
 r_github_packages:
+  - iNZightVIT/iNZightTools@dev
   - iNZightVIT/iNZightPlots@dev
 
 before_install:
