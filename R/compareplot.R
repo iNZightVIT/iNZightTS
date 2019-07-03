@@ -230,11 +230,11 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0, model.lim = NULL) {
   if (compare)
     p <- p +
       geom_path(aes_(x = ~season, y = ~value, group = ~cycle, colour = NULL, shape = NULL),
-          data = timeSeasonData, colour = "#bbbbbb")
+          data = timeSeasonData, colour = "#bbbbbb", na.rm = TRUE)
 
   p <- p +
     geom_hline(yintercept = as.numeric(multiplicative), linetype = 2) +
-    geom_line(lwd = 1) +
+    geom_line(lwd = 1, na.rm = TRUE) +
     geom_point(size = 2, stroke = 2, fill = "white") +
     ggtitle(effects) + ylab("") + xlab(xlab) + labs(color = "", shape = "")
 

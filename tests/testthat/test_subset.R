@@ -63,10 +63,7 @@ test_that("Subset of multi series graph works", {
 
 
     ## non-compare version
-    expect_warning(
-        p <- plot(tm, compare = FALSE, xlim = c(2000, 2011)),
-        "Removed \\d+ rows containing missing values"
-    )
+    expect_silent(p <- plot(tm, compare = FALSE, xlim = c(2000, 2011)))
     expect_is(p, "gtable")
 })
 

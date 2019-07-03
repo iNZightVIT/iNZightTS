@@ -249,7 +249,7 @@ plot.iNZightTS <-
         tsplot <-
             if (multiseries)
                 tsplot + geom_line(aes_(x = ~Date, y = ~smooth, color = ~variable),
-                    data = fit.df,
+                    data = fit.df, na.rm = TRUE,
                     linetype = "22", lwd = 1) +
                 geom_point(aes_(x = ~Date, y = ~smooth, shape = ~variable, color = ~variable),
                            data = fit.df[fit.df$Date == max(fit.df$Date), ],
