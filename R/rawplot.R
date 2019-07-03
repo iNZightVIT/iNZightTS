@@ -37,7 +37,7 @@ plot.iNZightTS <-
   function(x, multiplicative = FALSE, ylab = obj$currVar, xlab = "Date",
            title = "%var",
            animate = FALSE, t = 10, aspect = 3,
-           plot = TRUE, 
+           plot = TRUE,
            col = ifelse(forecast > 0, "#0e8c07", "red"),
            xlim = c(NA, NA),
            model.lim = NULL,
@@ -56,8 +56,8 @@ plot.iNZightTS <-
 
     xlim <- ifelse(is.na(xlim), range(time(tsObj)), xlim)
     if (!is.null(model.lim)) {
-        model.lim <- ifelse(is.na(model.lim), 
-            c(min(time(tsObj)), xlim[2]), 
+        model.lim <- ifelse(is.na(model.lim),
+            c(min(time(tsObj)), xlim[2]),
             model.lim
         )
         if (model.lim[2] > xlim[2]) {
@@ -67,7 +67,7 @@ plot.iNZightTS <-
     } else {
         model.lim <- c(min(time(tsObj)), xlim[2])
     }
-    
+
     multiseries <- inherits(obj, "iNZightMTS")
 
     if (multiseries && forecast > 0) {
@@ -85,12 +85,12 @@ plot.iNZightTS <-
             if (multiplicative)
                 AtsObj <- log(AtsObj)
             hw.fit <- try(HoltWinters(AtsObj), TRUE)
-            if (inherits(hw.fit, "try-error")) 
+            if (inherits(hw.fit, "try-error"))
                 stop("Holt-Winters could not converge.")
             smooth <- hw.fit$fitted[, 1]
             if (multiplicative) smooth <- exp(smooth)
             smooth <- data.frame(
-                time = as.numeric(time(hw.fit$fitted)), 
+                time = as.numeric(time(hw.fit$fitted)),
                 smooth = smooth
             )
         } else {
@@ -116,9 +116,9 @@ plot.iNZightTS <-
             subts$tsObj <- obj$tsObj[, v]
             subts$currVar <- v
             class(subts) <- "iNZightTS"
-            smoothList[[v]] <- decomposition(subts, 
-                ylab = "", 
-                multiplicative = multiplicative, 
+            smoothList[[v]] <- decomposition(subts,
+                ylab = "",
+                multiplicative = multiplicative,
                 t = t,
                 model.lim = model.lim)$decompVars
         }
@@ -155,14 +155,14 @@ plot.iNZightTS <-
 
     fit.df <- ts.df
     if (!is.null(model.lim)) {
-        fit.df <- 
-            fit.df[fit.df$Date >= model.lim[1] & 
+        fit.df <-
+            fit.df[fit.df$Date >= model.lim[1] &
                    fit.df$Date <= model.lim[2], ]
     }
     if (forecast > 0) {
         # remove first season from the smoother
         # fit.df <- fit.df[-(1:freq),]
-        fit.df <- fit.df %>% 
+        fit.df <- fit.df %>%
             dplyr::filter(
                 dplyr::between(Date, min(smooth$time), max(smooth$time))
             )
@@ -171,17 +171,17 @@ plot.iNZightTS <-
                 dplyr::between(time, min(fit.df$Date), max(fit.df$Date))
             )
         fit.df$smooth <- smooth$smooth
-        
+
         # create prediction df
-        pred <- predict(hw.fit, 
-            n.ahead = forecast, 
+        pred <- predict(hw.fit,
+            n.ahead = forecast,
             prediction.interval = TRUE
         )
         if (multiplicative) {
             pred <- exp(pred)
         }
         pred.df <- rbind(
-            fit.df[nrow(fit.df), c("Date", "variable", "value")] %>% 
+            fit.df[nrow(fit.df), c("Date", "variable", "value")] %>%
                 dplyr::mutate(lower = value, upper = value),
             data.frame(
                 Date = as.numeric(time(pred)),
@@ -208,8 +208,8 @@ plot.iNZightTS <-
         asp <- xr / yr / aspect
         tsplot <- tsplot + coord_fixed(ratio = asp)
     }
-    if (!multiseries && forecast == 0) 
-        tsplot <- tsplot + 
+    if (!multiseries && forecast == 0)
+        tsplot <- tsplot +
             scale_colour_manual(values = c(col, "black"), guide = FALSE)
 
     if (plot && animate && !multiseries) {
@@ -237,9 +237,9 @@ plot.iNZightTS <-
                 fill = "#ffdbdb",
                 col = NA
             ) +
-            geom_line(aes_(y = ~lower, col = "Prediction"), data = pred.df, 
+            geom_line(aes_(y = ~lower, col = "Prediction"), data = pred.df,
                 lty = "dashed", lwd = 0.4) +
-            geom_line(aes_(y = ~upper, col = "Prediction"), data = pred.df, 
+            geom_line(aes_(y = ~upper, col = "Prediction"), data = pred.df,
                 lty = "dashed", lwd = 0.4) +
             geom_line(data = pred.df, col = "#b50000")
     }
@@ -256,7 +256,7 @@ plot.iNZightTS <-
                            size = 2, stroke = 2) +
                 labs(color = "", shape = "")
             else
-                tsplot + geom_line(aes_(x = ~Date, y = ~smooth, col = "Fitted"), 
+                tsplot + geom_line(aes_(x = ~Date, y = ~smooth, col = "Fitted"),
                     data = fit.df)
     }
 
@@ -280,6 +280,7 @@ plot.iNZightTS <-
 
     if (forecast > 0) return(pred)
 
+    attr(tsplot, "use.plotly") <- TRUE
     invisible(tsplot)
 }
 

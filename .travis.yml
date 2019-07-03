@@ -21,6 +21,8 @@ matrix:
       r: release
       brew_packages: libgit2
 
+r_github_packages:
+  - iNZightVIT/iNZightPlots@dev
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo chown -R $(whoami) /usr/local/share; fi
