@@ -43,11 +43,12 @@ test_that("Subset of season plot", {
 })
 
 test_that("Subset of forecast plot", {
-    expect_is(plot(t, forecast = 4*2, xlim = c(2000, 2010)), "mts")
+    expect_is(plot(t, forecast = 4*2, xlim = c(2000, 2010)), "ggplot")
+    expect_is(pred(plot(t, forecast = 4*2, xlim = c(2000, 2010))), "mts")
     expect_warning(
-        plot(t, 
-            forecast = 4, 
-            xlim = c(2000, 2010), 
+        plot(t,
+            forecast = 4,
+            xlim = c(2000, 2010),
             model.lim = c(2000, 20011)
         ),
         "Upper modelling limit cannot be greater than upper x limit"

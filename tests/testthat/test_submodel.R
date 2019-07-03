@@ -25,10 +25,12 @@ test_that("Season plots use sub-set of data", {
 test_that("Forecasts uses specified region", {
     f1 <- plot(t, forecast = 8)
     f2 <- plot(t, forecast = 8, model.lim = c(2008, 2009.75))
-    expect_is(f1, "mts")
-    expect_is(f2, "mts")
-    expect_equal(range(time(f1)), c(2012.25, 2014))
-    expect_equal(range(time(f2)), c(2010.00, 2011.75))
+    expect_is(f1, "ggplot")
+    expect_is(f2, "ggplot")
+    expect_is(pred(f1), "mts")
+    expect_is(pred(f2), "mts")
+    expect_equal(range(time(pred(f1))), c(2012.25, 2014))
+    expect_equal(range(time(pred(f2))), c(2010.00, 2011.75))
 })
 
 
