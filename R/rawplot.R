@@ -278,7 +278,9 @@ plot.iNZightTS <-
         dev.flush()
     }
 
-    if (forecast > 0) return(pred)
+    if (forecast > 0) {
+        attr(tsplot, "predictions") <- pred
+    }
 
     attr(tsplot, "use.plotly") <- TRUE
     invisible(tsplot)
@@ -291,3 +293,9 @@ rawplot <- function(...) {
     cat("Depreciated: use `plot()` instead.\n")
     plot(...)
 }
+
+#' Get forecast prediction values
+#' @param x the forecast object (a plot with predictions)
+#' @return a time series forecasts object
+#' @export
+pred <- function(x) attr(x, "predictions")
