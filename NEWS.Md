@@ -1,5 +1,5 @@
-## iNZightTS 1.4.1-9000
-__Release date__: TBA
+## iNZightTS 1.4.2
+__Release date__: 15 July 2019
 
 - specify (time/horizontal) axies limits to view part of a time series (#16)
 - use only part of a series to create model + forecast (#17)
