@@ -1,11 +1,5 @@
-RDEVEL := $(shell command -v R-devel 2> /dev/null)
 R := R
-RCMD := $(R) --vanilla --slave
-ifndef RDEVEL
-	Rdev := $(R)
-else
-	Rdev := R-devel
-endif
+RCMD := Rscript
 
 document:
 	@echo Roxygenizing documentation ...
@@ -16,16 +10,12 @@ document:
 check: document
 	@$(RCMD) -e "devtools::check()"
 
+test:
+	@$(RCMD) -e "devtools::test()"
+
 revcheck:
 	@$(RCMD) -e "devtools::use_revdep()"
-	@$(RCMD) -f "revdep/check.R"
-
-crancheck: document
-	@echo Running CRAN checks using r-devel ...
-	@echo
-	@$(Rdev) CMD build .
-	@$(Rdev) CMD check *.tar.gz
-	@echo
+	@$(RCMD) "revdep/check.R"
 
 install: document
 	@echo Installing locally ...

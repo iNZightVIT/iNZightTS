@@ -6,17 +6,10 @@
 ##' observations is calculated by 2 * \code{freq}, where \code{freq} is
 ##' the frequency of the time series object.
 ##'
-##' @title Forecast plot
+##' @title Forecast plot - DEPRECATED
 ##'
-##' @param vars \code{iNZightTS} object
-##'
-##' @param xlab x axis label
-##' @param ylab a title for the y axis
-##'
-##' @param multiplicative logical. If \code{TRUE}, a multiplicative model is used,
-##' otherwise an additive model is used by default.
-##'
-##' @param show logical. If \code{TRUE}, draw the plot by default.
+##' @param x \code{iNZightTS} object
+##' @param ... args passed on
 ##'
 ##' @return A multiple time series of the predicted values with columns fit,
 ##' lwr and upr for the predicted values and the lower and upper bounds
@@ -42,7 +35,11 @@
 ##'
 ##' @export
 forecastplot <-
-    function(vars, xlab = "Time", ylab="", multiplicative = FALSE, show = TRUE) {
+    function(x, ...) {
+
+    cat("Deprecated. Use plot(x, forecast = n) instead.\n")
+    return(plot(x, ..., forecast = 2 * x$freq))
+
       if (as.integer(vars$freq) == 1)
         return("forecastplot need a time series object with more than 1 frequency.")
     width <- 7
@@ -54,6 +51,14 @@ forecastplot <-
     int.col <- "#ff7777"
     band.col <- "#ffdbdb"
     tsObj <- vars$tsObj
+    if (!is.null(model.lim)) {
+        zts <- try(window(tsObj, model.lim[1], model.lim[2]), TRUE)
+        if (inherits(zts, "try-error")) {
+            warning("Invalid window - ignoring.")
+        } else {
+            tsObj <- zts
+        }
+    }
     x.vals <- get.x(tsObj)
     ahead <- 2 * vars$freq
     seasonal.add = ifelse(multiplicative, "multiplicative",

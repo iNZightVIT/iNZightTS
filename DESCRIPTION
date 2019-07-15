@@ -1,8 +1,7 @@
 Package: iNZightTS
 Type: Package
 Title: Time Series for iNZight
-Version: 1.4.1
-Date: 2018-05-29
+Version: 1.4.2
 Authors@R: c(person("Tom", "Elliott", role = c("aut", "cre"),
                     email = "tom.elliott@auckland.ac.nz"),
              person("Junjie", "Zeng",    role = "aut"),
@@ -24,6 +23,10 @@ Imports:
     dplyr,
     forcats,
     magrittr
+Suggests:
+    iNZightPlots,
+    testthat,
+    covr
 Description: Time Series functionality for iNZight, allowing users to draw, decompose, and forcast with ease.
 License: GPL-2 | file LICENSE
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1

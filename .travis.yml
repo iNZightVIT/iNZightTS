@@ -4,11 +4,29 @@ language: R
 sudo: false
 cache: packages
 latex: false
+pandoc: false
 
-r:
-  - oldrel
-  - release
-  - devel
+matrix:
+  include:
+    - os: linux
+      r: oldrel
+    - os: linux
+      r: release
+    - os: linux
+      r: devel
+    - os: osx
+      r: oldrel
+      brew_packages: libgit2
+    - os: osx
+      r: release
+      brew_packages: libgit2
 
-repos:
-  docker: http://r.docker.stat.auckland.ac.nz/R
+r_github_packages:
+  - iNZightVIT/iNZightTools@dev
+  - iNZightVIT/iNZightPlots@dev
+
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo chown -R $(whoami) /usr/local/share; fi
+
+after_success:
+  - Rscript -e 'covr::codecov()'

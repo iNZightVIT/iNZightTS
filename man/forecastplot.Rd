@@ -2,22 +2,14 @@
 % Please edit documentation in R/forecastplot.R
 \name{forecastplot}
 \alias{forecastplot}
-\title{Forecast plot}
+\title{Forecast plot - DEPRECATED}
 \usage{
-forecastplot(vars, xlab = "Time", ylab = "", multiplicative = FALSE,
-  show = TRUE)
+forecastplot(x, ...)
 }
 \arguments{
-\item{vars}{\code{iNZightTS} object}
+\item{x}{\code{iNZightTS} object}
 
-\item{xlab}{x axis label}
-
-\item{ylab}{a title for the y axis}
-
-\item{multiplicative}{logical. If \code{TRUE}, a multiplicative model is used,
-otherwise an additive model is used by default.}
-
-\item{show}{logical. If \code{TRUE}, draw the plot by default.}
+\item{...}{args passed on}
 }
 \value{
 A multiple time series of the predicted values with columns fit,
