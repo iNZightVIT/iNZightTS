@@ -1,5 +1,7 @@
 ## iNZightTS 1.4.2.9000
+__Release date__: TBA
 
+- automatically detect 5-day week data (as opposed to 7-day week)
 
 
 ## iNZightTS 1.4.2
