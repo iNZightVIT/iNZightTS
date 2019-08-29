@@ -236,7 +236,7 @@ get.ts.structure <-
 
 
 
-    ### check for mongthly with yearly seasonality "1886M02"
+    ### check for monthly with yearly seasonality "1886M02"
 
     if(all(grepl("^[Y]?[0-9]+[M][0-9]+$", vardata,ignore.case = TRUE))){
 
@@ -380,11 +380,14 @@ get.ts.structure <-
       last.day  = as.numeric(substr(lastval, first.day.loc + 1,
                                     attr(last.day.loc, "match.length") + last.day.loc - 1))
 
+      # determine frequency as 5 or 7 day week
+      freq <- ifelse(all(grepl("[d][0-5]+$", vardata, ignore.case = TRUE)), 5, 7)
+
       ## check holes by comparin the number of observations and the number of days obtained
       ## by calculation using the weeks and the days
-      if( 7 - first.day + 1  + last.day + (last.week -first.week - 1)*7 == length(vardata)){
+      if( freq - first.day + 1  + last.day + (last.week -first.week - 1)*freq == length(vardata)){
 
-        return(list( start = c(first.week, first.day),frequency = 7))}
+        return(list( start = c(first.week, first.day),frequency = freq))}
       else
 
         return(list(start = NA, frequency = NA))
@@ -419,7 +422,7 @@ get.ts.structure <-
       ## number obtained by calculation using the days and hours obtained above
       if( 24 - first.hour +1 + last.hour + (last.day - first.day - 1)*24 == length(vardata)){
 
-        return(list(start = c(first.day, first.hour), freq  = 24))}
+        return(list(start = c(first.day, first.hour), frequency  = 24))}
       else
 
         return(list(start = NA, frequency = NA))
