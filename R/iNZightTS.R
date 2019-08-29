@@ -381,7 +381,7 @@ get.ts.structure <-
                                     attr(last.day.loc, "match.length") + last.day.loc - 1))
 
       # determine frequency as 5 or 7 day week
-      freq <- ifelse(all(grepl("[d][1-5]+$", vardata, ignore.case = TRUE)), 5, 7)
+      freq <- ifelse(all(grepl("[d][0-5]+$", vardata, ignore.case = TRUE)), 5, 7)
 
       ## check holes by comparin the number of observations and the number of days obtained
       ## by calculation using the weeks and the days
