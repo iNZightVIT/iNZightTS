@@ -1,3 +1,9 @@
+## iNZightTS 1.4.3
+__Release date__: 2 September 2019
+
+- automatically detect 5-day week data (as opposed to 7-day week)
+
+
 ## iNZightTS 1.4.2
 __Release date__: 15 July 2019
 

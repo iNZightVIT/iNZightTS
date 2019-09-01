@@ -1,7 +1,7 @@
 Package: iNZightTS
 Type: Package
 Title: Time Series for iNZight
-Version: 1.4.2
+Version: 1.4.3
 Authors@R: c(person("Tom", "Elliott", role = c("aut", "cre"),
                     email = "tom.elliott@auckland.ac.nz"),
              person("Junjie", "Zeng",    role = "aut"),
@@ -28,5 +28,6 @@ Suggests:
     testthat,
     covr
 Description: Time Series functionality for iNZight, allowing users to draw, decompose, and forcast with ease.
+LazyData: true
 License: GPL-2 | file LICENSE
 RoxygenNote: 6.1.1
