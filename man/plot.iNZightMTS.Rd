@@ -6,7 +6,8 @@
 \usage{
 \method{plot}{iNZightMTS}(x, compare = TRUE, multiplicative = FALSE,
   ylab = "Value", xlab = "Date", title = "\%var", t = 10,
-  aspect = 2, xlim = c(NA, NA), model.lim = NULL, ...)
+  smoother = TRUE, aspect = 2, xlim = c(NA, NA), model.lim = NULL,
+  ...)
 }
 \arguments{
 \item{x}{Multiple time series object}
@@ -23,6 +24,8 @@ otherwise graphed in individual rows}
 \item{title}{the title for the plot}
 
 \item{t}{smoothing parameter}
+
+\item{smoother}{logical, if \code{TRUE} the smoother will be drawn}
 
 \item{aspect}{aspect ratio (width:height) for the time series}
 

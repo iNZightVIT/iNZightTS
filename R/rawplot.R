@@ -253,7 +253,10 @@ plot.iNZightTS <-
             geom_line(data = pred.df, col = "#b50000")
     }
 
-    tsplot <- tsplot + geom_line(aes(col = "Raw data"), lwd = 1)
+    if (multiseries)
+        tsplot <- tsplot + geom_line(lwd = 1)
+    else
+        tsplot <- tsplot + geom_line(aes(colour = "Raw data"), lwd = 1)
     if (!is.null(smooth)) {
         tsplot <-
             if (multiseries)
@@ -263,7 +266,7 @@ plot.iNZightTS <-
                 geom_point(aes_(x = ~Date, y = ~smooth, shape = ~variable, color = ~variable),
                            data = fit.df[fit.df$Date == max(fit.df$Date), ],
                            size = 2, stroke = 2) +
-                labs(color = "", shape = "")
+                labs(color = "", shape = "") 
             else
                 tsplot + geom_line(aes_(x = ~Date, y = ~smooth, col = "Fitted"),
                     data = fit.df)
