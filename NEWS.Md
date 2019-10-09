@@ -1,6 +1,9 @@
 ## iNZightTS 1.4.3.9000
 __Release date__: TBA
 
+- add argument to `plot()` functions to show smoother (default is `TRUE`)
+- add UTF-8 encoding to DESCRIPTION file as requested by roxygen :)
+
 
 
 ## iNZightTS 1.4.3

@@ -6,8 +6,9 @@
 \usage{
 \method{plot}{iNZightTS}(x, multiplicative = FALSE, ylab = obj$currVar,
   xlab = "Date", title = "\%var", animate = FALSE, t = 10,
-  aspect = 3, plot = TRUE, col = ifelse(forecast > 0, "#0e8c07",
-  "red"), xlim = c(NA, NA), model.lim = NULL, forecast = 0, ...)
+  smoother = TRUE, aspect = 3, plot = TRUE, col = ifelse(forecast >
+  0, "#0e8c07", "red"), xlim = c(NA, NA), model.lim = NULL,
+  forecast = 0, ...)
 }
 \arguments{
 \item{x}{an \code{iNZightTS} object}
@@ -24,6 +25,8 @@ otherwise an additive model is used by default.}
 \item{animate}{logical, if true the graph is animated}
 
 \item{t}{smoothing parameter}
+
+\item{smoother}{logical, if \code{TRUE} the smoother will be drawn}
 
 \item{aspect}{the aspect ratio of the plot;
 it will be about ASPECT times wider than it is high}

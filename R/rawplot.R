@@ -14,6 +14,7 @@
 ##' @param title a title for the graph
 ##' @param animate logical, if true the graph is animated
 ##' @param t smoothing parameter
+##' @param smoother logical, if \code{TRUE} the smoother will be drawn
 ##' @param aspect the aspect ratio of the plot;
 ##'        it will be about ASPECT times wider than it is high
 ##' @param plot logical, if \code{FALSE}, the graph isn't drawn
@@ -36,7 +37,9 @@
 plot.iNZightTS <-
   function(x, multiplicative = FALSE, ylab = obj$currVar, xlab = "Date",
            title = "%var",
-           animate = FALSE, t = 10, aspect = 3,
+           animate = FALSE, 
+           t = 10, smoother = TRUE,
+           aspect = 3,
            plot = TRUE,
            col = ifelse(forecast > 0, "#0e8c07", "red"),
            xlim = c(NA, NA),
@@ -76,7 +79,9 @@ plot.iNZightTS <-
     }
 
     ### We want a trend line, so do a decomposition
-    if (!multiseries) {
+    if (!smoother) {
+        smooth <- NULL
+    } else if (!multiseries) {
         if (forecast > 0) {
             AtsObj <- tsObj
             if (!is.null(model.lim)) {
@@ -208,9 +213,13 @@ plot.iNZightTS <-
         asp <- xr / yr / aspect
         tsplot <- tsplot + coord_fixed(ratio = asp)
     }
+    
     if (!multiseries && forecast == 0)
         tsplot <- tsplot +
-            scale_colour_manual(values = c(col, "black"), guide = FALSE)
+            scale_colour_manual(
+                values = c(Fitted = col, "Raw data" = "black"), 
+                guide = FALSE
+            )
 
     if (plot && animate && !multiseries) {
         ## Do a bunch of things to animate the plot ...
@@ -244,7 +253,10 @@ plot.iNZightTS <-
             geom_line(data = pred.df, col = "#b50000")
     }
 
-    tsplot <- tsplot + geom_line(aes(col = "Raw data"), lwd = 1)
+    if (multiseries)
+        tsplot <- tsplot + geom_line(lwd = 1)
+    else
+        tsplot <- tsplot + geom_line(aes(colour = "Raw data"), lwd = 1)
     if (!is.null(smooth)) {
         tsplot <-
             if (multiseries)
@@ -254,7 +266,7 @@ plot.iNZightTS <-
                 geom_point(aes_(x = ~Date, y = ~smooth, shape = ~variable, color = ~variable),
                            data = fit.df[fit.df$Date == max(fit.df$Date), ],
                            size = 2, stroke = 2) +
-                labs(color = "", shape = "")
+                labs(color = "", shape = "") 
             else
                 tsplot + geom_line(aes_(x = ~Date, y = ~smooth, col = "Fitted"),
                     data = fit.df)

@@ -10,6 +10,7 @@
 ##' @param xlab x axis label
 ##' @param title the title for the plot
 ##' @param t smoothing parameter
+##' @param smoother logical, if \code{TRUE} the smoother will be drawn
 ##' @param aspect aspect ratio (width:height) for the time series
 ##' @param xlim limits to control how much of series is shown
 ##' @param model.lim time limits to use for modelling 
@@ -20,13 +21,14 @@
 ##' @export
 plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE,
                             ylab = 'Value', xlab = "Date", title = "%var",
-                            t = 10, aspect = 2, 
+                            t = 10, smoother = TRUE, aspect = 2, 
                             xlim = c(NA, NA), model.lim = NULL, ...) {
   on.exit(dev.flush())
   if (compare) {
     ## fetch the main time series plot
     p1 <- NextMethod(x, multiplicative = multiplicative, ylab = ylab,
-                     xlab = xlab, title = title, t = t, aspect = aspect,
+                     xlab = xlab, title = title, t = t, smoother = smoother,
+                     aspect = aspect,
                      plot = FALSE, xlim = xlim, model.lim = model.lim, ...)
 
     if (x$freq > 1) {
@@ -82,7 +84,7 @@ plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE,
       class(subts) <- "iNZightTS"
 
       plist[[i]] <- plot(subts, multiplicative = multiplicative, ylab = ylab,
-                         xlab = xlab, title = title, t = t,
+                         xlab = xlab, title = title, t = t, smoother = smoother,
                          col = "blue", aspect = NULL, plot = FALSE,
                          xlim = xlim, model.lim = model.lim)
       if (i < Np) plist[[i]] <- plist[[i]] + xlab("")
