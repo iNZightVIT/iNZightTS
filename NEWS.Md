@@ -1,6 +1,7 @@
 ## iNZightTS 1.4.3.9000
 __Release date__: TBA
 
+- add argument to show smoother (default is `TRUE`)
 
 
 ## iNZightTS 1.4.3

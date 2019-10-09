@@ -7,6 +7,10 @@ test_that("Basic ts graph works", {
     expect_is(plot(t), "ggplot")
 })
 
+test_that("Smoother can be disabled", {
+    expect_is(plot(t, smoother = FALSE), "ggplot")
+})
+
 test_that("Decomposition and recomposition plots work", {
     expect_is(decompositionplot(t), "iNZightTS")
     expect_is(recompose(decompositionplot(t), animate = FALSE), "iNZightTS")
@@ -29,6 +33,7 @@ test_that("Forecast is fine", {
 tm <- iNZightTS(visitorsQ, var = 2:5)
 test_that("Multi series graph works", {
     expect_is(plot(tm), "gtable")
+    expect_is(plot(tm, smoother = FALSE), "gtable")
     expect_is(suppressWarnings(plot(tm, compare = FALSE)), "gtable")
 })
 
