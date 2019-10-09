@@ -14,12 +14,12 @@ matrix:
       r: release
     - os: linux
       r: devel
-    - os: osx
-      r: oldrel
-      brew_packages: libgit2
-    - os: osx
-      r: release
-      brew_packages: libgit2
+#    - os: osx
+#      r: oldrel
+#      brew_packages: libgit2
+#    - os: osx
+#      r: release
+#      brew_packages: libgit2
 
 r_github_packages:
   - iNZightVIT/iNZightTools@dev
