@@ -106,7 +106,7 @@ function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
         geom_path(data = season) +
         geom_point(data = season, pch = 21, fill = "white",
             stroke = 1.5, size = 1.5) +
-        geom_hline(yintercept = 0, colour = "gray", linetype = 2)
+        geom_hline(yintercept = 0, colour = "gray", linetype = 2) +
         labs(
             title = sprintf("%s seasonal effects",
                 ifelse(multiplicative, "Multiplicative", "Additive")
