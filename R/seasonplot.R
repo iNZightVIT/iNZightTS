@@ -90,6 +90,16 @@ function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
             breaks = seq_along(labs),
             minor_breaks = NULL,
             labels = labs
+        ) +
+        geom_text(
+            aes_(label = ~floor(Date)),
+            data = td %>% dplyr::filter(.data$b == 1),
+            nudge_x = -0.25
+        ) +
+        geom_text(
+            aes_(label = ~floor(Date)),
+            data = td %>% dplyr::filter(.data$b == freq),
+            nudge_x = 0.25
         )
 
     ## RHS: seasonal effects
