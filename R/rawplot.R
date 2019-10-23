@@ -37,7 +37,7 @@
 plot.iNZightTS <-
   function(x, multiplicative = FALSE, ylab = obj$currVar, xlab = "Date",
            title = "%var",
-           animate = FALSE, 
+           animate = FALSE,
            t = 10, smoother = TRUE,
            aspect = 3,
            plot = TRUE,
@@ -145,7 +145,7 @@ plot.iNZightTS <-
                         value = as.matrix(tsObj))
     ts.df <- ts.df %>%
         tidyr::gather(key = "variable", value = "value",
-                      -Date, factor_key = TRUE)
+                      -.data$Date, factor_key = TRUE)
     ts.df <-
         dplyr::mutate(ts.df, variable =
             forcats::lvls_revalue(ts.df$variable,
@@ -169,11 +169,11 @@ plot.iNZightTS <-
         # fit.df <- fit.df[-(1:freq),]
         fit.df <- fit.df %>%
             dplyr::filter(
-                dplyr::between(Date, min(smooth$time), max(smooth$time))
+                dplyr::between(.data$Date, min(smooth$time), max(smooth$time))
             )
         smooth <- smooth %>%
             dplyr::filter(
-                dplyr::between(time, min(fit.df$Date), max(fit.df$Date))
+                dplyr::between(.data$time, min(fit.df$Date), max(fit.df$Date))
             )
         fit.df$smooth <- smooth$smooth
 
@@ -187,7 +187,7 @@ plot.iNZightTS <-
         }
         pred.df <- rbind(
             fit.df[nrow(fit.df), c("Date", "variable", "value")] %>%
-                dplyr::mutate(lower = value, upper = value),
+                dplyr::mutate(lower = .data$value, upper = .data$value),
             data.frame(
                 Date = as.numeric(time(pred)),
                 variable = "value",
@@ -213,11 +213,11 @@ plot.iNZightTS <-
         asp <- xr / yr / aspect
         tsplot <- tsplot + coord_fixed(ratio = asp)
     }
-    
+
     if (!multiseries && forecast == 0)
         tsplot <- tsplot +
             scale_colour_manual(
-                values = c(Fitted = col, "Raw data" = "black"), 
+                values = c(Fitted = col, "Raw data" = "black"),
                 guide = FALSE
             )
 
@@ -266,7 +266,7 @@ plot.iNZightTS <-
                 geom_point(aes_(x = ~Date, y = ~smooth, shape = ~variable, color = ~variable),
                            data = fit.df[fit.df$Date == max(fit.df$Date), ],
                            size = 2, stroke = 2) +
-                labs(color = "", shape = "") 
+                labs(color = "", shape = "")
             else
                 tsplot + geom_line(aes_(x = ~Date, y = ~smooth, col = "Fitted"),
                     data = fit.df)

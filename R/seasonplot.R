@@ -24,169 +24,119 @@ seasonplot <-
 function(obj, ...)
     UseMethod("seasonplot")
 
-
-
-
-##' @export
-seasonplot.forecast <-
-function(obj, s, season.labels=NULL, year.labels=FALSE, year.labels.left=FALSE,
-         type="o", main, ylab="", xlab=NULL, col=1, labelgap=0.1, 
-         model.lim = NULL, ...)
-{
-  x <- obj
-
-
-
-  if(missing(main))
-    main = paste("Seasonal plot:", deparse(substitute(x)))
-  if(missing(s))
-    s = frequency(x)
-  #if(s<=1)
-  #  stop("Frequency must be > 1")
-
-  if (as.integer(s) == 1)
-    return("No seasonal pattern for a time series data with 1 frequency.")
-
-  # Pad series
-  tsx <- x
-  if(start(x)[2]>1)
-    x <- c(rep(NA,start(x)[2]-1),x)
-  x <- c(x,rep(NA,s-length(x)%%s))
-  Season <- rep(c(1:s,NA),length(x)/s)
-  xnew <- rep(NA,length(x))
-  xnew[!is.na(Season)] <- x
-
-  if(s == 12)
-  {
-    labs <- month.abb
-    xLab <- "Month"
-  }
-  else if(s == 4)
-  {
-    labs <- paste(month.abb[c(1, 4, 7, 10)],
-                  month.abb[c(3, 6, 9, 12)],
-                  sep = " - ")
-    xLab <- "Quarter"
-  }
-  else if(s == 7)
-  {
-    labs <- c("Sun","Mon","Tue","Wed","Thu","Fri","Sat")
-    xLab <- "Day"
-  }
-  else
-  {
-    labs <- NULL
-    xLab <- "Season"
-  }
-  if(is.null(xlab))
-    xlab <- xLab
-  if(is.null(season.labels))
-    season.labels <- labs
-  if(year.labels)
-    xlim <- c(1-labelgap,s+0.4+labelgap)
-  else
-    xlim<-c(1-labelgap,s)
-  if(year.labels.left)
-    xlim[1] <- 0.4-labelgap
-  plot(Season,xnew,xaxt="n",xlab=xlab,type=type,ylab=ylab,main=main,xlim=xlim,col=0,...)
-  nn <- length(Season)/s
-  col <- rep(x=col, length.out=nn)
-  for(i in 0:(nn-1))
-    lines(Season[(i*(s+1)+1) : ((s+1)*(i+1))], xnew[(i*(s+1)+1) : ((s+1)*(i+1))], type = type, col = col[i+1], ...)
-  if(year.labels)
-  {
-    idx <- which(Season[!is.na(xnew)]==s)
-    year <- time(tsx)[idx]
-    text(x=rep(s+labelgap,length(year)),y=tsx[idx],labels=paste(c(trunc(year))),adj=0,...,col=col[1:length(idx)])
-  }
-  if(year.labels.left)
-  {
-    idx <- which(Season[!is.na(xnew)]==1)
-    year <- time(tsx)[idx]
-    if(min(idx)>1) # First year starts after season 1n
-      col <- col[-1]
-    text(x=rep(1-labelgap,length(year)),y=tsx[idx],labels=paste(c(trunc(year))),adj=1,...,col=col[1:length(idx)])
-  }
-  if(is.null(labs))
-    axis(1,...)
-  else
-    axis(1,labels=season.labels,at=1:s,...)
-}
-
-
-
-##' @export
+#' @export
 seasonplot.iNZightTS <-
-function(obj, multiplicative = FALSE, t = 0, model.lim = NULL, ...) {
+function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
+         ylab = obj$currVar, ...) {
 
     # if there is no season component to the ts, can't create season plot
     if (length(obj$start) == 1)
         return("Time Series does not have a seasonal component")
 
+    ## Convert tsobject to a dataframe
+    freq <- obj$freq
 
-    # newdevice(width = 9, height = 7)
+    if (freq == 12) {
+        labs <- month.abb
+        xlab <- "Month"
+    } else if (freq == 4) {
+        # labs <- sprintf("%s - %s",
+        #     month.abb[c(1, 4, 7, 10)],
+        #     month.abb[c(3, 6, 9, 12)]
+        # )
+        labs <- paste0("Q", 1:4)
+        xlab <- "Quarter"
+    } else if (freq == 7) {
+        labs <- c("Sun","Mon","Tue","Wed","Thu","Fri","Sat")
+        xlab <- "Day"
+    } else {
+        labs <- 1:freq
+        xlab <- "Season"
+    }
 
-    freq = obj$freq
+    obj <- decomposition(obj, ylab = ylab,
+        multiplicative = multiplicative,
+        t = t,
+        model.lim = model.lim
+    )
 
-    s = obj$start[2]
-    n = length(obj$tsObj)
-    r = n - (freq + 1 - s)
-    numSeries = 1 + r %/% freq + (r %% freq > 0)
-    cols = colorRampPalette(c("darkorange", "blue"))(numSeries)
-    title = paste("Seasonal plot for", obj$currVar)
+    td <- data.frame(
+        Date = as.numeric(time(obj$tsObj)),
+        value = as.matrix(obj$tsObj),
+        trend = as.numeric(obj$decompVars$components[, "trend"]),
+        seasonal = as.numeric(obj$decompVars$components[, "seasonal"]),
+        residual = as.numeric(obj$decompVars$components[, "remainder"])
+    ) %>%
+        dplyr::mutate(
+            effect =
+                if (multiplicative) .data$seasonal * .data$residual
+                else .data$seasonal + .data$residual,
+            a = floor(.data$Date) - obj$start[1] + 1,
+            b = .data$Date %% 1 * freq + 1
+        )
 
-    dev.hold()
-    opar = par(mfrow = c(1, 2), cex.axis = 0.9)
-    on.exit(par(opar))
+    p1 <- ggplot(td, aes_(~b, ~value, colour = ~a, group = ~a)) +
+        geom_point() +
+        geom_path() +
+        scale_colour_gradient(
+            low = "darkorange", high = "blue", guide = FALSE
+        ) +
+        labs(
+            title = sprintf("Seasonal plot for %s", obj$currVar),
+            x = xlab,
+            y = ylab
+        ) +
+        scale_x_continuous(
+            breaks = seq_along(labs),
+            minor_breaks = NULL,
+            labels = labs
+        ) +
+        geom_text(
+            aes_(label = ~floor(Date)),
+            data = td %>% dplyr::filter(.data$b == 1),
+            nudge_x = -0.25
+        ) +
+        geom_text(
+            aes_(label = ~floor(Date)),
+            data = td %>% dplyr::filter(.data$b == freq),
+            nudge_x = 0.25
+        )
 
-    seasonplot.forecast(obj$tsObj, freq, col = cols, pch = 19,
-               year.labels = TRUE, year.labels.left = TRUE,
-               main = title, model.lim = model.lim, ...)
-
-    obj = decomposition(obj, ylab = "", 
-        multiplicative = multiplicative, t = t, model.lim = model.lim)
-    season = obj$decompVars$components[,"seasonal"]
+    ## RHS: seasonal effects
+    s <- obj$start[2]
     if (!is.null(model.lim)) {
         tt <- time(obj$decompVars$components)
         s <- (tt[1] - floor(tt[1])) * freq + 1
     }
-    season = if (s > 1) season[-(1:(freq + 1 - s))][1:freq]
-    else season[1:freq]
+    season <-
+        if (s > 1) td$season[-(1:(freq + 1 - s))][1:freq]
+        else td$season[1:freq]
+    season <- data.frame(b = 1:freq, effect = season, a = 1)
 
-    season.ts = ts(season, start = c(1, 1), frequency = freq)
+    p2 <- ggplot(td, aes_(~b, ~effect - as.integer(multiplicative), group = ~a)) +
+        geom_path(colour = "gray") +
+        geom_path(data = season) +
+        geom_point(data = season, pch = 21, fill = "white",
+            stroke = 1.5, size = 1.5) +
+        geom_hline(yintercept = 0, colour = "gray", linetype = 2) +
+        labs(
+            title = sprintf("%s seasonal effects",
+                ifelse(multiplicative, "Multiplicative", "Additive")
+            ),
+            x = xlab,
+            y = ylab
+        ) +
+        scale_x_continuous(
+            breaks = seq_along(labs),
+            minor_breaks = NULL,
+            labels = labs
+        ) +
+        scale_y_continuous(
+            labels = function(y) y + 1
+        )
 
-    if (freq == 12) {
-        labs = month.abb
-        xlab = "Month"
-    }
-    else if (freq == 4) {
-        labs = paste(month.abb[c(1, 4, 7, 10)],
-                     month.abb[c(3, 6, 9, 12)],
-                     sep = " - ")
-        xlab = "Quarter"
-    }
-    else if (freq == 7) {
-        labs = c("Sun","Mon","Tue","Wed","Thu","Fri","Sat")
-        xlab = "Day"
-    }
-    else {
-        labs = 1:freq
-        xlab = "Season"
-    }
+    dev.hold()
+    on.exit(dev.flush())
 
-
-
-    h.lines <- ifelse(obj$decompVars$multiplicative, 1, 0)  #%
-
-    title.main = paste(ifelse(multiplicative, "Multiplicative", "Additive"), "seasonal effects")
-
-    plot(season.ts, type = "n", ylab = NULL, xlab = xlab,
-         xaxt = "n", main = title.main)
-
-    abline(h = h.lines, col = "#aaaaaa", lty = "dashed")
-    lines(season.ts, type = "o", lwd = 2, cex = 1.2)
-    axis(1, at = get.x(season.ts)$x, labels = labs)
-    dev.flush()
-
-    invisible(NULL)
+    egg::ggarrange(p1, p2, nrow = 1)
 }

@@ -37,9 +37,8 @@ test_that("Subset of decomposition plot can be shown", {
 })
 
 test_that("Subset of season plot", {
-    # s <- seasonplot(t, xlim = c(2000, 2011))
-    # expect_equal(x, 0)
-    # expect_is(plot(t, show = "seasons"), "ggplot")
+    s <- seasonplot(t, model.lim = c(2000, 2011))
+    expect_is(seasonplot(t), "gtable")
 })
 
 test_that("Subset of forecast plot", {
