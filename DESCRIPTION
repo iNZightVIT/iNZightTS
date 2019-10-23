@@ -22,7 +22,9 @@ Imports:
     tidyr,
     dplyr,
     forcats,
-    magrittr
+    magrittr,
+    egg,
+    rlang
 Suggests:
     iNZightPlots,
     testthat,

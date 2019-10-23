@@ -1,5 +1,6 @@
 context("Basic time series graphs")
-data(visitorsQ)
+# data(visitorsQ)
+# data(visitorsM2)
 
 ## single series
 t <- iNZightTS(visitorsQ)
@@ -19,8 +20,10 @@ test_that("Decomposition and recomposition plots work", {
 })
 
 test_that("Season plot is OK", {
-    expect_null(seasonplot(t))
-    # expect_is(plot(t, show = "seasons"), "ggplot")
+    # expect_null(seasonplot(t))
+    expect_is(seasonplot(t), "gtable")
+
+    expect_is(seasonplot(iNZightTS(visitorsM2, var = 4)), "gtable")
 })
 
 test_that("Forecast is fine", {
