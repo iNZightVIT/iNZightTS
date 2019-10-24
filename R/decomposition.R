@@ -1,11 +1,222 @@
+#' Decompose a time series object
+#'
+#' @param obj an iNZightTS object
+#' @param multiplicative fit a multiplicative time series model?
+#' @param t the smoothing parameter
+#' @param model.lim limits for the time series model
+#' @param data.name the name of the data
+#' @export
+decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
+                      data.name = NULL, ...) {
+     if (!is.null(model.lim)) {
+        model.lim <- ifelse(is.na(model.lim),
+            range(time(obj$tsObj)), model.lim)
+        ts.sub <- try({
+            window(obj$tsObj, model.lim[1], model.lim[2])
+        }, TRUE)
+        if (inherits(ts.sub, "try-error")) {
+            warning("Invalid modelling window - ignoring.")
+        } else {
+            obj$tsObj <- ts.sub
+        }
+    }
 
+    xlist <- get.x(obj$tsObj)
+    x <- xlist$x
+    x.units <- xlist$x.units
 
-decomposition <- function(obj, ylab = "", xlab = "", trendCol = "black", 
+    n <- length(obj$data)
+
+    if (obj$freq > 1) {
+        if (multiplicative)
+            tsObj <- log(obj$tsObj)
+        else
+            tsObj <- obj$tsObj
+        ### t.window is the smallest odd integer ranges from about 1.5*frequceny to 2*frequency
+        ### the actual minimum value is  1.5 * frequency/(1 - 1.5/s.window)
+        ### where s.window = 10* number of observation +1 by putting 'periodic'
+        ### t is set to be proportion of 0.5 *frequency
+        ### when t =0, the t.window takes the default value/ minimum value -the least smoothness
+        ### when t = 1. the t.window takes the maximum value - the most smoothnuess
+        decomp <- stl(tsObj,
+            "periodic",
+            t.window =
+                nextodd(ceiling(
+                    1.5 * frequency(data) / (1 - 1.5 / (10*n + 1)) +
+                        0.5 * frequency(data) * t
+                ))
+            )
+    } else {
+        ## freq == 1, non seasonal fitted.
+        if (multiplicative)  {
+            ### according to internet, the span value varies from about 0.1 to 2
+            ### 0.1 gives nearly no smoothness, while 2 gives nearly maximum smoothness
+            ### therefore here, the span ranges from 0.1 to 2
+            ### the default is 0.75
+            trend.comp <-
+                loess(log(obj$data[1:length(obj$tsObj), obj$currVar]) ~ x,
+                    span = 0.1 + 1.9*t )$fitted + obj$tsObj * 0
+
+            residuals.comp <- log(obj$tsObj) - trend.comp
+            seasons.comp <- obj$tsObj * 0
+            decomp <- list()
+            decomp$time.series <-
+                as.ts(data.frame(seasonal = seasons.comp,
+                                 trend = trend.comp,
+                                 remainder = residuals.comp))
+        } else {
+            trend.comp <-
+                loess(obj$data[1:length(obj$tsObj), obj$currVar] ~ x)$fitted +
+                    obj$tsObj * 0
+
+            residuals.comp <- obj$tsObj - trend.comp
+            seasons.comp <- obj$tsObj * 0
+            decomp <- list()
+            decomp$time.series <- as.ts(
+                data.frame(
+                    seasonal = seasons.comp,
+                    trend = trend.comp,
+                    remainder = residuals.comp
+                )
+            )
+        }
+    }
+
+    decompData <- decomp$time.series    # returns matrix
+    obj$decompVars <- list(
+        data.name = data.name,
+        raw = obj$tsObj@.Data,
+        components = decomp$time.series,
+        multiplicative = multiplicative
+    )
+    class(obj) <- c("inzdecomp", class(obj))
+    obj
+}
+
+#' @param x an inzdecomp object (from decompose(ts))
+#' @param recompose.progress if recompose is \code{TRUE}, this shows how
+#'        much to show (for animation!). Length 2 numeric: the first
+#'        is 0 for seasonal, and 1 for residual; second component is
+#'        how many observations have been recomposed so far
+#' @param recompose logical as to whether the recomposition is shown or not
+plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
+                           recompose = any(recompose.progress > 0),
+                           ylab = x$currVar, xlab = "Date",
+                           title = NULL, xlim = c(NA, NA),
+                           colour = c("black", "#45a8ff", "orangered")) {
+    ## Convert to a dataframe
+    td <- data.frame(
+        Date = as.matrix(time(x$tsObj)),
+        value = as.matrix(x$tsObj),
+        trend = as.numeric(x$decompVars$components[, "trend"]),
+        seasonal = as.numeric(x$decompVars$components[, "seasonal"]),
+        residual = as.numeric(x$decompVars$components[, "remainder"])
+    )
+
+    ## Create ONE SINGLE plot
+    ## but transform the SEASONAL and RESIDUAL components below the main data
+
+    yrange <- range(td$value)
+    ydiff <- diff(yrange)
+    srange <- range(td$seasonal)
+    sdiff <- diff(srange)
+    rrange <- range(td$residual)
+    rdiff <- diff(rrange)
+
+    # ratios
+    total <- ydiff + sdiff + rdiff
+    rr <- 1
+    if (rdiff < 0.05 * total) {
+        rdiff <- 0.05 * total
+        rr <- rdiff / diff(rrange)
+        total <- ydiff + sdiff + rdiff
+    }
+    ratios <- c(ydiff, sdiff, rdiff) / total
+
+    p <- ggplot(td, aes_(~Date))
+    p0 <- p +
+        theme(
+            axis.title.x = element_blank(),
+            axis.text.x = element_blank(),
+            axis.ticks.x = element_blank()
+        )
+
+    if (is.null(title)) {
+        print(x$data.name)
+        title <- sprintf("Decomposition%s: %s",
+            ifelse(is.null(x$decompVars$data.name),
+                "", paste(" of", x$decompVars$data.name)),
+            x$currVar
+        )
+    }
+    pdata <- p0 +
+        geom_path(aes_(y = ~value), colour = "gray") +
+        geom_path(aes_(y = ~trend), colour = colour[1]) +
+        labs(title = title, y = ylab)
+    if (recompose && any(recompose > 0)) {
+        ri <- ifelse(recompose.progress[1] == 0, recompose.progress[2], nrow(td))
+        rtd <- td %>%
+            dplyr::mutate(
+                z = ifelse(1:nrow(td) < ri,
+                    .data$trend + .data$seasonal,
+                    td$trend[ri] + .data$seasonal
+                )
+            )
+        pdata <- pdata +
+            geom_path(
+                aes_(y = ~z),
+                data = rtd,
+                colour = colour[2]
+            )
+        if (recompose.progress[1] == 1 && recompose.progress[2] > 0) {
+            ri <- recompose.progress[2]
+            rtd <- td %>%
+                dplyr::mutate(
+                    z = ifelse(1:nrow(td) < ri,
+                        .data$value,
+                        .data$trend[ri] + .data$seasonal[ri] + .data$residual
+                    )
+                )
+            pdata <- pdata +
+                geom_path(
+                    aes_(y = ~z),
+                    data = rtd,
+                    colour = colour[3]
+                )
+        }
+    }
+
+    pseason <- p0 +
+        geom_path(aes_(y = ~seasonal), colour = colour[2]) +
+        labs(subtitle = "Seasonal Swing", y = "") +
+        theme(
+            # panel.grid.major.y = element_blank(),
+            panel.grid.minor.y = element_blank()
+        )
+
+    presid <- p +
+        geom_path(aes_(y = ~residual), colour = colour[3]) +
+        labs(subtitle = "Residuals", y = "") +
+        ylim(extendrange(rrange, f = rr/2)) +
+        theme(
+            # panel.grid.major.y = element_blank(),
+            panel.grid.minor.y = element_blank()
+        )
+
+    dev.hold()
+    on.exit(dev.flush())
+    egg::ggarrange(
+        pdata, pseason, presid,
+        heights = ratios
+    )
+}
+
+decomposition <- function(obj, ylab = "", xlab = "", trendCol = "black",
                           seasonCol = "#45a8ff",
-                          randCol = seasonCol, multiplicative=FALSE, t = 0, 
+                          randCol = seasonCol, multiplicative=FALSE, t = 0,
                           xlim = c(NA, NA), model.lim = NULL) {
     if (!is.null(model.lim)) {
-        model.lim <- ifelse(is.na(model.lim), 
+        model.lim <- ifelse(is.na(model.lim),
             range(time(obj$tsObj)), model.lim)
         ts.sub <- try({
             window(obj$tsObj, model.lim[1], model.lim[2])
@@ -50,7 +261,7 @@ decomposition <- function(obj, ylab = "", xlab = "", trendCol = "black",
             ### therefore here, the span ranges from 0.1 to 2
             ### the default is 0.75
             trend.comp <-
-                loess(log(obj$data[1:length(obj$tsObj), obj$currVar]) ~ x, 
+                loess(log(obj$data[1:length(obj$tsObj), obj$currVar]) ~ x,
                     span = 0.1 + 1.9*t )$fitted + obj$tsObj * 0
 
             residuals.comp <- log(obj$tsObj) - trend.comp
@@ -171,7 +382,7 @@ decomposition <- function(obj, ylab = "", xlab = "", trendCol = "black",
     random.vp <- dataViewport(x, random.vp.y, name = "random", layout.pos.row = 3)
 
     plots.vptree <- vpTree(plots.vp, vpList(trend.vp, season.vp, random.vp))
-    final.vptree <- vpTree(parent.vp, 
+    final.vptree <- vpTree(parent.vp,
         vpList(head.vp, left.vp, plots.vptree, right.vp, bottom.vp)
     )
 
@@ -357,7 +568,7 @@ decomposition <- function(obj, ylab = "", xlab = "", trendCol = "black",
 ##' otherwise an additive model is used by default.
 ##'
 ##' @param xlim axis limits, specified as dates
-##' @param model.lim time limits to use for modelling 
+##' @param model.lim time limits to use for modelling
 ##'
 ##' @return The original \code{iNZightTS} object with an item \code{decompVars}
 ##' appended, containing results from the decomposition.

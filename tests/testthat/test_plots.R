@@ -13,8 +13,23 @@ test_that("Smoother can be disabled", {
 })
 
 test_that("Decomposition and recomposition plots work", {
-    expect_is(decompositionplot(t), "iNZightTS")
-    expect_is(recompose(decompositionplot(t), animate = FALSE), "iNZightTS")
+    expect_is(
+        plot(decompose(t)),
+        "gtable"
+    )
+    expect_is(
+        plot(decompose(t), recompose.progress = c(0, 20)),
+        "gtable"
+    )
+    expect_is(
+        plot(decompose(t), recompose.progress = c(1, 20)),
+        "gtable"
+    )
+
+    # for (i in round(seq(1, nrow(visitorsQ), length.out = 20)))
+    #     plot(decompose(t, recompose = TRUE), recompose.progress = c(1, i))
+    # # expect_is(decompositionplot(t), "iNZightTS")
+    # expect_is(recompose(decompositionplot(t), animate = FALSE), "iNZightTS")
     # expect_is(plot(t, show = "decomp"), "ggplot")
     # expect_is(plot(t, show = "recomp", animated = FALSE), "ggplot")
 })
