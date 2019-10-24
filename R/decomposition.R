@@ -5,6 +5,8 @@
 #' @param t the smoothing parameter
 #' @param model.lim limits for the time series model
 #' @param data.name the name of the data
+#' @param ... other, ignored, arguments
+#' @return an egg/gtable
 #' @export
 decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
                       data.name = NULL, ...) {

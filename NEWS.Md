@@ -3,7 +3,7 @@ __Release date__: TBA
 
 - add argument to `plot()` functions to show smoother (default is `TRUE`)
 - add UTF-8 encoding to DESCRIPTION file as requested by roxygen :)
-- add ggplot2 version of season plot
+- add ggplot2 version of season plot and decompose plot
 
 
 ## iNZightTS 1.4.3
