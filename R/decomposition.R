@@ -95,12 +95,15 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
     obj
 }
 
+#' Plot TS decomposition
+#'
 #' @param x an inzdecomp object (from decompose(ts))
 #' @param recompose.progress if recompose is \code{TRUE}, this shows how
 #'        much to show (for animation!). Length 2 numeric: the first
 #'        is 0 for seasonal, and 1 for residual; second component is
 #'        how many observations have been recomposed so far
 #' @param recompose logical as to whether the recomposition is shown or not
+#' @export
 plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
                            recompose = any(recompose.progress > 0),
                            ylab = x$currVar, xlab = "Date",

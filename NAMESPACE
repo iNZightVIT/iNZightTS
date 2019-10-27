@@ -2,6 +2,7 @@
 
 S3method(plot,iNZightMTS)
 S3method(plot,iNZightTS)
+S3method(plot,inzdecomp)
 S3method(print,iNZightTS)
 S3method(seasonplot,iNZightTS)
 export(compareplot)
