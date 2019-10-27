@@ -223,14 +223,21 @@ plot.iNZightTS <-
 
     if (plot && animate && !multiseries) {
         ## Do a bunch of things to animate the plot ...
+
         dev.hold()
-        print(tsplot + geom_point())
+        print(tsplot + geom_point(aes(colour = NULL)))
         dev.flush()
 
         Sys.sleep(1)
         for (i in 2:nrow(ts.df)) {
             dev.hold()
-            print(tsplot + geom_point() + geom_line(data = ts.df[1:i, ]))
+            print(
+                tsplot +
+                    geom_point(aes(colour = NULL), colour = "black") +
+                    geom_line(aes(colour = NULL),
+                        data = ts.df[1:i, ], colour = "black"
+                    )
+            )
             dev.flush()
             Sys.sleep(ifelse(i > 9, 0.05, 0.5))
         }

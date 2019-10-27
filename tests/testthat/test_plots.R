@@ -26,8 +26,9 @@ test_that("Decomposition and recomposition plots work", {
         "gtable"
     )
 
-    # for (i in round(seq(1, nrow(visitorsQ), length.out = 20)))
-    #     plot(decompose(t, recompose = TRUE), recompose.progress = c(1, i))
+    for (j in 0:1)
+        for (i in 0:nrow(visitorsQ))
+            plot(decompose(t, recompose = TRUE), recompose.progress = c(j, i))
     # # expect_is(decompositionplot(t), "iNZightTS")
     # expect_is(recompose(decompositionplot(t), animate = FALSE), "iNZightTS")
     # expect_is(plot(t, show = "decomp"), "ggplot")
