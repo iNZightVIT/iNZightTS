@@ -7,7 +7,7 @@
 \method{plot}{inzdecomp}(x, recompose.progress = c(0, 0),
   recompose = any(recompose.progress > 0), ylab = x$currVar,
   xlab = "Date", title = NULL, xlim = c(NA, NA),
-  colour = c("black", "#45a8ff", "orangered"))
+  colour = c("black", "#45a8ff", "orangered"), ...)
 }
 \arguments{
 \item{x}{an inzdecomp object (from decompose(ts))}
@@ -18,6 +18,18 @@ is 0 for seasonal, and 1 for residual; second component is
 how many observations have been recomposed so far}
 
 \item{recompose}{logical as to whether the recomposition is shown or not}
+
+\item{ylab}{the label for the y axis}
+
+\item{xlab}{the label for the x axis}
+
+\item{title}{the title for the plot}
+
+\item{xlim}{the x axis limits}
+
+\item{colour}{vector of three colours for trend, seasonal, and residuals, respectively}
+
+\item{...}{additional arguments (ignored)}
 }
 \description{
 Plot TS decomposition
