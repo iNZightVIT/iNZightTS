@@ -108,14 +108,31 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
                            colour = c("black", "#45a8ff", "orangered")) {
     ## Convert to a dataframe
     xlim <- ifelse(is.na(xlim), range(time(x$tsObj)), xlim)
-    td <- data.frame(
-        Date = as.matrix(time(x$tsObj)),
-        value = as.matrix(x$tsObj),
-        trend = as.numeric(x$decompVars$components[, "trend"]),
-        seasonal = as.numeric(x$decompVars$components[, "seasonal"]),
-        residual = as.numeric(x$decompVars$components[, "remainder"])
-    ) %>%
-        dplyr::filter(dplyr::between(.data$Date, xlim[1], xlim[2]))
+    if (x$decompVars$multiplicative) {
+        # transform from log scale additive
+        Y <- as.numeric(as.matrix(x$tsObj))
+        trend_log <- as.numeric(x$decompVars$components[, "trend"])
+        trend <- exp(trend_log)
+        seasonal_log <- as.numeric(x$decompVars$components[, "seasonal"])
+        seasonal <- exp(trend_log + seasonal_log) - trend
+        residual <- Y - exp(trend_log + seasonal_log)
+        td <- data.frame(
+            Date = as.matrix(time(x$tsObj)),
+            value = as.matrix(x$tsObj),
+            trend = trend,
+            seasonal = seasonal,
+            residual = residual
+        )
+    } else {
+        td <- data.frame(
+            Date = as.matrix(time(x$tsObj)),
+            value = as.matrix(x$tsObj),
+            trend = as.numeric(x$decompVars$components[, "trend"]),
+            seasonal = as.numeric(x$decompVars$components[, "seasonal"]),
+            residual = as.numeric(x$decompVars$components[, "remainder"])
+        )
+    }
+    td <- dplyr::filter(td, dplyr::between(td$Date, xlim[1], xlim[2]))
 
 
     ## Create ONE SINGLE plot
@@ -154,7 +171,6 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
         )
 
     if (is.null(title)) {
-        print(x$data.name)
         title <- sprintf("Decomposition%s: %s",
             ifelse(is.null(x$decompVars$data.name),
                 "", paste(" of", x$decompVars$data.name)),
@@ -164,7 +180,8 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
     pdata <- p0 +
         geom_path(aes_(y = ~value), colour = "gray") +
         geom_path(aes_(y = ~trend), colour = colour[1]) +
-        labs(title = title, y = ylab)
+        labs(title = title, y = ylab) +
+        ylim(extendrange(datarange, f = 0.05))
     if (recompose && any(recompose > 0)) {
         ri <- ifelse(recompose.progress[1] == 0, recompose.progress[2], nrow(td))
         rtd <- td %>%
@@ -179,8 +196,7 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
                 aes_(y = ~z),
                 data = rtd,
                 colour = colour[2]
-            ) +
-            ylim(extendrange(datarange, f = 0.05))
+            )
         if (recompose.progress[1] == 1 && recompose.progress[2] > 0) {
             ri <- recompose.progress[2]
             rtd <- td %>%
