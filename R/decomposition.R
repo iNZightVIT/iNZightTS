@@ -103,12 +103,19 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
 #'        is 0 for seasonal, and 1 for residual; second component is
 #'        how many observations have been recomposed so far
 #' @param recompose logical as to whether the recomposition is shown or not
+#' @param ylab the label for the y axis
+#' @param xlab the label for the x axis
+#' @param title the title for the plot
+#' @param xlim the x axis limits
+#' @param colour vector of three colours for trend, seasonal, and residuals, respectively
+#' @param ... additional arguments (ignored)
 #' @export
 plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
                            recompose = any(recompose.progress > 0),
                            ylab = x$currVar, xlab = "Date",
                            title = NULL, xlim = c(NA, NA),
-                           colour = c("black", "#45a8ff", "orangered")) {
+                           colour = c("black", "#45a8ff", "orangered"),
+                           ...) {
     ## Convert to a dataframe
     xlim <- ifelse(is.na(xlim), range(time(x$tsObj)), xlim)
     if (x$decompVars$multiplicative) {
