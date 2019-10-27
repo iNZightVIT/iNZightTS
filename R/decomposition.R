@@ -107,13 +107,16 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
                            title = NULL, xlim = c(NA, NA),
                            colour = c("black", "#45a8ff", "orangered")) {
     ## Convert to a dataframe
+    xlim <- ifelse(is.na(xlim), range(time(x$tsObj)), xlim)
     td <- data.frame(
         Date = as.matrix(time(x$tsObj)),
         value = as.matrix(x$tsObj),
         trend = as.numeric(x$decompVars$components[, "trend"]),
         seasonal = as.numeric(x$decompVars$components[, "seasonal"]),
         residual = as.numeric(x$decompVars$components[, "remainder"])
-    )
+    ) %>%
+        dplyr::filter(dplyr::between(.data$Date, xlim[1], xlim[2]))
+
 
     ## Create ONE SINGLE plot
     ## but transform the SEASONAL and RESIDUAL components below the main data
@@ -134,6 +137,13 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
         total <- ydiff + sdiff + rdiff
     }
     ratios <- c(ydiff, sdiff, rdiff) / total
+
+    datarange <- with(td,
+        c(
+            max(trend, trend + seasonal, value),
+            min(trend, trend + seasonal, value)
+        )
+    )
 
     p <- ggplot(td, aes_(~Date))
     p0 <- p +
@@ -169,7 +179,8 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
                 aes_(y = ~z),
                 data = rtd,
                 colour = colour[2]
-            )
+            ) +
+            ylim(extendrange(datarange, f = 0.05))
         if (recompose.progress[1] == 1 && recompose.progress[2] > 0) {
             ri <- recompose.progress[2]
             rtd <- td %>%
@@ -211,6 +222,8 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
         pdata, pseason, presid,
         heights = ratios
     )
+
+    invisible(x)
 }
 
 decomposition <- function(obj, ylab = "", xlab = "", trendCol = "black",
