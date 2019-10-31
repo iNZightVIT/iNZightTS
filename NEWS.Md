@@ -4,6 +4,8 @@ __Release date__: TBA
 - add argument to `plot()` functions to show smoother (default is `TRUE`)
 - add UTF-8 encoding to DESCRIPTION file as requested by roxygen :)
 - add ggplot2 version of season plot and decompose plot
+- for compare plot with additive effects, make main and effects ylimits equally scaled
+- fix bug where smoothing parameter wasn't being passed to compare effects graph
 
 
 ## iNZightTS 1.4.3
@@ -101,4 +103,3 @@ __Release date__: 18 January 2014
 
 - No user-visible changes to the package, however re-released with the
   launch of iNZight 2.0.
-

@@ -38,9 +38,12 @@ plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE,
             p1 <- p1 + theme(legend.position = "none")
             p2 <- compareseasons(x,
                 multiplicative = multiplicative,
-                t = 0,
+                t = t,
                 model.lim = model.lim
             )
+
+            yratio <- attr(p2, "yratio")
+            if (multiplicative || is.null(yratio)) yratio <- 4/6
 
             ## extract legend
             tmp <- ggplot_gtable(ggplot_build(p2))
@@ -66,12 +69,12 @@ plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE,
 
 
             dev.hold()
+            on.exit(dev.flush())
             gridExtra::grid.arrange(
                 p1, p2, legend,
                 layout_matrix = rbind(c(1, 1), c(2, 3)),
-                heights = c(6, 4), widths = c(6, 4)
+                heights = c(1, yratio), widths = c(6, 4)
             )
-            # dev.flush()
         } else {
             ## don't show the seasonal effects (because there aren't any!)
             p1 <- p1 + theme(legend.position = "bottom")
@@ -179,8 +182,6 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0, model.lim = NULL) {
         listVars[[name]] <- curr.vars
     }
 
-
-
     n <- length(varNums)
     x.vals <- get.x2(listVars[[1]]$tsObj)
     freq <- listVars[[1]]$freq
@@ -202,8 +203,8 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0, model.lim = NULL) {
 
     compare <- n == 1
     if (compare) {
-          timeSeasonData <- data.frame()
-      }
+        timeSeasonData <- data.frame()
+    }
     for (i in varNums) {
         # raw.y.vals <- listVars[[i]]$decompVars$raw
         # trend.y.vals[,i] <- listVars[[i]]$decompVars$components[,"trend"]@.Data
@@ -294,6 +295,12 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0, model.lim = NULL) {
         p <- p + scale_x_continuous(breaks = 1:freq, labels = labs)
     }
 
+    ## To get the y-axis ranges relative, compute relative ratio:
+    dat_yr <- diff(range(x$tsObj))
+    eff_yr <- diff(range(seasonData$value))
+    yratio <- eff_yr / dat_yr
+
+    attr(p, "yratio") <- yratio
     p
 }
 

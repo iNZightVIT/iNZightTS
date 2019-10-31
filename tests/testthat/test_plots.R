@@ -47,7 +47,10 @@ test_that("Multi series graph works", {
     expect_is(plot(tm), "gtable")
     expect_is(plot(tm, smoother = FALSE), "gtable")
     expect_is(suppressWarnings(plot(tm, compare = FALSE)), "gtable")
-    expect_is(suppressWarnings(plot(tm, smoother = FALSE, compare = FALSE)), "gtable")
+    expect_is(
+        suppressWarnings(plot(tm, smoother = FALSE, compare = FALSE)),
+        "gtable"
+    )
 })
 
 test_that("Unsupported plots error", {
