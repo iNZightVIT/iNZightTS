@@ -54,7 +54,7 @@ function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
         xlab <- "Season"
     }
 
-    obj <- decomposition(obj, ylab = ylab,
+    obj <- decompose(obj, ylab = ylab,
         multiplicative = multiplicative,
         t = t,
         model.lim = model.lim

@@ -8,20 +8,7 @@ decompositionplot(obj, ylab = "", xlab = "", multiplicative = FALSE,
   t = 0, xlim = c(NA, NA), model.lim = NULL)
 }
 \arguments{
-\item{obj}{an \code{iNZightTS} object}
-
-\item{ylab}{a title for the y axis}
-
-\item{xlab}{a title for the x axis}
-
-\item{multiplicative}{logical. If \code{TRUE}, a multiplicative model is used,
-otherwise an additive model is used by default.}
-
-\item{t}{a control of smoothness of the trend of the time series with frequency bigger than 1 ranges from 0 to 1}
-
-\item{xlim}{axis limits, specified as dates}
-
-\item{model.lim}{time limits to use for modelling}
+\item{...}{args, ignored}
 }
 \value{
 The original \code{iNZightTS} object with an item \code{decompVars}
@@ -40,12 +27,6 @@ If the frequency is 1, the trend component is found directly by using
 and actual values.
 The trend, seasonal and residual components are plotted on the same
 scale allowing for easy visual analysis.
-}
-\examples{
-\dontrun{
-z <- iNZightTS(ldeaths)
-y <- decompositionplot(z)
-}
 }
 \references{
 R. B. Cleveland, W. S. Cleveland, J.E. McRae, and I. Terpenning (1990) STL: A Seasonal-Trend Decomposition Procedure Based on Loess. Journal of Official Statistics, 6, 3iV73.

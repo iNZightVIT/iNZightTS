@@ -171,7 +171,7 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0, model.lim = NULL) {
         curr.vars$data <- vardata
         curr.vars$tsObj <- ts(x$data[, i], x$start, x$end, x$freq)
         curr.vars$currVar <- i
-        curr.vars <- decomposition(curr.vars,
+        curr.vars <- decompose(curr.vars,
             ylab = "",
             multiplicative = multiplicative, t = t, model.lim = model.lim
         )

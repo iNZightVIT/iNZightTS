@@ -54,8 +54,10 @@ test_that("Multi series graph works", {
 })
 
 test_that("Unsupported plots error", {
-    expect_error(decompositionplot(tm))
-    expect_error(recompose(decompositionplot(tm)))
+    expect_warning(decompositionplot(t))
+    expect_warning(recompose(decompositionplot(t)))
+    expect_warning(decompositionplot(tm))
+    expect_warning(recompose(decompositionplot(tm)))
     expect_error(seasonplot(tm))
     expect_warning(capture.output(forecastplot(tm)))
 })
