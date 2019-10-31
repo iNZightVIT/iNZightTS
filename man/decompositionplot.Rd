@@ -4,8 +4,7 @@
 \alias{decompositionplot}
 \title{Plot a Time Series Decomposition}
 \usage{
-decompositionplot(obj, ylab = "", xlab = "", multiplicative = FALSE,
-  t = 0, xlim = c(NA, NA), model.lim = NULL)
+decompositionplot(...)
 }
 \arguments{
 \item{...}{args, ignored}
