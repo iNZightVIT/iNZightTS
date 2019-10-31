@@ -85,10 +85,22 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
     }
 
     decompData <- decomp$time.series    # returns matrix
+    if (multiplicative) {
+        Y <- log(as.numeric(as.matrix(tsObj)))
+        trend_log <- as.numeric(decompData[, "trend"])
+        trend <- exp(trend_log)
+        seasonal_log <- as.numeric(decompData[, "seasonal"])
+        seasonal <- exp(trend_log + seasonal_log) - trend
+        residual <- exp(Y - (trend_log + seasonal_log))
+        decompData[, "trend"] <- trend
+        decompData[, "seasonal"] <- exp(seasonal_log)
+        decompData[, "remainder"] <- residual
+    }
+
     obj$decompVars <- list(
         data.name = data.name,
         raw = obj$tsObj@.Data,
-        components = decomp$time.series,
+        components = decompData,
         multiplicative = multiplicative
     )
     class(obj) <- c("inzdecomp", class(obj))
@@ -118,28 +130,19 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
                            ...) {
     ## Convert to a dataframe
     xlim <- ifelse(is.na(xlim), range(time(x$tsObj)), xlim)
+    td <- data.frame(
+        Date = as.matrix(time(x$tsObj)),
+        value = as.matrix(x$tsObj),
+        trend = as.numeric(x$decompVars$components[, "trend"]),
+        seasonal = as.numeric(x$decompVars$components[, "seasonal"]),
+        residual = as.numeric(x$decompVars$components[, "remainder"])
+    )
     if (x$decompVars$multiplicative) {
-        # transform from log scale additive
-        Y <- as.numeric(as.matrix(x$tsObj))
-        trend_log <- as.numeric(x$decompVars$components[, "trend"])
-        trend <- exp(trend_log)
-        seasonal_log <- as.numeric(x$decompVars$components[, "seasonal"])
-        seasonal <- exp(trend_log + seasonal_log) - trend
-        residual <- Y - exp(trend_log + seasonal_log)
-        td <- data.frame(
-            Date = as.matrix(time(x$tsObj)),
-            value = as.matrix(x$tsObj),
-            trend = trend,
-            seasonal = seasonal,
-            residual = residual
-        )
-    } else {
-        td <- data.frame(
-            Date = as.matrix(time(x$tsObj)),
-            value = as.matrix(x$tsObj),
-            trend = as.numeric(x$decompVars$components[, "trend"]),
-            seasonal = as.numeric(x$decompVars$components[, "seasonal"]),
-            residual = as.numeric(x$decompVars$components[, "remainder"])
+        td <- dplyr::mutate(td,
+            residual = as.numeric(x$tsObj) -
+                exp(log(.data$trend) + log(.data$seasonal)),
+            seasonal = exp(log(.data$trend) + log(.data$seasonal)) -
+                .data$trend
         )
     }
     td <- dplyr::filter(td, dplyr::between(td$Date, xlim[1], xlim[2]))

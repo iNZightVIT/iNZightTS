@@ -66,11 +66,13 @@ function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
         trend = as.numeric(obj$decompVars$components[, "trend"]),
         seasonal = as.numeric(obj$decompVars$components[, "seasonal"]),
         residual = as.numeric(obj$decompVars$components[, "remainder"])
-    ) %>%
-        dplyr::mutate(
-            effect =
-                if (multiplicative) .data$seasonal * .data$residual
-                else .data$seasonal + .data$residual,
+    )
+    td <- dplyr::mutate(td,
+            effect = if (multiplicative) {
+                .data$value / .data$trend
+            } else {
+                .data$value - .data$trend
+            },
             a = floor(.data$Date) - obj$start[1] + 1,
             b = .data$Date %% 1 * freq + 1
         )
@@ -113,7 +115,11 @@ function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
         else td$season[1:freq]
     season <- data.frame(b = 1:freq, effect = season, a = 1)
 
-    p2 <- ggplot(td, aes_(~b, ~effect - as.integer(multiplicative), group = ~a)) +
+    p2 <- ggplot(td, aes_(
+            ~b,
+            ~effect - as.integer(multiplicative),
+            group = ~a
+        )) +
         geom_path(colour = "gray") +
         geom_path(data = season) +
         geom_point(data = season, pch = 21, fill = "white",
@@ -130,8 +136,9 @@ function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
             breaks = seq_along(labs),
             minor_breaks = NULL,
             labels = labs
-        ) +
-        scale_y_continuous(
+        )
+    if (multiplicative)
+        p2 <- p2 + scale_y_continuous(
             labels = function(y) y + 1
         )
 
