@@ -106,7 +106,7 @@ plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE,
                     theme(legend.position = "none") + ggtitle("")
 
                 if (!multiplicative) {
-                    ## figure out what the XLIM should be ...
+                    ## figure out what the YLIM should be ...
                     yl <- range(subts$tsObj)
                     yl <- yl - mean(yl)
                     slist[[i]] <- slist[[i]] + ylim(yl)
