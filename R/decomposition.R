@@ -277,9 +277,6 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
 ##' @seealso \code{\link{stl}}, \code{\link{loess}}, \code{\link{iNZightTS}}
 ##'
 ##' @export
-decompositionplot <-
-    function(obj, ylab = "", xlab = "", multiplicative=FALSE, t = 0,
-             xlim = c(NA, NA), model.lim = NULL) {
-
-        warning("Deprecated: please use `plot(decompose(obj))`")
-    }
+decompositionplot <- function(...) {
+    warning("Deprecated: please use `plot(decompose(obj))`")
+}
