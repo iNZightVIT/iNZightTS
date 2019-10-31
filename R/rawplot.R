@@ -99,7 +99,7 @@ plot.iNZightTS <-
                 smooth = smooth
             )
         } else {
-            decomp = decomposition(obj,
+            decomp = decompose(obj,
                 ylab = "",
                 multiplicative = multiplicative,
                 t = t,
@@ -121,7 +121,7 @@ plot.iNZightTS <-
             subts$tsObj <- obj$tsObj[, v]
             subts$currVar <- v
             class(subts) <- "iNZightTS"
-            smoothList[[v]] <- decomposition(subts,
+            smoothList[[v]] <- decompose(subts,
                 ylab = "",
                 multiplicative = multiplicative,
                 t = t,

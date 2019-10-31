@@ -6,7 +6,7 @@ tm <- iNZightTS(visitorsQ, var = 2:5)
 
 ## single series
 test_that("Decomposition uses sub-portion of the plot", {
-    expect_silent(d <- decomposition(t, model.lim = c(2005, 2009.75)))
+    expect_silent(d <- decompose(t, model.lim = c(2005, 2009.75)))
     expect_is(d, "iNZightTS")
     expect_equal(attr(d$decompVars$components, "tsp"), c(2005, 2009.75, 4))
 })

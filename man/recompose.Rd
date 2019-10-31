@@ -4,14 +4,10 @@
 \alias{recompose}
 \title{Recompose a decomposed time series}
 \usage{
-recompose(vars.decomp, animate = TRUE, e = NULL)
+recompose(...)
 }
 \arguments{
-\item{vars.decomp}{a decomposed time series object}
-
-\item{animate}{logical, if \code{TRUE} the plot will be animated}
-
-\item{e}{environment to use (for controlling animation timings)}
+\item{...}{args, ignored}
 }
 \value{
 the recomposed series
