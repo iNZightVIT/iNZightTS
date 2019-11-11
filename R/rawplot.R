@@ -14,6 +14,7 @@
 ##' @param title a title for the graph
 ##' @param animate logical, if true the graph is animated
 ##' @param t smoothing parameter
+##' @param smoother logical, if \code{TRUE} the smoother will be drawn
 ##' @param aspect the aspect ratio of the plot;
 ##'        it will be about ASPECT times wider than it is high
 ##' @param plot logical, if \code{FALSE}, the graph isn't drawn
@@ -36,7 +37,9 @@
 plot.iNZightTS <-
   function(x, multiplicative = FALSE, ylab = obj$currVar, xlab = "Date",
            title = "%var",
-           animate = FALSE, t = 10, aspect = 3,
+           animate = FALSE,
+           t = 10, smoother = TRUE,
+           aspect = 3,
            plot = TRUE,
            col = ifelse(forecast > 0, "#0e8c07", "red"),
            xlim = c(NA, NA),
@@ -76,7 +79,9 @@ plot.iNZightTS <-
     }
 
     ### We want a trend line, so do a decomposition
-    if (!multiseries) {
+    if (!smoother) {
+        smooth <- NULL
+    } else if (!multiseries) {
         if (forecast > 0) {
             AtsObj <- tsObj
             if (!is.null(model.lim)) {
@@ -94,7 +99,7 @@ plot.iNZightTS <-
                 smooth = smooth
             )
         } else {
-            decomp = decomposition(obj,
+            decomp = decompose(obj,
                 ylab = "",
                 multiplicative = multiplicative,
                 t = t,
@@ -116,7 +121,7 @@ plot.iNZightTS <-
             subts$tsObj <- obj$tsObj[, v]
             subts$currVar <- v
             class(subts) <- "iNZightTS"
-            smoothList[[v]] <- decomposition(subts,
+            smoothList[[v]] <- decompose(subts,
                 ylab = "",
                 multiplicative = multiplicative,
                 t = t,
@@ -140,7 +145,7 @@ plot.iNZightTS <-
                         value = as.matrix(tsObj))
     ts.df <- ts.df %>%
         tidyr::gather(key = "variable", value = "value",
-                      -Date, factor_key = TRUE)
+                      -.data$Date, factor_key = TRUE)
     ts.df <-
         dplyr::mutate(ts.df, variable =
             forcats::lvls_revalue(ts.df$variable,
@@ -164,11 +169,11 @@ plot.iNZightTS <-
         # fit.df <- fit.df[-(1:freq),]
         fit.df <- fit.df %>%
             dplyr::filter(
-                dplyr::between(Date, min(smooth$time), max(smooth$time))
+                dplyr::between(.data$Date, min(smooth$time), max(smooth$time))
             )
         smooth <- smooth %>%
             dplyr::filter(
-                dplyr::between(time, min(fit.df$Date), max(fit.df$Date))
+                dplyr::between(.data$time, min(fit.df$Date), max(fit.df$Date))
             )
         fit.df$smooth <- smooth$smooth
 
@@ -182,7 +187,7 @@ plot.iNZightTS <-
         }
         pred.df <- rbind(
             fit.df[nrow(fit.df), c("Date", "variable", "value")] %>%
-                dplyr::mutate(lower = value, upper = value),
+                dplyr::mutate(lower = .data$value, upper = .data$value),
             data.frame(
                 Date = as.numeric(time(pred)),
                 variable = "value",
@@ -208,20 +213,31 @@ plot.iNZightTS <-
         asp <- xr / yr / aspect
         tsplot <- tsplot + coord_fixed(ratio = asp)
     }
+
     if (!multiseries && forecast == 0)
         tsplot <- tsplot +
-            scale_colour_manual(values = c(col, "black"), guide = FALSE)
+            scale_colour_manual(
+                values = c(Fitted = col, "Raw data" = "black"),
+                guide = FALSE
+            )
 
     if (plot && animate && !multiseries) {
         ## Do a bunch of things to animate the plot ...
+
         dev.hold()
-        print(tsplot + geom_point())
+        print(tsplot + geom_point(aes(colour = NULL)))
         dev.flush()
 
         Sys.sleep(1)
         for (i in 2:nrow(ts.df)) {
             dev.hold()
-            print(tsplot + geom_point() + geom_line(data = ts.df[1:i, ]))
+            print(
+                tsplot +
+                    geom_point(aes(colour = NULL), colour = "black") +
+                    geom_line(aes(colour = NULL),
+                        data = ts.df[1:i, ], colour = "black"
+                    )
+            )
             dev.flush()
             Sys.sleep(ifelse(i > 9, 0.05, 0.5))
         }
@@ -244,7 +260,10 @@ plot.iNZightTS <-
             geom_line(data = pred.df, col = "#b50000")
     }
 
-    tsplot <- tsplot + geom_line(aes(col = "Raw data"), lwd = 1)
+    if (multiseries)
+        tsplot <- tsplot + geom_line(lwd = 1)
+    else
+        tsplot <- tsplot + geom_line(aes(colour = "Raw data"), lwd = 1)
     if (!is.null(smooth)) {
         tsplot <-
             if (multiseries)

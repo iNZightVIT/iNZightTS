@@ -26,13 +26,6 @@ fitted by the Holt-Winters method. The amount of predicted
 observations is calculated by 2 * \code{freq}, where \code{freq} is
 the frequency of the time series object.
 }
-\examples{
-\dontrun{
-z <- iNZightTS(ldeaths)
-forecastplot(z)
-}
-
-}
 \references{
 C.C Holt (1957)
 Forecasting seasonals and trends by exponentially weighted

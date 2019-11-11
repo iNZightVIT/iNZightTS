@@ -17,29 +17,24 @@ test_that("Subset of time series can be viewed", {
 })
 
 test_that("Subset of decomposition plot can be shown", {
-    d <- decompositionplot(t, xlim = c(2000, 2011))
-    d1 <- decompositionplot(t, xlim = c(2000, NA))
-    d2 <- decompositionplot(t, xlim = c(NA, 2005))
-    expect_is(d, "iNZightTS")
-    expect_is(d1, "iNZightTS")
-    expect_is(d2, "iNZightTS")
+    d <- plot(decompose(t), xlim = c(2000, 2011))
+    d1 <- plot(decompose(t), xlim = c(2000, NA))
+    d2 <- plot(decompose(t), xlim = c(NA, 2005))
+    expect_is(d, "inzdecomp")
+    expect_is(d1, "inzdecomp")
+    expect_is(d2, "inzdecomp")
 
-    r <- recompose(d, animate = FALSE)
-    r1 <- recompose(d1, animate = FALSE)
-    r2 <- recompose(d2, animate = FALSE)
-    expect_is(r, "iNZightTS")
-    expect_is(r1, "iNZightTS")
-    expect_is(r2, "iNZightTS")
-
-
-    # expect_is(plot(t, show = "decomp"), "ggplot")
-    # expect_is(plot(t, show = "recomp", animated = FALSE), "ggplot")
+    r <- plot(d, recompose.progress = c(0, 20))
+    r1 <- plot(d1, recompose.progress = c(0, 20))
+    r2 <- plot(d2, recompose.progress = c(0, 20))
+    expect_is(r, "inzdecomp")
+    expect_is(r1, "inzdecomp")
+    expect_is(r2, "inzdecomp")
 })
 
 test_that("Subset of season plot", {
-    # s <- seasonplot(t, xlim = c(2000, 2011))
-    # expect_equal(x, 0)
-    # expect_is(plot(t, show = "seasons"), "ggplot")
+    s <- seasonplot(t, model.lim = c(2000, 2011))
+    expect_is(seasonplot(t), "gtable")
 })
 
 test_that("Subset of forecast plot", {
