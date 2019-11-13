@@ -1,3 +1,8 @@
+## iNZightTS 1.5.1
+__Release date__: 14 November 2019
+
+- fix a bug in `seasonplot()` where a strange interaction between Windows' `Cairo()` graphics device and `egg::ggarrange()` was resulting in the graphs not being displayed
+
 ## iNZightTS 1.5
 __Release date__: 11 November 2019
 
