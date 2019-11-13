@@ -145,5 +145,14 @@ function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
     dev.hold()
     on.exit(dev.flush())
 
-    egg::ggarrange(p1, p2, nrow = 1)
+    ##############################################
+    ## There's a bug in egg/windows cairoDevice 
+    ## resulting in `egg::ggarrange()` not showing
+    ## one or both of the graphs (when the plot device
+    ## is small).
+    ## As a temporary fix, using `grid.arrange()` which
+    ## has no issues since both graphs have the same
+    ## x-axis ticks + labels (so panel sizes are equal!)
+    # egg::ggarrange(p1, p2, nrow = 1)
+    gridExtra::grid.arrange(p1, p2, nrow = 1)
 }
