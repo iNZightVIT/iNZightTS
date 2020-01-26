@@ -4,10 +4,17 @@
 \alias{plot.inzdecomp}
 \title{Plot TS decomposition}
 \usage{
-\method{plot}{inzdecomp}(x, recompose.progress = c(0, 0),
-  recompose = any(recompose.progress > 0), ylab = x$currVar,
-  xlab = "Date", title = NULL, xlim = c(NA, NA),
-  colour = c("black", "#45a8ff", "orangered"), ...)
+\method{plot}{inzdecomp}(
+  x,
+  recompose.progress = c(0, 0),
+  recompose = any(recompose.progress > 0),
+  ylab = x$currVar,
+  xlab = "Date",
+  title = NULL,
+  xlim = c(NA, NA),
+  colour = c("black", "#45a8ff", "orangered"),
+  ...
+)
 }
 \arguments{
 \item{x}{an inzdecomp object (from decompose(ts))}
