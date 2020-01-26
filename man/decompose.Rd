@@ -4,8 +4,14 @@
 \alias{decompose}
 \title{Decompose a time series object}
 \usage{
-decompose(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
-  data.name = NULL, ...)
+decompose(
+  obj,
+  multiplicative = FALSE,
+  t = 10,
+  model.lim = NULL,
+  data.name = NULL,
+  ...
+)
 }
 \arguments{
 \item{obj}{an iNZightTS object}

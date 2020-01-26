@@ -5,8 +5,15 @@
 \alias{iNZightMTS}
 \title{iNZightTS (Time-Series) Objects}
 \usage{
-iNZightTS(data, start = 1, end, freq = 1, var = 2,
-  time.col = grep("time", names(data), ignore.case = TRUE)[1], ...)
+iNZightTS(
+  data,
+  start = 1,
+  end,
+  freq = 1,
+  var = 2,
+  time.col = grep("time", names(data), ignore.case = TRUE)[1],
+  ...
+)
 }
 \arguments{
 \item{data}{a \code{data.frame} containing time information and

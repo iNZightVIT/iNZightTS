@@ -26,7 +26,6 @@ Imports:
     egg,
     rlang
 Suggests:
-    iNZightPlots,
     testthat,
     covr
 Description: Time Series functionality for iNZight, allowing users to draw,
@@ -38,4 +37,4 @@ URL: https://www.stat.auckland.ac.nz/~wild/iNZight/
 LazyData: true
 License: GPL-2 | file LICENSE
 Encoding: UTF-8
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2

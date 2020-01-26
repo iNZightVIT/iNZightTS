@@ -4,10 +4,20 @@
 \alias{plot.iNZightMTS}
 \title{Plot multiple time series}
 \usage{
-\method{plot}{iNZightMTS}(x, compare = TRUE, multiplicative = FALSE,
-  ylab = "Value", xlab = "Date", title = "\%var", t = 10,
-  smoother = TRUE, aspect = 2, xlim = c(NA, NA), model.lim = NULL,
-  ...)
+\method{plot}{iNZightMTS}(
+  x,
+  compare = TRUE,
+  multiplicative = FALSE,
+  ylab = "Value",
+  xlab = "Date",
+  title = "\%var",
+  t = 10,
+  smoother = TRUE,
+  aspect = 2,
+  xlim = c(NA, NA),
+  model.lim = NULL,
+  ...
+)
 }
 \arguments{
 \item{x}{Multiple time series object}
