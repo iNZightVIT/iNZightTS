@@ -54,5 +54,8 @@ nextodd <- function(x) {
 }
 
 is_multiplicative <- function(x, multiplicative) {
-    if (all(x > 0)) multiplicative else FALSE
+    res <- all(x > 0) && multiplicative
+    if (res != multiplicative)
+        warning("Cannot use multiplicative model with negative values, defaulting to additive.")
+    res
 }

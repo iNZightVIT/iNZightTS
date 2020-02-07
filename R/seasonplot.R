@@ -20,18 +20,18 @@
 ##' }
 ##'
 ##' @export
-seasonplot <-
-function(obj, ...)
+seasonplot <- function(obj, ...)
     UseMethod("seasonplot")
 
 #' @export
-seasonplot.iNZightTS <-
-function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
-         ylab = obj$currVar, ...) {
+seasonplot.iNZightTS <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
+                                 ylab = obj$currVar, ...) {
 
     # if there is no season component to the ts, can't create season plot
     if (length(obj$start) == 1)
         return("Time Series does not have a seasonal component")
+
+    multiplicative <- is_multiplicative(obj$tsObj, multiplicative)
 
     ## Convert tsobject to a dataframe
     freq <- obj$freq
@@ -146,7 +146,7 @@ function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
     on.exit(dev.flush())
 
     ##############################################
-    ## There's a bug in egg/windows cairoDevice 
+    ## There's a bug in egg/windows cairoDevice
     ## resulting in `egg::ggarrange()` not showing
     ## one or both of the graphs (when the plot device
     ## is small).
