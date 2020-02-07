@@ -1,3 +1,5 @@
+- disable multiplicative series if any values are zero or lower
+
 ## iNZightTS 1.5.1
 __Release date__: 14 November 2019
 
