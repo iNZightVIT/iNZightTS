@@ -2,13 +2,14 @@ Package: iNZightTS
 Type: Package
 Title: Time Series for iNZight
 Version: 1.5.1
-Authors@R: c(person("Tom", "Elliott", role = c("aut", "cre"),
-                    email = "tom.elliott@auckland.ac.nz"),
-             person("Junjie", "Zeng",    role = "aut"),
-             person("Simon", "Potter",   role = "aut"),
-             person("David", "Banks",    role = "aut"),
-             person("Marco", "Kuper",    role = "aut"),
-             person("Dongning", "Zhang", role = "ctb"))
+Authors@R: c(
+    person("Tom", "Elliott", role = c("aut", "cre"), email = "tom.elliott@auckland.ac.nz", comment = c(ORCID = "0000-0002-7815-6318")),
+    person("Junjie", "Zeng",    role = "aut"),
+    person("Simon", "Potter",   role = "aut"),
+    person("David", "Banks",    role = "aut"),
+    person("Marco", "Kuper",    role = "aut"),
+    person("Dongning", "Zhang", role = "ctb")
+    )
 Depends:
     R (>= 2.13)
 Imports:
@@ -35,6 +36,7 @@ BugReports: https://github.com/iNZightVIT/iNZightTS/issues
 Contact: inzight_support@stat.auckland.ac.nz
 URL: https://www.stat.auckland.ac.nz/~wild/iNZight/
 LazyData: true
-License: GPL-2 | file LICENSE
+License: GPL-3
 Encoding: UTF-8
+Language: en-GB
 RoxygenNote: 7.0.2
