@@ -1,3 +1,4 @@
+## iNZightTS 1.5.2
 - disable multiplicative series if any values are zero or lower
 
 ## iNZightTS 1.5.1
