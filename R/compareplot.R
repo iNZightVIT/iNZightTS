@@ -23,6 +23,9 @@ plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE,
                             ylab = "Value", xlab = "Date", title = "%var",
                             t = 10, smoother = TRUE, aspect = 2,
                             xlim = c(NA, NA), model.lim = NULL, ...) {
+
+    multiplicative <- is_multiplicative(x$tsObj, multiplicative)
+
     on.exit(dev.flush())
     if (compare) {
         ## fetch the main time series plot

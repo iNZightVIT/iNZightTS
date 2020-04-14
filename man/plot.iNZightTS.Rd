@@ -4,11 +4,23 @@
 \alias{plot.iNZightTS}
 \title{Draw a simple time series plot}
 \usage{
-\method{plot}{iNZightTS}(x, multiplicative = FALSE, ylab = obj$currVar,
-  xlab = "Date", title = "\%var", animate = FALSE, t = 10,
-  smoother = TRUE, aspect = 3, plot = TRUE, col = ifelse(forecast >
-  0, "#0e8c07", "red"), xlim = c(NA, NA), model.lim = NULL,
-  forecast = 0, ...)
+\method{plot}{iNZightTS}(
+  x,
+  multiplicative = FALSE,
+  ylab = obj$currVar,
+  xlab = "Date",
+  title = "\%var",
+  animate = FALSE,
+  t = 10,
+  smoother = TRUE,
+  aspect = 3,
+  plot = TRUE,
+  col = ifelse(forecast > 0, "#0e8c07", "red"),
+  xlim = c(NA, NA),
+  model.lim = NULL,
+  forecast = 0,
+  ...
+)
 }
 \arguments{
 \item{x}{an \code{iNZightTS} object}

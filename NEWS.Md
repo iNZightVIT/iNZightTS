@@ -1,7 +1,10 @@
+- disable multiplicative series if any values are zero or lower
+
 ## iNZightTS 1.5.1
 __Release date__: 14 November 2019
 
 - fix a bug in `seasonplot()` where a strange interaction between Windows' `Cairo()` graphics device and `egg::ggarrange()` was resulting in the graphs not being displayed
+- use additive model if negative values are present in the data (which cause multiplicative models to fail)
 
 ## iNZightTS 1.5
 __Release date__: 11 November 2019
