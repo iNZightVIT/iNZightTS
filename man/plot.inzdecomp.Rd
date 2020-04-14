@@ -12,7 +12,7 @@
   xlab = "Date",
   title = NULL,
   xlim = c(NA, NA),
-  colour = c("black", "#45a8ff", "orangered"),
+  colour = c("#1B9E46", "#45a8ff", "orangered"),
   ...
 )
 }

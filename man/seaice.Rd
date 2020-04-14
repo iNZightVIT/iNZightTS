@@ -4,12 +4,14 @@
 \name{seaice}
 \alias{seaice}
 \title{Sea Ice}
-\format{A data frame with 265 rows and 3 variables:
+\format{
+A data frame with 265 rows and 3 variables:
 \describe{
   \item{Time}{The time variable}
   \item{Arctic}{Sea ice measurement for the Arctic}
   \item{Antarctica}{Sea ice measurement for Antarctica}
-}}
+}
+}
 \usage{
 seaice
 }
