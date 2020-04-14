@@ -14,7 +14,7 @@ test_that("Smoother can be disabled", {
 })
 
 test_that("Decomposition and recomposition plots work", {
-    expect_silent(d <- decompose(t))
+    expect_silent(d <- decompose(t, data.name = "Visitors"))
     expect_is(plot(d), "inzdecomp")
     expect_is(plot(d, recompose.progress = c(0, 20)), "inzdecomp")
     expect_is(

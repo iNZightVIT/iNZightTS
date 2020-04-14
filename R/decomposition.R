@@ -193,7 +193,14 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
     pdata <- p0 +
         geom_path(aes_(y = ~value), colour = "gray") +
         geom_path(aes_(y = ~trend), colour = colour[1]) +
-        labs(title = title, y = ylab) +
+        labs(
+            title = title,
+            y = ylab,
+            subtitle = sprintf("Trend%s%s",
+                ifelse(sum(recompose.progress) > 0, " + seasonal swing", ""),
+                ifelse(recompose.progress[1] > 0, " + residuals", "")
+            )
+        ) +
         ylim(extendrange(datarange, f = 0.05))
     if (recompose && any(recompose > 0)) {
         ri <- ifelse(recompose.progress[1] == 0, recompose.progress[2], nrow(td))
