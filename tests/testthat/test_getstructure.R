@@ -48,3 +48,15 @@ test_that("Hourly observations", {
     )
     expect_equal(get.ts.structure(vals), list(start = c(1, 10), frequency = 24))
 })
+
+
+test_that("iNZightTS object can be created from a base ts object", {
+    t <- ts(visitorsQ$Australia,
+        start = c(1998, 4),
+        frequency = 4
+    )
+    expect_equal(
+        iNZightTS(t)$tsObj,
+        iNZightTS(visitorsQ)$tsObj
+    )
+})

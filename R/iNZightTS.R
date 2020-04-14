@@ -82,10 +82,10 @@ iNZightTS <- function(data, start = 1, end, freq = 1, var = 2,
     inzightts <- list()
 
     ## if the input is an object of class "ts", just extract info
-    if (any(grepl("^ts$", class(data)))) {
-        inzightts$start <- start(data)
-        inzightts$end <- end(data)
-        inzightts$freq <- frequency(data)
+    if (is(data, "ts")) {
+        inzightts$start <- stats::start(data)
+        inzightts$end <- stats::end(data)
+        inzightts$freq <- stats::frequency(data)
         inzightts$tsObj <- data
         if (is.null(dim(data))) {
             inzightts$currVar <- 1
