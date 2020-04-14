@@ -44,10 +44,12 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
         decomp <- stl(tsObj,
             "periodic",
             t.window =
-                nextodd(ceiling(
-                    1.5 * frequency(data) / (1 - 1.5 / (10*n + 1)) +
-                        0.5 * frequency(data) * t
-                ))
+                nextodd(
+                    ceiling(
+                        1.5 * frequency(data) / (1 - 1.5 / (10*n + 1)) +
+                            0.5 * frequency(data) * t
+                    )
+                )
             )
     } else {
         ## freq == 1, non seasonal fitted.
@@ -57,20 +59,26 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
             ### therefore here, the span ranges from 0.1 to 2
             ### the default is 0.75
             trend.comp <-
-                loess(log(obj$data[1:length(obj$tsObj), obj$currVar]) ~ x,
-                    span = 0.1 + 1.9*t )$fitted + obj$tsObj * 0
+                loess(
+                    log(obj$data[1:length(obj$tsObj), obj$currVar]) ~ x,
+                    span = 0.1 + 1.9*t
+                )$fitted + obj$tsObj * 0
 
             residuals.comp <- log(obj$tsObj) - trend.comp
             seasons.comp <- obj$tsObj * 0
             decomp <- list()
-            decomp$time.series <-
-                as.ts(data.frame(seasonal = seasons.comp,
-                                 trend = trend.comp,
-                                 remainder = residuals.comp))
+            decomp$time.series <- as.ts(
+                data.frame(
+                    seasonal = seasons.comp,
+                    trend = trend.comp,
+                    remainder = residuals.comp
+                )
+            )
         } else {
             trend.comp <-
-                loess(obj$data[1:length(obj$tsObj), obj$currVar] ~ x)$fitted +
-                    obj$tsObj * 0
+                loess(
+                    obj$data[1:length(obj$tsObj), obj$currVar] ~ x
+                )$fitted + obj$tsObj * 0
 
             residuals.comp <- obj$tsObj - trend.comp
             seasons.comp <- obj$tsObj * 0
@@ -211,7 +219,10 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
         ) +
         ylim(extendrange(datarange, f = 0.05))
     if (recompose && any(recompose > 0)) {
-        ri <- ifelse(recompose.progress[1] == 0, recompose.progress[2], nrow(td))
+        ri <- ifelse(recompose.progress[1] == 0,
+            recompose.progress[2],
+            nrow(td)
+        )
         rtd <- td %>%
             dplyr::mutate(
                 z = ifelse(1:nrow(td) < ri,
@@ -232,7 +243,8 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
                 dplyr::mutate(
                     z = ifelse(1:nrow(td) < ri,
                         .data$value,
-                        .data$trend[ri] + .data$seasonal[ri] + .data$residual
+                        .data$trend[ri] + .data$seasonal[ri] +
+                            .data$residual
                     )
                 )
             pdata <- pdata +
@@ -293,30 +305,30 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
 }
 
 
-##' Decomposes a time series into trend, seasonal and residual components
-##' using \code{loess}.
-##'
-##' If the frequency is greater than 1, the components are found using the
-##' \code{\link{stl}} function with \code{s.window} set to \code{TRUE}
-##' (effectively replacing smoothing by taking the mean).
-##' If the frequency is 1, the trend component is found directly by using
-##' \code{\link{loess}} and the residuals are the difference between trend
-##' and actual values.
-##' The trend, seasonal and residual components are plotted on the same
-##' scale allowing for easy visual analysis.
-##'
-##' @title Plot a Time Series Decomposition
-##'
-##' @param ... args, ignored
-##'
-##' @return The original \code{iNZightTS} object with an item \code{decompVars}
-##' appended, containing results from the decomposition.
-##'
-##' @references R. B. Cleveland, W. S. Cleveland, J.E. McRae, and I. Terpenning (1990) STL: A Seasonal-Trend Decomposition Procedure Based on Loess. Journal of Official Statistics, 6, 3iV73.
-##'
-##' @seealso \code{\link{stl}}, \code{\link{loess}}, \code{\link{iNZightTS}}
-##'
-##' @export
+#' Decomposes a time series into trend, seasonal and residual components
+#' using \code{loess}.
+#'
+#' If the frequency is greater than 1, the components are found using the
+#' \code{\link{stl}} function with \code{s.window} set to \code{TRUE}
+#' (effectively replacing smoothing by taking the mean).
+#' If the frequency is 1, the trend component is found directly by using
+#' \code{\link{loess}} and the residuals are the difference between trend
+#' and actual values.
+#' The trend, seasonal and residual components are plotted on the same
+#' scale allowing for easy visual analysis.
+#'
+#' @title Plot a Time Series Decomposition
+#'
+#' @param ... args, ignored
+#'
+#' @return The original \code{iNZightTS} object with an item \code{decompVars}
+#' appended, containing results from the decomposition.
+#'
+#' @references R. B. Cleveland, W. S. Cleveland, J.E. McRae, and I. Terpenning (1990) STL: A Seasonal-Trend Decomposition Procedure Based on Loess. Journal of Official Statistics, 6, 3iV73.
+#'
+#' @seealso \code{\link{stl}}, \code{\link{loess}}, \code{\link{iNZightTS}}
+#'
+#' @export
 decompositionplot <- function(...) {
     warning("Deprecated: please use `plot(decompose(obj))`")
 }

@@ -1,25 +1,25 @@
-##' This function plots the seasonal components of a time series together
-##' with the estimated seasonal effects of that series.
-##'
-##' The resulting window will contain two plots. On the left, every
-##' seasonal subseries of the time series is plotted. On the right will be
-##' the average seasonal effect of the series.
-##'
-##' @title Plot Seasonal Subseries from a Time Series
-##'
-##' @param obj an \code{iNZightTS} object
-##'
-##' @param ... Further arguments to be passed onto specific methods.
-##'
-##' @seealso \code{\link{iNZightTS}}
-##'
-##' @examples
-##' \dontrun{
-##' x <- iNZightTS(UKgas)
-##' seasonplot(x)
-##' }
-##'
-##' @export
+#' This function plots the seasonal components of a time series together
+#' with the estimated seasonal effects of that series.
+#'
+#' The resulting window will contain two plots. On the left, every
+#' seasonal subseries of the time series is plotted. On the right will be
+#' the average seasonal effect of the series.
+#'
+#' @title Plot Seasonal Subseries from a Time Series
+#'
+#' @param obj an \code{iNZightTS} object
+#'
+#' @param ... Further arguments to be passed onto specific methods.
+#'
+#' @seealso \code{\link{iNZightTS}}
+#'
+#' @examples
+#' \dontrun{
+#' x <- iNZightTS(UKgas)
+#' seasonplot(x)
+#' }
+#'
+#' @export
 seasonplot <- function(obj, ...)
     UseMethod("seasonplot")
 
