@@ -1,6 +1,7 @@
 ## iNZightTS 1.5.2
 - disable multiplicative series if any values are zero or lower
 - add appropriate subtitle to trend panel of decomposition plot
+- fix a bug preventing `iNZightTS` from accepting a valid `stats::ts` object
 
 ## iNZightTS 1.5.1
 __Release date__: 14 November 2019
