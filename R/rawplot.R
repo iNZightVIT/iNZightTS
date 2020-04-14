@@ -34,28 +34,28 @@
 ##' observations is specified by the value of `forecast`.
 ##'
 ##' @export
-plot.iNZightTS <-
-  function(x, multiplicative = FALSE, ylab = obj$currVar, xlab = "Date",
-           title = "%var",
-           animate = FALSE,
-           t = 10, smoother = TRUE,
-           aspect = 3,
-           plot = TRUE,
-           col = ifelse(forecast > 0, "#0e8c07", "red"),
-           xlim = c(NA, NA),
-           model.lim = NULL,
-           forecast = 0,
-           ...) {
+plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab = "Date",
+                           title = "%var",
+                           animate = FALSE,
+                           t = 10, smoother = TRUE,
+                           aspect = 3,
+                           plot = TRUE,
+                           col = ifelse(forecast > 0, "#0e8c07", "red"),
+                           xlim = c(NA, NA),
+                           model.lim = NULL,
+                           forecast = 0,
+                           ...) {
 
     ### x and y coordinates of the time series tsObj
     obj <- x
     freq <- x$freq
-    tsObj = obj$tsObj
-    xlist = get.x(tsObj)
-    x = xlist$x
+    tsObj <- obj$tsObj
+    xlist <- get.x(tsObj)
+    x <- xlist$x
     x.units = xlist$x.units
-    y = tsObj@.Data
-    y.units = unit(y, "native")
+    y <- tsObj@.Data
+    y.units <- unit(y, "native")
+    multiplicative <- is_multiplicative(tsObj, multiplicative)
 
     xlim <- ifelse(is.na(xlim), range(time(tsObj)), xlim)
     if (!is.null(model.lim)) {

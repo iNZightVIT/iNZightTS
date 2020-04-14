@@ -23,6 +23,7 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
         }
     }
 
+    multiplicative <- is_multiplicative(obj$tsObj, multiplicative)
     xlist <- get.x(obj$tsObj)
     x <- xlist$x
     x.units <- xlist$x.units
