@@ -33,6 +33,23 @@
 #' fitted by the Holt-Winters method. The amount of predicted
 #' observations is specified by the value of `forecast`.
 #'
+#' @references
+#' C.C Holt (1957)
+#' Forecasting seasonals and trends by exponentially weighted
+#' moving averages,
+#' ONR Research Memorandum, Carnigie Institute 52.
+#'
+#' P.R Winters (1960)
+#' Forecasting sales by exponentially weighted moving averages,
+#' \emph{Management Science} \bold{6}, 324--342.
+#'
+#' @examples
+#' t <- iNZightTS(visitorsQ)
+#' plot(t)
+#'
+#' # Forecast plot (8 quarterly forecasts):
+#' plot(t, forecast = 8)
+#'
 #' @export
 plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab = "Date",
                            title = "%var",

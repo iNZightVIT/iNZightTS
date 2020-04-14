@@ -14,10 +14,8 @@
 #' @seealso \code{\link{iNZightTS}}
 #'
 #' @examples
-#' \dontrun{
-#' x <- iNZightTS(UKgas)
-#' seasonplot(x)
-#' }
+#' ts <- iNZightTS(visitorsQ)
+#' seasonplot(ts)
 #'
 #' @export
 seasonplot <- function(obj, ...)

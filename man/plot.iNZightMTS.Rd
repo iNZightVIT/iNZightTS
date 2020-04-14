@@ -48,6 +48,12 @@ otherwise graphed in individual rows}
 \description{
 Plot a multiple time series object to compare several series
 }
+\examples{
+tm <- iNZightTS(visitorsQ, var = 2:5)
+plot(tm)
+plot(tm, compare = FALSE)
+
+}
 \author{
 Tom Elliott
 }

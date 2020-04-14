@@ -16,6 +16,11 @@
 #' @param model.lim time limits to use for modelling
 #' @param ... additional arguments
 #'
+#' @examples
+#' tm <- iNZightTS(visitorsQ, var = 2:5)
+#' plot(tm)
+#' plot(tm, compare = FALSE)
+#'
 #' @return NULL
 #' @author Tom Elliott
 #' @export

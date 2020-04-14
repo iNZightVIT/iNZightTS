@@ -7,6 +7,12 @@
 #' @param data.name the name of the data
 #' @param ... other, ignored, arguments
 #' @return an egg/gtable
+#'
+#' @examples
+#' t <- iNZightTS(visitorsQ)
+#' decomp.ts <- decompose(t, data.name = "Visitors")
+#' plot(decomp.ts)
+#'
 #' @export
 decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
                       data.name = NULL, ...) {
@@ -116,8 +122,6 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
     obj
 }
 
-#' Plot TS decomposition
-#'
 #' @param x an inzdecomp object (from decompose(ts))
 #' @param recompose.progress if recompose is \code{TRUE}, this shows how
 #'        much to show (for animation!). Length 2 numeric: the first
@@ -130,6 +134,8 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
 #' @param xlim the x axis limits
 #' @param colour vector of three colours for trend, seasonal, and residuals, respectively
 #' @param ... additional arguments (ignored)
+#'
+#' @describeIn decompose Plot a time series decomposition
 #' @export
 plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
                            recompose = any(recompose.progress > 0),
