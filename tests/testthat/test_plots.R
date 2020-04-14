@@ -71,3 +71,14 @@ test_that("Unsupported plots error", {
 
 ## clean up
 unlink("Rplot.pdf")
+
+
+
+
+if (FALSE) {
+    d <- decompose(t, data.name = "Visitors")
+    ## demo playthrough
+    for (i in 0:1)
+        for (j in 1:nrow(d$data))
+            plot(d, recompose.progress = c(i, j))
+}

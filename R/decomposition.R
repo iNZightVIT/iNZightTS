@@ -127,7 +127,7 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
                            recompose = any(recompose.progress > 0),
                            ylab = x$currVar, xlab = "Date",
                            title = NULL, xlim = c(NA, NA),
-                           colour = c("black", "#45a8ff", "orangered"),
+                           colour = c("#1B9E46", "#45a8ff", "orangered"),
                            ...) {
     ## Convert to a dataframe
     xlim <- ifelse(is.na(xlim), range(time(x$tsObj)), xlim)
@@ -191,15 +191,22 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
             x$currVar
         )
     }
+
+    FINAL <- all(recompose.progress == c(1L, nrow(td)))
     pdata <- p0 +
         geom_path(aes_(y = ~value), colour = "gray") +
-        geom_path(aes_(y = ~trend), colour = colour[1]) +
+        geom_path(
+            aes_(y = ~trend),
+            colour = colour[1],
+            alpha = ifelse(FINAL, 0.5, 1)
+        ) +
         labs(
             title = title,
             y = ylab,
-            subtitle = sprintf("Trend%s%s",
+            subtitle = sprintf("Trend%s%s%s",
                 ifelse(sum(recompose.progress) > 0, " + seasonal swing", ""),
-                ifelse(recompose.progress[1] > 0, " + residuals", "")
+                ifelse(recompose.progress[1] > 0, " + residuals", ""),
+                ifelse(FINAL, " = observed data", "")
             )
         ) +
         ylim(extendrange(datarange, f = 0.05))
@@ -216,7 +223,8 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
             geom_path(
                 aes_(y = ~z),
                 data = rtd,
-                colour = colour[2]
+                colour = colour[2],
+                alpha = ifelse(FINAL, 0.5, 1)
             )
         if (recompose.progress[1] == 1 && recompose.progress[2] > 0) {
             ri <- recompose.progress[2]
@@ -228,10 +236,27 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
                     )
                 )
             pdata <- pdata +
+                # geom_path(
+                #     aes(y = ~trend),
+                #     data = rtd[1:ri, ]
+                # ) +
                 geom_path(
                     aes_(y = ~z),
-                    data = rtd,
+                    data = rtd[-(1:(ri-1)),],
                     colour = colour[3]
+                ) +
+                # geom_segment(
+                #     aes_(
+                #         y = ~value, yend = ~value - residual,
+                #         xend = ~Date
+                #     ),
+                #     data = rtd[1:ri,],
+                #     colour = colour[3]
+                # ) +
+                geom_path(
+                    aes_(y = ~value),
+                    data = rtd[1:ri,],
+                    colour = if (FINAL) "black" else colour[3]
                 )
         }
     }
@@ -246,6 +271,10 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
 
     presid <- p +
         geom_path(aes_(y = ~residual), colour = colour[3]) +
+        # geom_segment(
+        #     aes_(y = ~residual, yend = 0, xend = ~Date),
+        #     colour = colour[3]
+        # ) +
         labs(subtitle = "Residuals", y = "") +
         ylim(extendrange(rrange, f = rr/2)) +
         theme(
