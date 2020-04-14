@@ -6,3 +6,8 @@ test_that("Multiplicative series only if x are all positive", {
     expect_false(is_multiplicative(-100:-50, TRUE))
     expect_false(is_multiplicative(-50:50, TRUE))
 })
+
+test_that("Leap year function returns the correct value", {
+    expect_true(is.leapyear(2020))
+    expect_false(is.leapyear(2019))
+})
