@@ -11,7 +11,7 @@ Authors@R: c(
     person("Dongning", "Zhang", role = "ctb")
     )
 Depends:
-    R (>= 2.13)
+    R (>= 3.2)
 Imports:
     methods,
     grid,
