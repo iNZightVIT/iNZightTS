@@ -229,7 +229,7 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0,
 
     compare <- n == 1
     if (compare) {
-        timeSeasonData <- data.frame()
+        timeSeasonData <- data.frame(stringsAsFactors = TRUE)
     }
     for (i in varNums) {
         season.y.vals <-
@@ -255,11 +255,12 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0,
                     value = detrend(
                         listVars[[i]]$decompVars$raw,
                         listVars[[i]]$decompVars$components[, "trend"]@.Data
-                    )
+                    ),
+                    stringsAsFactors = TRUE
                 )
           }
     }
-    seasonData <- as.data.frame(seasonData)
+    seasonData <- as.data.frame(seasonData, stringsAsFactors = TRUE)
     seasonData$group <- factor(seasonData$group,
         levels = seq_along(x$currVar),
         labels = x$currVar

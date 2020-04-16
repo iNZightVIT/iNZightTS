@@ -63,7 +63,8 @@ seasonplot.iNZightTS <- function(obj, multiplicative = FALSE, t = 10, model.lim 
         value = as.matrix(obj$tsObj),
         trend = as.numeric(obj$decompVars$components[, "trend"]),
         seasonal = as.numeric(obj$decompVars$components[, "seasonal"]),
-        residual = as.numeric(obj$decompVars$components[, "remainder"])
+        residual = as.numeric(obj$decompVars$components[, "remainder"]),
+        stringsAsFactors = TRUE
     )
     td <- dplyr::mutate(td,
             effect = if (multiplicative) {
@@ -111,7 +112,7 @@ seasonplot.iNZightTS <- function(obj, multiplicative = FALSE, t = 10, model.lim 
     season <-
         if (s > 1) td$season[-(1:(freq + 1 - s))][1:freq]
         else td$season[1:freq]
-    season <- data.frame(b = 1:freq, effect = season, a = 1)
+    season <- data.frame(b = 1:freq, effect = season, a = 1, stringsAsFactors = TRUE)
 
     p2 <- ggplot(td, aes_(
             ~b,

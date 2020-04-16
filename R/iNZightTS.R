@@ -96,14 +96,15 @@ iNZightTS <- function(data, start = 1, end, freq = 1, var = 2,
             else
                 inzightts$currVar <- colnames(data)
             inzightts$data <- data.frame(
-                matrix(as.vector(data), ncol=dim(data)[2])
+                matrix(as.vector(data), ncol=dim(data)[2]),
+                stringsAsFactors = TRUE
             )
             colnames(inzightts$data) <- colnames(data)
         }
     } else {
         ## use either a data.frame or a file location as input
         if (is.character(data))
-            data <- read.csv(data, as.is=TRUE, ...)
+            data <- read.csv(data, as.is=TRUE, ..., stringsAsFactors = TRUE)
 
         inzightts <- list()
         inzightts$data <- data

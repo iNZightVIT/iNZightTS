@@ -113,7 +113,8 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
             if (multiplicative) smooth <- exp(smooth)
             smooth <- data.frame(
                 time = as.numeric(time(hw.fit$fitted)),
-                smooth = smooth
+                smooth = smooth,
+                stringsAsFactors = TRUE
             )
         } else {
             decomp = decompose(obj,
@@ -159,7 +160,8 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
 
     value <- obj$currVar
     ts.df <- data.frame(Date = as.numeric(time(tsObj)),
-                        value = as.matrix(tsObj))
+                        value = as.matrix(tsObj),
+                        stringsAsFactors = TRUE)
     ts.df <- ts.df %>%
         tidyr::gather(key = "variable", value = "value",
                       -.data$Date, factor_key = TRUE)
@@ -210,7 +212,8 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
                 variable = "value",
                 value = as.numeric(pred[, "fit"]),
                 lower = as.numeric(pred[, "lwr"]),
-                upper = as.numeric(pred[, "upr"])
+                upper = as.numeric(pred[, "upr"]),
+                stringsAsFactors = TRUE
             )
         )
     } else if (!is.null(smooth)) {

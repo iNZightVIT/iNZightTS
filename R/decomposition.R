@@ -77,7 +77,8 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
                 data.frame(
                     seasonal = seasons.comp,
                     trend = trend.comp,
-                    remainder = residuals.comp
+                    remainder = residuals.comp,
+                    stringsAsFactors = TRUE
                 )
             )
         } else {
@@ -93,7 +94,8 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
                 data.frame(
                     seasonal = seasons.comp,
                     trend = trend.comp,
-                    remainder = residuals.comp
+                    remainder = residuals.comp,
+                    stringsAsFactors = TRUE
                 )
             )
         }
@@ -150,7 +152,8 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
         value = as.matrix(x$tsObj),
         trend = as.numeric(x$decompVars$components[, "trend"]),
         seasonal = as.numeric(x$decompVars$components[, "seasonal"]),
-        residual = as.numeric(x$decompVars$components[, "remainder"])
+        residual = as.numeric(x$decompVars$components[, "remainder"]),
+        stringsAsFactors = TRUE
     )
     if (x$decompVars$multiplicative) {
         td <- dplyr::mutate(td,
