@@ -4,9 +4,7 @@
 #'
 #' @title Time Series Data Analysis
 #'
-#' @author Marco Kuper, originally developed by Simon Potter and David Banks.
-#'
-#' Maintainer: Marco Kuper \url{<MarcoKuper42@@gmail.com>}
+#' @author Tom Elliott (previously: Marco Kuper, Simon Potter, and David Banks)
 #'
 #' @docType package
 #'

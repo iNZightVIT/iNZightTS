@@ -12,8 +12,6 @@ exploring time series data. It is used in the iNZight software.
 \code{iNZight}
 }
 \author{
-Marco Kuper, originally developed by Simon Potter and David Banks.
-
-Maintainer: Marco Kuper \url{<MarcoKuper42@gmail.com>}
+Tom Elliott (previously: Marco Kuper, Simon Potter, and David Banks)
 }
 \keyword{iNZight}
