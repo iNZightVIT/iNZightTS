@@ -30,7 +30,7 @@ Suggests:
     testthat,
     covr
 Description: Time Series functionality for iNZight, allowing users to draw,
-    decompose, and forcast with ease. Includes capabilities to compare multiple series
+    decompose, and forecast with ease. Includes capabilities to compare multiple series
     and fit both additive and multiplicative models.
 BugReports: https://github.com/iNZightVIT/iNZightTS/issues
 Contact: inzight_support@stat.auckland.ac.nz

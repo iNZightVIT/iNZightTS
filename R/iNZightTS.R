@@ -82,7 +82,7 @@ iNZightTS <- function(data, start = 1, end, freq = 1, var = 2,
     inzightts <- list()
 
     ## if the input is an object of class "ts", just extract info
-    if (is(data, "ts")) {
+    if (methods::is(data, "ts")) {
         inzightts$start <- stats::start(data)
         inzightts$end <- stats::end(data)
         inzightts$freq <- stats::frequency(data)
