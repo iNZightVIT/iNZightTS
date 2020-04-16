@@ -13,6 +13,7 @@ Authors@R: c(
 Depends:
     R (>= 2.13)
 Imports:
+    methods,
     grid,
     gridExtra,
     grDevices,
