@@ -25,7 +25,7 @@
 \item{compare}{logical, if \code{true}, the series will be graphed in a single plot;
 otherwise graphed in individual rows}
 
-\item{multiplicative}{logical, if TRUE multiplcative series will be used; otherwise additive}
+\item{multiplicative}{logical, if TRUE multiplicative series will be used; otherwise additive}
 
 \item{ylab}{y axis label}
 
@@ -47,6 +47,12 @@ otherwise graphed in individual rows}
 }
 \description{
 Plot a multiple time series object to compare several series
+}
+\examples{
+tm <- iNZightTS(visitorsQ, var = 2:5)
+plot(tm)
+plot(tm, compare = FALSE)
+
 }
 \author{
 Tom Elliott

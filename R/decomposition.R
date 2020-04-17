@@ -7,6 +7,12 @@
 #' @param data.name the name of the data
 #' @param ... other, ignored, arguments
 #' @return an egg/gtable
+#'
+#' @examples
+#' t <- iNZightTS(visitorsQ)
+#' decomp.ts <- decompose(t, data.name = "Visitors")
+#' plot(decomp.ts)
+#'
 #' @export
 decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
                       data.name = NULL, ...) {
@@ -44,10 +50,12 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
         decomp <- stl(tsObj,
             "periodic",
             t.window =
-                nextodd(ceiling(
-                    1.5 * frequency(data) / (1 - 1.5 / (10*n + 1)) +
-                        0.5 * frequency(data) * t
-                ))
+                nextodd(
+                    ceiling(
+                        1.5 * frequency(data) / (1 - 1.5 / (10*n + 1)) +
+                            0.5 * frequency(data) * t
+                    )
+                )
             )
     } else {
         ## freq == 1, non seasonal fitted.
@@ -57,20 +65,27 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
             ### therefore here, the span ranges from 0.1 to 2
             ### the default is 0.75
             trend.comp <-
-                loess(log(obj$data[1:length(obj$tsObj), obj$currVar]) ~ x,
-                    span = 0.1 + 1.9*t )$fitted + obj$tsObj * 0
+                loess(
+                    log(obj$data[1:length(obj$tsObj), obj$currVar]) ~ x,
+                    span = 0.1 + 1.9*t
+                )$fitted + obj$tsObj * 0
 
             residuals.comp <- log(obj$tsObj) - trend.comp
             seasons.comp <- obj$tsObj * 0
             decomp <- list()
-            decomp$time.series <-
-                as.ts(data.frame(seasonal = seasons.comp,
-                                 trend = trend.comp,
-                                 remainder = residuals.comp))
+            decomp$time.series <- as.ts(
+                data.frame(
+                    seasonal = seasons.comp,
+                    trend = trend.comp,
+                    remainder = residuals.comp,
+                    stringsAsFactors = TRUE
+                )
+            )
         } else {
             trend.comp <-
-                loess(obj$data[1:length(obj$tsObj), obj$currVar] ~ x)$fitted +
-                    obj$tsObj * 0
+                loess(
+                    obj$data[1:length(obj$tsObj), obj$currVar] ~ x
+                )$fitted + obj$tsObj * 0
 
             residuals.comp <- obj$tsObj - trend.comp
             seasons.comp <- obj$tsObj * 0
@@ -79,7 +94,8 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
                 data.frame(
                     seasonal = seasons.comp,
                     trend = trend.comp,
-                    remainder = residuals.comp
+                    remainder = residuals.comp,
+                    stringsAsFactors = TRUE
                 )
             )
         }
@@ -108,8 +124,6 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
     obj
 }
 
-#' Plot TS decomposition
-#'
 #' @param x an inzdecomp object (from decompose(ts))
 #' @param recompose.progress if recompose is \code{TRUE}, this shows how
 #'        much to show (for animation!). Length 2 numeric: the first
@@ -122,12 +136,14 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
 #' @param xlim the x axis limits
 #' @param colour vector of three colours for trend, seasonal, and residuals, respectively
 #' @param ... additional arguments (ignored)
+#'
+#' @describeIn decompose Plot a time series decomposition
 #' @export
 plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
                            recompose = any(recompose.progress > 0),
                            ylab = x$currVar, xlab = "Date",
                            title = NULL, xlim = c(NA, NA),
-                           colour = c("black", "#45a8ff", "orangered"),
+                           colour = c("#1B9E46", "#45a8ff", "orangered"),
                            ...) {
     ## Convert to a dataframe
     xlim <- ifelse(is.na(xlim), range(time(x$tsObj)), xlim)
@@ -136,7 +152,8 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
         value = as.matrix(x$tsObj),
         trend = as.numeric(x$decompVars$components[, "trend"]),
         seasonal = as.numeric(x$decompVars$components[, "seasonal"]),
-        residual = as.numeric(x$decompVars$components[, "remainder"])
+        residual = as.numeric(x$decompVars$components[, "remainder"]),
+        stringsAsFactors = TRUE
     )
     if (x$decompVars$multiplicative) {
         td <- dplyr::mutate(td,
@@ -191,13 +208,30 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
             x$currVar
         )
     }
+
+    FINAL <- all(recompose.progress == c(1L, nrow(td)))
     pdata <- p0 +
         geom_path(aes_(y = ~value), colour = "gray") +
-        geom_path(aes_(y = ~trend), colour = colour[1]) +
-        labs(title = title, y = ylab) +
+        geom_path(
+            aes_(y = ~trend),
+            colour = colour[1],
+            alpha = ifelse(FINAL, 0.5, 1)
+        ) +
+        labs(
+            title = title,
+            y = ylab,
+            subtitle = sprintf("Trend%s%s%s",
+                ifelse(sum(recompose.progress) > 0, " + seasonal swing", ""),
+                ifelse(recompose.progress[1] > 0, " + residuals", ""),
+                ifelse(FINAL, " = observed data", "")
+            )
+        ) +
         ylim(extendrange(datarange, f = 0.05))
     if (recompose && any(recompose > 0)) {
-        ri <- ifelse(recompose.progress[1] == 0, recompose.progress[2], nrow(td))
+        ri <- ifelse(recompose.progress[1] == 0,
+            recompose.progress[2],
+            nrow(td)
+        )
         rtd <- td %>%
             dplyr::mutate(
                 z = ifelse(1:nrow(td) < ri,
@@ -209,7 +243,8 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
             geom_path(
                 aes_(y = ~z),
                 data = rtd,
-                colour = colour[2]
+                colour = colour[2],
+                alpha = ifelse(FINAL, 0.5, 1)
             )
         if (recompose.progress[1] == 1 && recompose.progress[2] > 0) {
             ri <- recompose.progress[2]
@@ -217,14 +252,32 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
                 dplyr::mutate(
                     z = ifelse(1:nrow(td) < ri,
                         .data$value,
-                        .data$trend[ri] + .data$seasonal[ri] + .data$residual
+                        .data$trend[ri] + .data$seasonal[ri] +
+                            .data$residual
                     )
                 )
             pdata <- pdata +
+                # geom_path(
+                #     aes(y = ~trend),
+                #     data = rtd[1:ri, ]
+                # ) +
                 geom_path(
                     aes_(y = ~z),
-                    data = rtd,
+                    data = rtd[-(1:(ri-1)),],
                     colour = colour[3]
+                ) +
+                # geom_segment(
+                #     aes_(
+                #         y = ~value, yend = ~value - residual,
+                #         xend = ~Date
+                #     ),
+                #     data = rtd[1:ri,],
+                #     colour = colour[3]
+                # ) +
+                geom_path(
+                    aes_(y = ~value),
+                    data = rtd[1:ri,],
+                    colour = if (FINAL) "black" else colour[3]
                 )
         }
     }
@@ -239,6 +292,10 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
 
     presid <- p +
         geom_path(aes_(y = ~residual), colour = colour[3]) +
+        # geom_segment(
+        #     aes_(y = ~residual, yend = 0, xend = ~Date),
+        #     colour = colour[3]
+        # ) +
         labs(subtitle = "Residuals", y = "") +
         ylim(extendrange(rrange, f = rr/2)) +
         theme(
@@ -257,30 +314,30 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
 }
 
 
-##' Decomposes a time series into trend, seasonal and residual components
-##' using \code{loess}.
-##'
-##' If the frequency is greater than 1, the components are found using the
-##' \code{\link{stl}} function with \code{s.window} set to \code{TRUE}
-##' (effectively replacing smoothing by taking the mean).
-##' If the frequency is 1, the trend component is found directly by using
-##' \code{\link{loess}} and the residuals are the difference between trend
-##' and actual values.
-##' The trend, seasonal and residual components are plotted on the same
-##' scale allowing for easy visual analysis.
-##'
-##' @title Plot a Time Series Decomposition
-##'
-##' @param ... args, ignored
-##'
-##' @return The original \code{iNZightTS} object with an item \code{decompVars}
-##' appended, containing results from the decomposition.
-##'
-##' @references R. B. Cleveland, W. S. Cleveland, J.E. McRae, and I. Terpenning (1990) STL: A Seasonal-Trend Decomposition Procedure Based on Loess. Journal of Official Statistics, 6, 3iV73.
-##'
-##' @seealso \code{\link{stl}}, \code{\link{loess}}, \code{\link{iNZightTS}}
-##'
-##' @export
+#' Decomposes a time series into trend, seasonal and residual components
+#' using \code{loess}.
+#'
+#' If the frequency is greater than 1, the components are found using the
+#' \code{\link{stl}} function with \code{s.window} set to \code{TRUE}
+#' (effectively replacing smoothing by taking the mean).
+#' If the frequency is 1, the trend component is found directly by using
+#' \code{\link{loess}} and the residuals are the difference between trend
+#' and actual values.
+#' The trend, seasonal and residual components are plotted on the same
+#' scale allowing for easy visual analysis.
+#'
+#' @title Plot a Time Series Decomposition
+#'
+#' @param ... args, ignored
+#'
+#' @return The original \code{iNZightTS} object with an item \code{decompVars}
+#' appended, containing results from the decomposition.
+#'
+#' @references R. B. Cleveland, W. S. Cleveland, J.E. McRae, and I. Terpenning (1990) STL: A Seasonal-Trend Decomposition Procedure Based on Loess. Journal of Official Statistics, 6, 3iV73.
+#'
+#' @seealso \code{\link{stl}}, \code{\link{loess}}, \code{\link{iNZightTS}}
+#'
+#' @export
 decompositionplot <- function(...) {
     warning("Deprecated: please use `plot(decompose(obj))`")
 }

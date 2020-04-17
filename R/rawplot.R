@@ -1,39 +1,56 @@
-##' Draws a plot of a given \code{iNZightTS} object with the trend superimposed.
-##'
-##' If animate is set to \code{TRUE}, a scatterplot of all points in the
-##' time series will appear followed by slowly drawn lines connecting the
-##' points, simulating the drawing of a time series by hand.
-##'
-##' @title Draw a simple time series plot
-##'
-##' @param x an \code{iNZightTS} object
-##' @param multiplicative logical. If \code{TRUE}, a multiplicative model is used,
-##' otherwise an additive model is used by default.
-##' @param ylab a title for the y axis
-##' @param xlab a title for the x axis
-##' @param title a title for the graph
-##' @param animate logical, if true the graph is animated
-##' @param t smoothing parameter
-##' @param smoother logical, if \code{TRUE} the smoother will be drawn
-##' @param aspect the aspect ratio of the plot;
-##'        it will be about ASPECT times wider than it is high
-##' @param plot logical, if \code{FALSE}, the graph isn't drawn
-##' @param col the colour of the smoothed trend line
-##' @param xlim axis limits, specied as dates
-##' @param model.lim limits of the series to use for modelling/forecast
-##' @param forecast numeric, how many observations ahead to forecast (default is 0, no forecast)
-##' @param ... additional arguments (not used)
-##'
-##' @keywords timeseries
-##'
-##' @import ggplot2
-##'
-##' @section Forecast:
-##' The predictions and prediction intervals are the result of models
-##' fitted by the Holt-Winters method. The amount of predicted
-##' observations is specified by the value of `forecast`.
-##'
-##' @export
+#' Draws a plot of a given \code{iNZightTS} object with the trend superimposed.
+#'
+#' If animate is set to \code{TRUE}, a scatterplot of all points in the
+#' time series will appear followed by slowly drawn lines connecting the
+#' points, simulating the drawing of a time series by hand.
+#'
+#' @title Draw a simple time series plot
+#'
+#' @param x an \code{iNZightTS} object
+#' @param multiplicative logical. If \code{TRUE}, a multiplicative model is used,
+#' otherwise an additive model is used by default.
+#' @param ylab a title for the y axis
+#' @param xlab a title for the x axis
+#' @param title a title for the graph
+#' @param animate logical, if true the graph is animated
+#' @param t smoothing parameter
+#' @param smoother logical, if \code{TRUE} the smoother will be drawn
+#' @param aspect the aspect ratio of the plot;
+#'        it will be about ASPECT times wider than it is high
+#' @param plot logical, if \code{FALSE}, the graph isn't drawn
+#' @param col the colour of the smoothed trend line
+#' @param xlim axis limits, specified as dates
+#' @param model.lim limits of the series to use for modelling/forecast
+#' @param forecast numeric, how many observations ahead to forecast (default is 0, no forecast)
+#' @param ... additional arguments (not used)
+#'
+#' @keywords timeseries
+#'
+#' @import ggplot2
+#'
+#' @section Forecast:
+#' The predictions and prediction intervals are the result of models
+#' fitted by the Holt-Winters method. The amount of predicted
+#' observations is specified by the value of `forecast`.
+#'
+#' @references
+#' C.C Holt (1957)
+#' Forecasting seasonals and trends by exponentially weighted
+#' moving averages,
+#' ONR Research Memorandum, Carnigie Institute 52.
+#'
+#' P.R Winters (1960)
+#' Forecasting sales by exponentially weighted moving averages,
+#' \emph{Management Science} \bold{6}, 324--342.
+#'
+#' @examples
+#' t <- iNZightTS(visitorsQ)
+#' plot(t)
+#'
+#' # Forecast plot (8 quarterly forecasts):
+#' plot(t, forecast = 8)
+#'
+#' @export
 plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab = "Date",
                            title = "%var",
                            animate = FALSE,
@@ -96,7 +113,8 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
             if (multiplicative) smooth <- exp(smooth)
             smooth <- data.frame(
                 time = as.numeric(time(hw.fit$fitted)),
-                smooth = smooth
+                smooth = smooth,
+                stringsAsFactors = TRUE
             )
         } else {
             decomp = decompose(obj,
@@ -142,7 +160,8 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
 
     value <- obj$currVar
     ts.df <- data.frame(Date = as.numeric(time(tsObj)),
-                        value = as.matrix(tsObj))
+                        value = as.matrix(tsObj),
+                        stringsAsFactors = TRUE)
     ts.df <- ts.df %>%
         tidyr::gather(key = "variable", value = "value",
                       -.data$Date, factor_key = TRUE)
@@ -193,7 +212,8 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
                 variable = "value",
                 value = as.numeric(pred[, "fit"]),
                 lower = as.numeric(pred[, "lwr"]),
-                upper = as.numeric(pred[, "upr"])
+                upper = as.numeric(pred[, "upr"]),
+                stringsAsFactors = TRUE
             )
         )
     } else if (!is.null(smooth)) {
@@ -305,9 +325,9 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
     invisible(tsplot)
 }
 
-##' Time series plot - depreciated
-##' @param ... arguments passed to `plot` method
-##' @export
+#' Time series plot - depreciated
+#' @param ... arguments passed to `plot` method
+#' @export
 rawplot <- function(...) {
     cat("Depreciated: use `plot()` instead.\n")
     plot(...)

@@ -4,14 +4,16 @@
 \name{visitorsQ}
 \alias{visitorsQ}
 \title{Visitors (quarterly)}
-\format{A data frame with 54 rows and 5 variables:
+\format{
+A data frame with 54 rows and 5 variables:
 \describe{
   \item{Date}{The time variable (year/quarter)}
   \item{Australia}{Visitor counts for Australia}
   \item{China..People.s.Republic.of}{Visitor counts for China}
   \item{Japan}{Visitor counts for Japan}
   \item{United.Kingdom}{Visitor counts for the UK}
-}}
+}
+}
 \usage{
 visitorsQ
 }

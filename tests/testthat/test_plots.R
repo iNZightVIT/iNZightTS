@@ -14,7 +14,7 @@ test_that("Smoother can be disabled", {
 })
 
 test_that("Decomposition and recomposition plots work", {
-    expect_silent(d <- decompose(t))
+    expect_silent(d <- decompose(t, data.name = "Visitors"))
     expect_is(plot(d), "inzdecomp")
     expect_is(plot(d, recompose.progress = c(0, 20)), "inzdecomp")
     expect_is(
@@ -71,3 +71,14 @@ test_that("Unsupported plots error", {
 
 ## clean up
 unlink("Rplot.pdf")
+
+
+
+
+if (FALSE) {
+    d <- decompose(t, data.name = "Visitors")
+    ## demo playthrough
+    for (i in 0:1)
+        for (j in 1:nrow(d$data))
+            plot(d, recompose.progress = c(i, j))
+}
