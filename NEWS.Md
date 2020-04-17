@@ -16,7 +16,7 @@ __Release date__: 11 November 2019
 - add argument to `plot()` functions to show smoother (default is `TRUE`)
 - add UTF-8 encoding to DESCRIPTION file as requested by roxygen :)
 - add ggplot2 version of season plot and decompose plot
-- for compare plot with additive effects, make main and effects ylimits equally scaled
+- for compare plot with additive effects, make main and effects y-limits equally scaled
 - fix bug where smoothing parameter wasn't being passed to compare effects graph
 
 
@@ -29,7 +29,7 @@ __Release date__: 2 September 2019
 ## iNZightTS 1.4.2
 __Release date__: 15 July 2019
 
-- specify (time/horizontal) axies limits to view part of a time series (#16)
+- specify (time/horizontal) axes limits to view part of a time series (#16)
 - use only part of a series to create model + forecast (#17)
 - recode forecast plot using `ggplot2`
 
@@ -64,7 +64,7 @@ __Release date__: 24 March 2017
 
 - Main change is addition of smoothing parameter to plots
 - Improved time variable detection, including weekly, daily, hourly data
-- Better use of x and y axis labels
+- Better use of x- and y-axis labels
 - Other minor bug fixes
 
 
@@ -97,16 +97,16 @@ __Release date__: 17 September 2014
 __Release date__: 4 April 2014
 
 - y-axis label support now on all plots.
-- Various bug fixes to accomodate multiplicative time series.
+- Various bug fixes to accommodate multiplicative time series.
 
 
 ## iNZightTS 1.1.1
 __Release date__: 27 March 2014
 
-- New functionality using proportion values to calcualate `x`,
+- New functionality using proportion values to calculate `x`,
   and calculated using order to control the x-axis.
 
-- Changed some of the graphical parameter settings to avoid
+- Changed some graphical parameter settings to avoid
   over-writing objects with a "white" background.
 
 

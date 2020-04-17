@@ -47,7 +47,7 @@ it will be about ASPECT times wider than it is high}
 
 \item{col}{the colour of the smoothed trend line}
 
-\item{xlim}{axis limits, specied as dates}
+\item{xlim}{axis limits, specified as dates}
 
 \item{model.lim}{limits of the series to use for modelling/forecast}
 

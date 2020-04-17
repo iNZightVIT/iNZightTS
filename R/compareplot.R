@@ -5,7 +5,7 @@
 #' @param x Multiple time series object
 #' @param compare logical, if \code{true}, the series will be graphed in a single plot;
 #'        otherwise graphed in individual rows
-#' @param multiplicative logical, if TRUE multiplcative series will be used; otherwise additive
+#' @param multiplicative logical, if TRUE multiplicative series will be used; otherwise additive
 #' @param ylab y axis label
 #' @param xlab x axis label
 #' @param title the title for the plot

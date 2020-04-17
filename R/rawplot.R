@@ -19,7 +19,7 @@
 #'        it will be about ASPECT times wider than it is high
 #' @param plot logical, if \code{FALSE}, the graph isn't drawn
 #' @param col the colour of the smoothed trend line
-#' @param xlim axis limits, specied as dates
+#' @param xlim axis limits, specified as dates
 #' @param model.lim limits of the series to use for modelling/forecast
 #' @param forecast numeric, how many observations ahead to forecast (default is 0, no forecast)
 #' @param ... additional arguments (not used)

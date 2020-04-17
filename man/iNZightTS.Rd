@@ -33,7 +33,7 @@ same way as \code{start}}
 \item{var}{the column number or name for the observations used
 from \code{data} in the actual time series}
 
-\item{time.col}{which column cotains the time variable}
+\item{time.col}{which column contains the time variable}
 
 \item{...}{additional information passed to \code{read.csv()} and used when
 \code{data} is a path}
@@ -61,9 +61,9 @@ The function recognises the following time variable formatS without case sensiti
   \item "(Y)yyyyWww" weekly data with yearly seasonality e.g."(Y)1991W01"
   \item "(Y)yyyyDdd" daily data with yearly seasonality e.g."(Y)1991D01"
   \item "WwwDdd"  daily data with weekly seasonality e.g. "W01D01"
-  \item "DddHhh" hourly data with daily swasonality e.g. "D01H01"
+  \item "DddHhh" hourly data with daily seasonality e.g. "D01H01"
 }
-The length of digits of each time unit could be fiexable and allowing space between the
+The length of digits of each time unit could be flexible and allowing space between the
 time unit
 
 In case of \code{data} being a data.frame or path to a \code{.csv}
