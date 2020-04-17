@@ -28,6 +28,19 @@ test_that("Year/week data", {
     expect_equal(get.ts.structure(vals), list(start = c(2000, 51), frequency = 52))
 })
 
+test_that("Year/day data", {
+    vals <- with(expand.grid(D = 1:365, Y = 2001:2004)[1:(365*3) + 30,],
+        paste0(Y, "D", D)
+    )
+    expect_equal(
+        get.ts.structure(vals),
+        list(
+            start = c(2001L, 31L),
+            frequency = 365.25
+        )
+    )
+})
+
 test_that("Seven day week", {
     vals <- with(expand.grid(D = 1:7, W = 1:5)[-(1:3),],
         paste0("W", W, "D", D)
@@ -47,4 +60,16 @@ test_that("Hourly observations", {
         paste0("D", D, "H", H)
     )
     expect_equal(get.ts.structure(vals), list(start = c(1, 10), frequency = 24))
+})
+
+
+test_that("iNZightTS object can be created from a base ts object", {
+    t <- ts(visitorsQ$Australia,
+        start = c(1998, 4),
+        frequency = 4
+    )
+    expect_equal(
+        iNZightTS(t)$tsObj,
+        iNZightTS(visitorsQ)$tsObj
+    )
 })

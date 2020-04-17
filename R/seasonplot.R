@@ -1,25 +1,23 @@
-##' This function plots the seasonal components of a time series together
-##' with the estimated seasonal effects of that series.
-##'
-##' The resulting window will contain two plots. On the left, every
-##' seasonal subseries of the time series is plotted. On the right will be
-##' the average seasonal effect of the series.
-##'
-##' @title Plot Seasonal Subseries from a Time Series
-##'
-##' @param obj an \code{iNZightTS} object
-##'
-##' @param ... Further arguments to be passed onto specific methods.
-##'
-##' @seealso \code{\link{iNZightTS}}
-##'
-##' @examples
-##' \dontrun{
-##' x <- iNZightTS(UKgas)
-##' seasonplot(x)
-##' }
-##'
-##' @export
+#' This function plots the seasonal components of a time series together
+#' with the estimated seasonal effects of that series.
+#'
+#' The resulting window will contain two plots. On the left, every
+#' seasonal subseries of the time series is plotted. On the right will be
+#' the average seasonal effect of the series.
+#'
+#' @title Plot Seasonal Subseries from a Time Series
+#'
+#' @param obj an \code{iNZightTS} object
+#'
+#' @param ... Further arguments to be passed onto specific methods.
+#'
+#' @seealso \code{\link{iNZightTS}}
+#'
+#' @examples
+#' ts <- iNZightTS(visitorsQ)
+#' seasonplot(ts)
+#'
+#' @export
 seasonplot <- function(obj, ...)
     UseMethod("seasonplot")
 
@@ -65,7 +63,8 @@ seasonplot.iNZightTS <- function(obj, multiplicative = FALSE, t = 10, model.lim 
         value = as.matrix(obj$tsObj),
         trend = as.numeric(obj$decompVars$components[, "trend"]),
         seasonal = as.numeric(obj$decompVars$components[, "seasonal"]),
-        residual = as.numeric(obj$decompVars$components[, "remainder"])
+        residual = as.numeric(obj$decompVars$components[, "remainder"]),
+        stringsAsFactors = TRUE
     )
     td <- dplyr::mutate(td,
             effect = if (multiplicative) {
@@ -113,7 +112,7 @@ seasonplot.iNZightTS <- function(obj, multiplicative = FALSE, t = 10, model.lim 
     season <-
         if (s > 1) td$season[-(1:(freq + 1 - s))][1:freq]
         else td$season[1:freq]
-    season <- data.frame(b = 1:freq, effect = season, a = 1)
+    season <- data.frame(b = 1:freq, effect = season, a = 1, stringsAsFactors = TRUE)
 
     p2 <- ggplot(td, aes_(
             ~b,

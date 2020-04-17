@@ -4,14 +4,16 @@
 \name{visitorsM2}
 \alias{visitorsM2}
 \title{Visitors (monthly)}
-\format{A data frame with 164 rows and 5 variables:
+\format{
+A data frame with 164 rows and 5 variables:
 \describe{
   \item{Time}{The time variable (year/month)}
   \item{Australia}{Visitor counts for Australia}
   \item{China..People.s.Republic.of}{Visitor counts for China}
   \item{Japan}{Visitor counts for Japan}
   \item{United.Kingdom}{Visitor counts for the UK}
-}}
+}
+}
 \usage{
 visitorsM2
 }

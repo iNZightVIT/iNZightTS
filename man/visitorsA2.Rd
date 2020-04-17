@@ -4,14 +4,16 @@
 \name{visitorsA2}
 \alias{visitorsA2}
 \title{Visitors (annual)}
-\format{A data frame with 13 rows and 5 variables:
+\format{
+A data frame with 13 rows and 5 variables:
 \describe{
   \item{Time}{The time variable (year)}
   \item{Australia}{Visitor counts for Australia}
   \item{China..People.s.Republic.of}{Visitor counts for China}
   \item{Japan}{Visitor counts for Japan}
   \item{United.Kingdom}{Visitor counts for the UK}
-}}
+}
+}
 \usage{
 visitorsA2
 }

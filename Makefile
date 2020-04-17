@@ -1,5 +1,5 @@
 R := R
-RCMD := Rscript
+RCMD := R
 
 document:
 	@echo Roxygenizing documentation ...
