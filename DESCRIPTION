@@ -30,7 +30,7 @@ Imports:
 Suggests:
     testthat,
     covr
-Description: Provides a collection of functions for working with time series data, including functions for drawing, decomposing, and forecasting. Used by 'iNZight', a graphical user interface providing easy exploration and visualisation of data for students of statistics, available in both desktop and online versions. Includes capabilities to compare multiple series and fit both additive and multiplicative models.
+Description: Provides a collection of functions for working with time series data, including functions for drawing, decomposing, and forecasting. Includes capabilities to compare multiple series and fit both additive and multiplicative models. Used by 'iNZight', a graphical user interface providing easy exploration and visualisation of data for students of statistics, available in both desktop and online versions.
 BugReports: https://github.com/iNZightVIT/iNZightTS/issues
 Contact: inzight_support@stat.auckland.ac.nz
 URL: https://www.stat.auckland.ac.nz/~wild/iNZight/
