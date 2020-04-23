@@ -57,22 +57,20 @@
 #' \code{data} is a path
 #'
 #' @seealso \code{\link{ts}}, \code{\link{print.iNZightTS}},
-#'          \code{\link{rawplot}}
 #'
 #' @examples
-#' \dontrun{
 #' # create from a ts object
 #' z <- iNZightTS(UKgas)
-#' rawplot(z)
+#' plot(z)
 #'
 #' # create from a data.frame
-#' x <- iNZightTS(data.frame(Return = rnorm(100), Time = 1:100), var = "Return")
+#' x <- iNZightTS(data.frame(Return = rnorm(100), Time = 1:100),
+#'     var = "Return")
 #'
 #' # create from a data.frame with modified time frame
-#' y <- iNZightTS(data.frame(Return = rnorm(100)), start = c(1990, 1), end =
-#' c(1993, 5), freq = 12, var = 1)
-#' rawplot(y)
-#' }
+#' y <- iNZightTS(data.frame(Return = rnorm(100)),
+#'     start = c(1990, 1), end = c(1993, 5), freq = 12, var = 1)
+#' plot(y)
 #'
 #' @export
 iNZightTS <- function(data, start = 1, end, freq = 1, var = 2,

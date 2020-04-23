@@ -329,7 +329,7 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
 #' @param ... arguments passed to `plot` method
 #' @export
 rawplot <- function(...) {
-    cat("Depreciated: use `plot()` instead.\n")
+    warning("Depreciated: use `plot()` instead.\n")
     plot(...)
 }
 

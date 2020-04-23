@@ -32,7 +32,7 @@
 forecastplot <-
     function(x, ...) {
 
-    cat("Deprecated. Use plot(x, forecast = n) instead.\n")
+    warning("Deprecated. Use plot(x, forecast = n) instead.\n")
     return(plot(x, ..., forecast = 2 * x$freq))
 
 }

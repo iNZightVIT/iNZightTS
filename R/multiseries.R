@@ -7,6 +7,6 @@
 multiseries <- function(x,...) {
     if (!any(grepl("^iNZightMTS$", class(x))))
         stop("x is not an iNZightMTS object")
-    cat("Deprecated. Use plot(x, compare = FALSE) instead.\n")
+    warning("Deprecated. Use plot(x, compare = FALSE) instead.\n")
     plot(x, ..., compare = FALSE)
 }

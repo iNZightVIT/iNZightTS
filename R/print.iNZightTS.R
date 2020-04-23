@@ -15,9 +15,7 @@
 #' @seealso \code{\link{print}}, \code{\link{iNZightTS}}
 #'
 #' @examples
-#' \dontrun{
-#' print(iNZightTS(UKgas))
-#' }
+#' iNZightTS(UKgas)
 #'
 #' @export
 print.iNZightTS <- function(x, full = FALSE, ...) {
