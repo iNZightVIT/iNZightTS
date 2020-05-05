@@ -9,7 +9,7 @@ forecastplot(x, ...)
 \arguments{
 \item{x}{\code{iNZightTS} object}
 
-\item{...}{args passed on}
+\item{...}{additional arguments passed on}
 }
 \description{
 Plot a raw time series together with it's fitted curve and add

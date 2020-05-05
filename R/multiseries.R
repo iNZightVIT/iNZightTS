@@ -1,4 +1,4 @@
-#' Compare multiple timeseries - DEPRECATED
+#' Compare multiple time series - DEPRECATED
 #'
 #' @param x iNZightMTS object containing data
 #' @param ... Further arguments to be passed to `plot()`

@@ -335,7 +335,7 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
 #'
 #' @title Plot a Time Series Decomposition
 #'
-#' @param ... args, ignored
+#' @param ... additional arguments, ignored
 #'
 #' @return The original \code{iNZightTS} object with an item \code{decompVars}
 #' appended, containing results from the decomposition.

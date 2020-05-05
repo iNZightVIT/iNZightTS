@@ -9,7 +9,7 @@
 #' @title Forecast plot - DEPRECATED
 #'
 #' @param x \code{iNZightTS} object
-#' @param ... args passed on
+#' @param ... additional arguments passed on
 #'
 #' @return NULL
 #'
