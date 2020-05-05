@@ -1,3 +1,12 @@
+## Resubmission
+This is a resubmission. In this version I have:
+* added references to the description (the STL paper has no doi or other URL)
+* added quotes around package name in title
+* removed \dontrun{} from examples (and added some more)
+* added \value to documented functions
+* replaced instances of cat() with warning() so they may be suppressed
+* this package has no additional system dependencies
+
 ## Test environments
 * local ubuntu 18.04, R 3.6.3
 * ubuntu 18.04 (on travis-ci) R oldrel, release, and devel
