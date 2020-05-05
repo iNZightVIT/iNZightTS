@@ -85,8 +85,11 @@ z <- iNZightTS(UKgas)
 plot(z)
 
 # create from a data.frame
-x <- iNZightTS(data.frame(Return = rnorm(100), Time = 1:100),
+x <- iNZightTS(data.frame(Return = rnorm(100), Time = 1900:1999),
     var = "Return")
+# or specify a time column
+x <- iNZightTS(data.frame(Return = rnorm(100), Year = 1900:1999),
+    var = "Return", time.col = "Year")
 
 # create from a data.frame with modified time frame
 y <- iNZightTS(data.frame(Return = rnorm(100)),
