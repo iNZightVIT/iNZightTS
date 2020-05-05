@@ -40,6 +40,12 @@ from \code{data} in the actual time series}
 
 \item{ignore.case}{logical, ignore the case?}
 }
+\value{
+a \code{iNZightTS} object. If multiple variables are requested,
+        the \code{iNZightMTS} class is added to the result. The result
+        object contains the original data as a time series object,
+        as well as information on the series start, end, and frequency.
+}
 \description{
 The function \code{iNZightTS} is used to create time-series objects used
 in iNZight.
@@ -74,22 +80,20 @@ column. If \code{end} is omitted, all of the data will be used for the
 time-series.
 }
 \examples{
-\dontrun{
 # create from a ts object
 z <- iNZightTS(UKgas)
-rawplot(z)
+plot(z)
 
 # create from a data.frame
-x <- iNZightTS(data.frame(Return = rnorm(100), Time = 1:100), var = "Return")
+x <- iNZightTS(data.frame(Return = rnorm(100), Time = 1:100),
+    var = "Return")
 
 # create from a data.frame with modified time frame
-y <- iNZightTS(data.frame(Return = rnorm(100)), start = c(1990, 1), end =
-c(1993, 5), freq = 12, var = 1)
-rawplot(y)
-}
+y <- iNZightTS(data.frame(Return = rnorm(100)),
+    start = c(1990, 1), end = c(1993, 5), freq = 12, var = 1)
+plot(y)
 
 }
 \seealso{
 \code{\link{ts}}, \code{\link{print.iNZightTS}},
-         \code{\link{rawplot}}
 }

@@ -55,6 +55,10 @@ it will be about ASPECT times wider than it is high}
 
 \item{...}{additional arguments (not used)}
 }
+\value{
+a time series plot (constructed with ggplot2) is returned invisibly,
+        which can be added to if desired.
+}
 \description{
 Draws a plot of a given \code{iNZightTS} object with the trend superimposed.
 }

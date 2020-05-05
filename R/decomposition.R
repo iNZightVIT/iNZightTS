@@ -6,7 +6,8 @@
 #' @param model.lim limits for the time series model
 #' @param data.name the name of the data
 #' @param ... other, ignored, arguments
-#' @return an egg/gtable
+#' @return an \code{inzdecomp} object (this is the original
+#'         object with an additional \code{decompVars} component)
 #'
 #' @examples
 #' t <- iNZightTS(visitorsQ)
@@ -14,6 +15,10 @@
 #' plot(decomp.ts)
 #'
 #' @export
+#' @references
+#' R. B. Cleveland, W. S. Cleveland, J.E. McRae, and I. Terpenning (1990)
+#' STL: A Seasonal-Trend Decomposition Procedure Based on Loess.
+#' Journal of Official Statistics, 6, 3iV73.
 decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
                       data.name = NULL, ...) {
      if (!is.null(model.lim)) {
@@ -136,6 +141,8 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
 #' @param xlim the x axis limits
 #' @param colour vector of three colours for trend, seasonal, and residuals, respectively
 #' @param ... additional arguments (ignored)
+#' @return Invisibly returns the original decomposition object. Mainly called
+#'         to plot the decomposition.
 #'
 #' @describeIn decompose Plot a time series decomposition
 #' @export

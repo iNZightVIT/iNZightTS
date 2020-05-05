@@ -56,6 +56,11 @@
 #' @param ... additional information passed to \code{read.csv()} and used when
 #' \code{data} is a path
 #'
+#' @return a \code{iNZightTS} object. If multiple variables are requested,
+#'         the \code{iNZightMTS} class is added to the result. The result
+#'         object contains the original data as a time series object,
+#'         as well as information on the series start, end, and frequency.
+#'
 #' @seealso \code{\link{ts}}, \code{\link{print.iNZightTS}},
 #'
 #' @examples

@@ -346,6 +346,7 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0,
 #' @param x an iNZightTS object
 #' @param ... additional arguments passed to `plot()`
 #' @export
+#' @return NULL
 compareplot <- function(x, ...) {
     warning("Depreciated: use `plot()` instead.\n")
     if (!any(grepl("^iNZightMTS$", class(x)))) {

@@ -8,8 +8,8 @@
 #' @title Plot Seasonal Subseries from a Time Series
 #'
 #' @param obj an \code{iNZightTS} object
-#'
 #' @param ... Further arguments to be passed onto specific methods.
+#' @return NULL
 #'
 #' @seealso \code{\link{iNZightTS}}
 #'

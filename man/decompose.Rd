@@ -59,7 +59,11 @@ how many observations have been recomposed so far}
 \item{colour}{vector of three colours for trend, seasonal, and residuals, respectively}
 }
 \value{
-an egg/gtable
+an \code{inzdecomp} object (this is the original
+        object with an additional \code{decompVars} component)
+
+Invisibly returns the original decomposition object. Mainly called
+        to plot the decomposition.
 }
 \description{
 Decompose a time series object
@@ -74,4 +78,9 @@ t <- iNZightTS(visitorsQ)
 decomp.ts <- decompose(t, data.name = "Visitors")
 plot(decomp.ts)
 
+}
+\references{
+R. B. Cleveland, W. S. Cleveland, J.E. McRae, and I. Terpenning (1990)
+STL: A Seasonal-Trend Decomposition Procedure Based on Loess.
+Journal of Official Statistics, 6, 3iV73.
 }

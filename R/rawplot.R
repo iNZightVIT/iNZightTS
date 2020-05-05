@@ -23,6 +23,8 @@
 #' @param model.lim limits of the series to use for modelling/forecast
 #' @param forecast numeric, how many observations ahead to forecast (default is 0, no forecast)
 #' @param ... additional arguments (not used)
+#' @return a time series plot (constructed with ggplot2) is returned invisibly,
+#'         which can be added to if desired.
 #'
 #' @keywords timeseries
 #'
