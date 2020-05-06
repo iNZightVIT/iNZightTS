@@ -1,7 +1,7 @@
 #' Recompose a time series object, with optional animation.
 #'
 #' @title Recompose a decomposed time series
-#' @param ... args, ignored
+#' @param ... additional arguments, ignored
 #' @return the recomposed series
 #' @author iNZight
 #' @export

@@ -2,7 +2,7 @@
 % Please edit documentation in R/multiseries.R
 \name{multiseries}
 \alias{multiseries}
-\title{Compare multiple timeseries - DEPRECATED}
+\title{Compare multiple time series - DEPRECATED}
 \usage{
 multiseries(x, ...)
 }
@@ -12,5 +12,5 @@ multiseries(x, ...)
 \item{...}{Further arguments to be passed to `plot()`}
 }
 \description{
-Compare multiple timeseries - DEPRECATED
+Compare multiple time series - DEPRECATED
 }

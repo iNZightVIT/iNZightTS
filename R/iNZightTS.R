@@ -56,23 +56,29 @@
 #' @param ... additional information passed to \code{read.csv()} and used when
 #' \code{data} is a path
 #'
+#' @return a \code{iNZightTS} object. If multiple variables are requested,
+#'         the \code{iNZightMTS} class is added to the result. The result
+#'         object contains the original data as a time series object,
+#'         as well as information on the series start, end, and frequency.
+#'
 #' @seealso \code{\link{ts}}, \code{\link{print.iNZightTS}},
-#'          \code{\link{rawplot}}
 #'
 #' @examples
-#' \dontrun{
 #' # create from a ts object
 #' z <- iNZightTS(UKgas)
-#' rawplot(z)
+#' plot(z)
 #'
 #' # create from a data.frame
-#' x <- iNZightTS(data.frame(Return = rnorm(100), Time = 1:100), var = "Return")
+#' x <- iNZightTS(data.frame(Return = rnorm(100), Time = 1900:1999),
+#'     var = "Return")
+#' # or specify a time column
+#' x <- iNZightTS(data.frame(Return = rnorm(100), Year = 1900:1999),
+#'     var = "Return", time.col = "Year")
 #'
 #' # create from a data.frame with modified time frame
-#' y <- iNZightTS(data.frame(Return = rnorm(100)), start = c(1990, 1), end =
-#' c(1993, 5), freq = 12, var = 1)
-#' rawplot(y)
-#' }
+#' y <- iNZightTS(data.frame(Return = rnorm(100)),
+#'     start = c(1990, 1), end = c(1993, 5), freq = 12, var = 1)
+#' plot(y)
 #'
 #' @export
 iNZightTS <- function(data, start = 1, end, freq = 1, var = 2,

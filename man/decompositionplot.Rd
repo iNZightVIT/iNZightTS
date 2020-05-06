@@ -7,7 +7,7 @@
 decompositionplot(...)
 }
 \arguments{
-\item{...}{args, ignored}
+\item{...}{additional arguments, ignored}
 }
 \value{
 The original \code{iNZightTS} object with an item \code{decompVars}

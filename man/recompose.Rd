@@ -7,7 +7,7 @@
 recompose(...)
 }
 \arguments{
-\item{...}{args, ignored}
+\item{...}{additional arguments, ignored}
 }
 \value{
 the recomposed series
