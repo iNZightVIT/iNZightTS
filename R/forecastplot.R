@@ -11,7 +11,8 @@
 #' @param x \code{iNZightTS} object
 #' @param ... additional arguments passed on
 #'
-#' @return NULL
+#' @return Called for the side effect of drawing a plot.
+#'         The constructed \code{ggplot} object is returned invisibly.
 #'
 #' @export
 forecastplot <-

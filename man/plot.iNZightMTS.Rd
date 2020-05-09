@@ -45,6 +45,9 @@ otherwise graphed in individual rows}
 
 \item{...}{additional arguments}
 }
+\value{
+No return value, called for the side effect of drawing a plot.
+}
 \description{
 Plot a multiple time series object to compare several series
 }

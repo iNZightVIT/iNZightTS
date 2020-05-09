@@ -11,6 +11,9 @@ seasonplot(obj, ...)
 
 \item{...}{Further arguments to be passed onto specific methods.}
 }
+\value{
+No return value, called for the side effect of drawing a plot.
+}
 \description{
 This function plots the seasonal components of a time series together
 with the estimated seasonal effects of that series.
