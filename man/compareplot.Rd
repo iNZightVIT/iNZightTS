@@ -11,6 +11,9 @@ compareplot(x, ...)
 
 \item{...}{additional arguments passed to `plot()`}
 }
+\value{
+No return value, called for the side effect of drawing a plot.
+}
 \description{
 Comparison plot - depreciated
 }

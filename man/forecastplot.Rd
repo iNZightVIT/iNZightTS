@@ -11,6 +11,10 @@ forecastplot(x, ...)
 
 \item{...}{additional arguments passed on}
 }
+\value{
+Called for the side effect of drawing a plot.
+        The constructed \code{ggplot} object is returned invisibly.
+}
 \description{
 Plot a raw time series together with it's fitted curve and add
 forecasts and prediction intervals to the end.

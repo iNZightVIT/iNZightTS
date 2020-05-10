@@ -13,6 +13,9 @@
 
 \item{...}{Unused arguments. Only here for consistency with the base S3 method.}
 }
+\value{
+No return value, called for side effect.
+}
 \description{
 Print method for iNZightTS (time series) objects.
 }

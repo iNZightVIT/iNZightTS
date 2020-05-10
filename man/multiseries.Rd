@@ -11,6 +11,9 @@ multiseries(x, ...)
 
 \item{...}{Further arguments to be passed to `plot()`}
 }
+\value{
+No return value, called for the side effect of drawing a plot.
+}
 \description{
 Compare multiple time series - DEPRECATED
 }

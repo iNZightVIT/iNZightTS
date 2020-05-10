@@ -21,7 +21,7 @@
 #' plot(tm)
 #' plot(tm, compare = FALSE)
 #'
-#' @return NULL
+#' @return No return value, called for the side effect of drawing a plot.
 #' @author Tom Elliott
 #' @export
 plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE,
@@ -346,7 +346,7 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0,
 #' @param x an iNZightTS object
 #' @param ... additional arguments passed to `plot()`
 #' @export
-#' @return NULL
+#' @return No return value, called for the side effect of drawing a plot.
 compareplot <- function(x, ...) {
     warning("Depreciated: use `plot()` instead.\n")
     if (!any(grepl("^iNZightMTS$", class(x)))) {
