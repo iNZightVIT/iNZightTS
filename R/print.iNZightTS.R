@@ -9,7 +9,7 @@
 #' @param x the \code{iNZightTS} object to be printed
 #' @param full whether to print all the underlying data
 #' @param ... Unused arguments. Only here for consistency with the base S3 method.
-#' @return NULL
+#' @return No return value, called for side effect.
 #'
 #' @seealso \code{\link{print}}, \code{\link{iNZightTS}}
 #'

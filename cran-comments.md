@@ -1,5 +1,9 @@
 ## Resubmission
 This is a resubmission. In this version I have:
+* added remaining missing \value fields to help files
+* used double quotes in paper title
+
+In previous submissions I:
 * added references to the description (the STL paper has no doi or other URL)
 * added quotes around package name in title
 * removed \dontrun{} from examples (and added some more)

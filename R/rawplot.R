@@ -330,6 +330,7 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
 #' Time series plot - depreciated
 #' @param ... arguments passed to `plot` method
 #' @export
+#' @return Called to draw a plot. Inivisbly returns a \code{ggplot} object.
 rawplot <- function(...) {
     warning("Depreciated: use `plot()` instead.\n")
     plot(...)

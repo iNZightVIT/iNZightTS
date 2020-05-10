@@ -2,7 +2,7 @@
 #'
 #' @param x iNZightMTS object containing data
 #' @param ... Further arguments to be passed to `plot()`
-#' @return NULL
+#' @return No return value, called for the side effect of drawing a plot.
 #'
 #' @export
 multiseries <- function(x,...) {

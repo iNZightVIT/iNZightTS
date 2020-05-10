@@ -9,7 +9,7 @@
 #'
 #' @param obj an \code{iNZightTS} object
 #' @param ... Further arguments to be passed onto specific methods.
-#' @return NULL
+#' @return No return value, called for the side effect of drawing a plot.
 #'
 #' @seealso \code{\link{iNZightTS}}
 #'
