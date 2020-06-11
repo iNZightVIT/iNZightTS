@@ -1,3 +1,5 @@
+- fix small bug in detecting time information where `[` subset operator returns tibble/dataframe (not vector)
+
 ## iNZightTS 1.5.2
 - disable multiplicative series if any values are zero or lower
 - add appropriate subtitle to trend panel of decomposition plot
