@@ -121,7 +121,7 @@ iNZightTS <- function(data, start = 1, end, freq = 1, var = 2,
         if (is.na(time.col))
             time.col <- 1
 
-        ts.struc <- try(get.ts.structure(data[, time.col]), silent = TRUE)
+        ts.struc <- try(get.ts.structure(data[[time.col]]), silent = TRUE)
         if (inherits(ts.struc, "try-error")) {
             ts.struc <- list(start = NA, frequency = NA)
         }

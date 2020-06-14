@@ -62,4 +62,12 @@ test_that("Subset of multi series graph works", {
     expect_is(p, "gtable")
 })
 
+## covid data
+test_that("Modelling limits are OK", {
+    ct <- iNZightTS(covid, time.var = 6, var = 5)
+
+    expect_is(plot(ct, xlim = c(10, 20)), "ggplot")
+    expect_is(plot(ct), "ggplot")
+})
+
 unlink("Rplots.pdf")

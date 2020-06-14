@@ -131,7 +131,8 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
             smooth <- as.matrix(smooth)[, 1]
 
             dt <- time(decomp$components)
-            smooth <- smooth[dt >= xlim[1] & dt <= xlim[2]]
+            # due to rounding, the limits might not be exact ...
+            smooth <- smooth[dt - xlim[1] > -1e-12 & dt - xlim[2] < 1e-12]
         }
     } else {
         smoothList <- vector("list", length(obj$currVar))
@@ -153,7 +154,7 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
             else
                 z <- s$components[, "trend"]
             dt <- time(s$components)
-            z[dt >= xlim[1] & dt <= xlim[2]]
+            z[dt - xlim[1] > -1e-12 & dt - xlim[2] < 1e-12]
         }))
     }
 
@@ -176,14 +177,14 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
     if (!all(is.na(xlim))) {
         # if (forecast == 0)
         #     smooth <- smooth[ts.df$Date >= xlim[1] & ts.df$Date <= xlim[2]]
-        ts.df <- ts.df[ts.df$Date >= xlim[1] & ts.df$Date <= xlim[2], ]
+        ts.df <- ts.df[ts.df$Date - xlim[1] > -1e-12 & ts.df$Date - xlim[2] < 1e-12, ]
     }
 
     fit.df <- ts.df
     if (!is.null(model.lim)) {
         fit.df <-
-            fit.df[fit.df$Date >= model.lim[1] &
-                   fit.df$Date <= model.lim[2], ]
+            fit.df[fit.df$Date - model.lim[1] > -1e-12 &
+                   fit.df$Date - model.lim[2] < 1e-12, ]
     }
     if (forecast > 0) {
         # remove first season from the smoother
