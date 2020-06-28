@@ -1,3 +1,5 @@
+## iNZightTS 1.5.4
+- fix bug which meant passing `recompose = TRUE` to the plot method for decomposition objects was being ignored
 
 ## iNZightTS 1.5.3
 - fix small bug in detecting time information where `[` subset operator returns tibble/dataframe (not vector)

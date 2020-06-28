@@ -172,6 +172,10 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
     }
     td <- dplyr::filter(td, dplyr::between(td$Date, xlim[1], xlim[2]))
 
+    if (recompose && all(recompose.progress == 0)) {
+        recompose.progress <- c(1, nrow(td))
+    }
+
 
     ## Create ONE SINGLE plot
     ## but transform the SEASONAL and RESIDUAL components below the main data
@@ -234,7 +238,7 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
             )
         ) +
         ylim(extendrange(datarange, f = 0.05))
-    if (recompose && any(recompose > 0)) {
+    if (recompose && any(recompose.progress > 0)) {
         ri <- ifelse(recompose.progress[1] == 0,
             recompose.progress[2],
             nrow(td)
@@ -263,24 +267,15 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
                             .data$residual
                     )
                 )
+            if (!FINAL)
+                pdata <- pdata +
+                    geom_path(
+                        aes_(y = ~z),
+                        data = rtd[-(1:(ri-1)),],
+                        colour = colour[3]
+                    )
+
             pdata <- pdata +
-                # geom_path(
-                #     aes(y = ~trend),
-                #     data = rtd[1:ri, ]
-                # ) +
-                geom_path(
-                    aes_(y = ~z),
-                    data = rtd[-(1:(ri-1)),],
-                    colour = colour[3]
-                ) +
-                # geom_segment(
-                #     aes_(
-                #         y = ~value, yend = ~value - residual,
-                #         xend = ~Date
-                #     ),
-                #     data = rtd[1:ri,],
-                #     colour = colour[3]
-                # ) +
                 geom_path(
                     aes_(y = ~value),
                     data = rtd[1:ri,],
