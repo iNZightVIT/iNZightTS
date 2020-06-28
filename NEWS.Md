@@ -1,4 +1,4 @@
-
+- fix bug which meant passing `recompose = TRUE` to the plot method for decomposition objects was being ignored
 
 
 ## iNZightTS 1.5.3
