@@ -146,6 +146,7 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
 #'
 #' @describeIn decompose Plot a time series decomposition
 #' @export
+#' @import patchwork
 plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
                            recompose = any(recompose.progress > 0),
                            ylab = x$currVar, xlab = "Date",

@@ -29,7 +29,8 @@ Imports:
     rlang,
     ggtext,
     glue,
-    colorspace
+    colorspace,
+    patchwork
 Suggests:
     testthat,
     covr
