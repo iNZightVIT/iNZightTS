@@ -25,6 +25,7 @@ test_that("Decomposition and recomposition plots work", {
         plot(decompose(t, multiplicative = TRUE)),
         "inzdecomp"
     )
+    plot(d, recompose = TRUE)
 })
 
 test_that("Season plot is OK", {
