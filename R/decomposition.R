@@ -79,11 +79,14 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
             seasons.comp <- obj$tsObj * 0
             decomp <- list()
             decomp$time.series <- as.ts(
-                data.frame(
-                    seasonal = seasons.comp,
-                    trend = trend.comp,
-                    remainder = residuals.comp,
-                    stringsAsFactors = TRUE
+                structure(
+                    data.frame(
+                        seasonal = seasons.comp,
+                        trend = trend.comp,
+                        remainder = residuals.comp,
+                        stringsAsFactors = TRUE
+                    ),
+                    tsp = c(obj$start, obj$end, obj$freq)
                 )
             )
         } else {
@@ -104,6 +107,7 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
                 )
             )
         }
+        tsp(decomp$time.series) <- c(obj$start, obj$end, obj$freq)
     }
 
     decompData <- decomp$time.series    # returns matrix

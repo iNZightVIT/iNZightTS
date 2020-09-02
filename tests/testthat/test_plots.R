@@ -69,6 +69,11 @@ test_that("Unsupported plots error", {
     expect_warning(capture.output(forecastplot(tm)))
 })
 
+test_that("Annual data", {
+    t <- iNZightTS(visitorsA2)
+    expect_is(plot(t), "ggplot")
+})
+
 ## clean up
 unlink("Rplot.pdf")
 
