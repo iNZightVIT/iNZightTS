@@ -105,7 +105,7 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
                 )
             )
         }
-        tsp(decomp$time.series) <- c(obj$start, obj$end, obj$freq)
+        tsp(decomp$time.series) <- c(obj$start[1], obj$end[1], obj$freq)
     }
 
     decompData <- decomp$time.series    # returns matrix
