@@ -96,6 +96,10 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
         warning("Forecasting not available for multiplots")
         forecast <- 0
     }
+    if (freq == 1 && forecast > 0) {
+        warning("Forecasting not available for annual data")
+        forecast <- 0
+    }
 
     ### We want a trend line, so do a decomposition
     if (!smoother) {
@@ -131,6 +135,7 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
             smooth <- as.matrix(smooth)[, 1]
 
             dt <- time(decomp$components)
+            # print(dt)
             # due to rounding, the limits might not be exact ...
             smooth <- smooth[dt - xlim[1] > -1e-12 & dt - xlim[2] < 1e-12]
         }

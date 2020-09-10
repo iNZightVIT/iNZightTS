@@ -139,13 +139,15 @@ iNZightTS <- function(data, start = 1, end, freq = 1, var = 2,
         inzightts$freq <- freq
         ## calculate end if it is missing
         if (missing(end)) {
-            if (length(start) > 1L) {
+            n <- nrow(data)
+            if (length(start) > 1L && freq > 1) {
                 end <- numeric(2)
                 end[1] <- start[1] +
-                    (length(data[, var[1]]) + start[2] - 1) %/% freq
-                end[2] <- (length(data[, var[1]]) + start[2] - 1) %% freq
+                    (n + start[2] - 1) %/% freq
+                end[2] <- (n + start[2] - 1) %% freq
             } else{
-                end <- start + length(data[, var[1]]) - 1
+                start <- start[1]
+                end <- start[1] + n - 1
             }
         }
         inzightts$end <- end

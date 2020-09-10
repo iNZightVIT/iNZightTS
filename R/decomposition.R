@@ -41,11 +41,12 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
 
     n <- length(obj$data)
 
+    if (multiplicative)
+        tsObj <- log(obj$tsObj)
+    else
+        tsObj <- obj$tsObj
+
     if (obj$freq > 1) {
-        if (multiplicative)
-            tsObj <- log(obj$tsObj)
-        else
-            tsObj <- obj$tsObj
         ### t.window is the smallest odd integer ranges from about 1.5*frequceny to 2*frequency
         ### the actual minimum value is  1.5 * frequency/(1 - 1.5/s.window)
         ### where s.window = 10* number of observation +1 by putting 'periodic'
@@ -104,6 +105,7 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
                 )
             )
         }
+        tsp(decomp$time.series) <- c(obj$start[1], obj$end[1], obj$freq)
     }
 
     decompData <- decomp$time.series    # returns matrix
