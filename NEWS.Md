@@ -1,3 +1,4 @@
+## iNZightTS 1.5.5
 - fix bug preventing basic plots from working for annual data
 
 ## iNZightTS 1.5.4
