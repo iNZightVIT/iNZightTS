@@ -72,6 +72,10 @@ test_that("Unsupported plots error", {
 test_that("Annual data", {
     t <- iNZightTS(visitorsA2)
     expect_is(plot(t), "ggplot")
+    expect_warning(
+        plot(t, forecast = 2),
+        "Forecasting not available for annual data"
+    )
 })
 
 ## clean up
