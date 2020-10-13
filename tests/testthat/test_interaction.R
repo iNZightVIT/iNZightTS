@@ -5,7 +5,8 @@ skip_if(
     length(find.package("iNZightPlots", quiet = TRUE)) == 0,
     message = "iNZightPlots package not available."
 )
-can.interact <- eval(parse(text = "iNZightPlots::can.interact"))
+eval(parse(text = "library(iNZightPlots)"))
+can.interact <- eval(parse(text = "can.interact"))
 
 data(visitorsQ)
 t <- iNZightTS(visitorsQ)

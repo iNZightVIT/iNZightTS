@@ -312,7 +312,7 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
     pdata <- pdata +
         theme(
             plot.title.position = "plot",
-            plot.subtitle = ggtext:::element_markdown()
+            plot.subtitle = ggtext::element_markdown()
         )
 
     pseason <- p0 +
