@@ -1,5 +1,5 @@
+## iNZightTS 1.5.6
 - add colour legend to subtitle of decomposition plot
-
 
 ## iNZightTS 1.5.5
 - fix bug preventing basic plots from working for annual data
