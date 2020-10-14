@@ -2,10 +2,11 @@ context("Plot interactivity helper functions")
 
 skip_on_cran()
 skip_if(
-    length(find.package("iNZightPlots2", quiet = TRUE)) == 0,
+    length(find.package("iNZightPlots", quiet = TRUE)) == 0,
     message = "iNZightPlots package not available."
 )
-can.interact <- eval(parse(text = "iNZightPlots::can.interact"))
+eval(parse(text = "library(iNZightPlots)"))
+can.interact <- eval(parse(text = "can.interact"))
 
 data(visitorsQ)
 t <- iNZightTS(visitorsQ)

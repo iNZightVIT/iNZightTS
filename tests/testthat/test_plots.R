@@ -25,6 +25,7 @@ test_that("Decomposition and recomposition plots work", {
         plot(decompose(t, multiplicative = TRUE)),
         "inzdecomp"
     )
+    plot(d, recompose = TRUE)
 })
 
 test_that("Season plot is OK", {
@@ -46,9 +47,9 @@ test_that("Forecast is fine", {
 ## multi series
 tm <- iNZightTS(visitorsQ, var = 2:5)
 test_that("Multi series graph works", {
-    expect_is(plot(tm), "gtable")
-    expect_is(plot(tm, multiplicative = TRUE), "gtable")
-    expect_is(plot(tm, smoother = FALSE), "gtable")
+    expect_is(plot(tm), "patchwork")
+    expect_is(plot(tm, multiplicative = TRUE), "patchwork")
+    expect_is(plot(tm, smoother = FALSE), "patchwork")
     expect_is(suppressWarnings(plot(tm, compare = FALSE)), "gtable")
     expect_is(
         suppressWarnings(plot(tm, compare = FALSE, multiplicative = TRUE)),

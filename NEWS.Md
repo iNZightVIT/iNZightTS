@@ -1,4 +1,4 @@
-
+- add colour legend to subtitle of decomposition plot
 
 
 ## iNZightTS 1.5.5
