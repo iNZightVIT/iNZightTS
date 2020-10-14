@@ -18,6 +18,7 @@
   col = ifelse(forecast > 0, "#0e8c07", "red"),
   xlim = c(NA, NA),
   model.lim = NULL,
+  seasonal.trend = FALSE,
   forecast = 0,
   ...
 )
@@ -50,6 +51,8 @@ it will be about ASPECT times wider than it is high}
 \item{xlim}{axis limits, specified as dates}
 
 \item{model.lim}{limits of the series to use for modelling/forecast}
+
+\item{seasonal.trend}{logical, if \code{TRUE} seasonal+trend curve added}
 
 \item{forecast}{numeric, how many observations ahead to forecast (default is 0, no forecast)}
 

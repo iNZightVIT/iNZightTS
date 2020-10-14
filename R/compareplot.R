@@ -53,36 +53,15 @@ plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE,
             yratio <- attr(p2, "yratio")
             if (multiplicative || is.null(yratio)) yratio <- 4/6
 
-            ## extract legend
-            tmp <- ggplot_gtable(ggplot_build(p2))
-            legend <- tmp$grobs[[
-                which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
-            ]]
-            p2 <- p2 + theme(legend.position = "none")
-
-            ## ensure LHS axes are the same widths
-            p1 <- ggplot_gtable(ggplot_build(p1))
-
-            # if (!multiplicative) {
-            #   ## first, make scales the same ...
-            #   yr <- range(x$tsObj)
-            #   yr <- yr - mean(yr)
-            #   p2 <- p2 + ylim(yr)
-            # }
-
-            p2 <- ggplot_gtable(ggplot_build(p2))
-            max.width <- unit.pmax(p1$widths[2:3], p2$widths[2:3])
-            p1$widths[2:3] <- max.width
-            p2$widths[2:3] <- max.width
-
+            p <- p1 / (p2 + patchwork::guide_area() + patchwork::plot_layout(guides = "collect")) +
+                patchwork::plot_layout(
+                    heights = c(1, yratio),
+                    width = c(6, 4)
+                )
 
             dev.hold()
             on.exit(dev.flush())
-            gridExtra::grid.arrange(
-                p1, p2, legend,
-                layout_matrix = rbind(c(1, 1), c(2, 3)),
-                heights = c(1, yratio), widths = c(6, 4)
-            )
+            return(p)
         } else {
             ## don't show the seasonal effects (because there aren't any!)
             p1 <- p1 + theme(legend.position = "bottom")
@@ -112,8 +91,36 @@ plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE,
                 aspect = NULL,
                 plot = FALSE,
                 xlim = xlim,
-                model.lim = model.lim
+                model.lim = model.lim,
+                seasonal.trend = TRUE
             )
+            if (i == 1) {
+                pp <- ggplot_build(plist[[i]])
+                pxr <- pp$layout$panel_scales_x[[1]]$range$range
+                pyr <- pp$layout$panel_scales_y[[1]]$range$range
+
+                pcol <- pp$plot$scales$scales[[1]]$palette(3)
+
+                plist[[i]] <- plist[[i]] +
+                    annotate(
+                        "text",
+                        x = pxr[1],
+                        y = pyr[2] - 0.05 * diff(pyr),
+                        label = "Trend",
+                        color = pcol["Fitted"],
+                        size = 3,
+                        hjust = "left"
+                    ) +
+                    annotate(
+                        "text",
+                        x = pxr[1],
+                        y = pyr[2] - 0.15 * diff(pyr),
+                        label = "Trend + Seasonal",
+                        color = pcol[3],
+                        size = 3,
+                        hjust = "left"
+                    )
+            }
             if (i < Np) plist[[i]] <- plist[[i]] + xlab("")
 
             if (x$freq > 1) {
@@ -159,7 +166,6 @@ plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE,
 
         dev.hold()
         do.call(gridExtra::grid.arrange, plist)
-        # dev.flush()
     }
 }
 

@@ -21,6 +21,7 @@
 #' @param col the colour of the smoothed trend line
 #' @param xlim axis limits, specified as dates
 #' @param model.lim limits of the series to use for modelling/forecast
+#' @param seasonal.trend logical, if \code{TRUE} seasonal+trend curve added
 #' @param forecast numeric, how many observations ahead to forecast (default is 0, no forecast)
 #' @param ... additional arguments (not used)
 #' @return a time series plot (constructed with ggplot2) is returned invisibly,
@@ -62,6 +63,7 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
                            col = ifelse(forecast > 0, "#0e8c07", "red"),
                            xlim = c(NA, NA),
                            model.lim = NULL,
+                           seasonal.trend = FALSE,
                            forecast = 0,
                            ...) {
 
@@ -123,21 +125,27 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
                 stringsAsFactors = TRUE
             )
         } else {
-            decomp = decompose(obj,
+            decomp <- decompose(obj,
                 ylab = "",
                 multiplicative = multiplicative,
                 t = t,
                 model.lim = model.lim)$decompVars
             if (multiplicative)
-              smooth = exp(log(decomp$components[,"trend"]))
+              smooth <- exp(log(decomp$components[,"trend"]))
             else
-              smooth = decomp$components[,"trend"]
+              smooth <- decomp$components[,"trend"]
             smooth <- as.matrix(smooth)[, 1]
 
             dt <- time(decomp$components)
             # print(dt)
             # due to rounding, the limits might not be exact ...
             smooth <- smooth[dt - xlim[1] > -1e-12 & dt - xlim[2] < 1e-12]
+
+            if (seasonal.trend) {
+                ssn <- decomp$components[, "seasonal"]
+                ssn <- ssn[dt - xlim[1] > -1e-12 & dt - xlim[2] < 1e-12]
+                ssn <- if (multiplicative) smooth * ssn else smooth + ssn
+            }
         }
     } else {
         smoothList <- vector("list", length(obj$currVar))
@@ -226,6 +234,7 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
         )
     } else if (!is.null(smooth)) {
         fit.df$smooth <- smooth
+        if (seasonal.trend) fit.df$season.smooth <- ssn
     }
 
     if (grepl("%var", title))
@@ -245,7 +254,11 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
     if (!multiseries && forecast == 0)
         tsplot <- tsplot +
             scale_colour_manual(
-                values = c(Fitted = col, "Raw data" = "black"),
+                values = c(
+                    Fitted = col,
+                    "Raw data" = "black",
+                    if (seasonal.trend) "Trend + Seasonal" = "green4" else NULL
+                ),
                 guide = FALSE
             )
 
@@ -293,6 +306,12 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
     else
         tsplot <- tsplot + geom_line(aes(colour = "Raw data"), lwd = 1)
     if (!is.null(smooth)) {
+        if (seasonal.trend)
+            tsplot <- tsplot +
+                geom_path(aes_(x = ~Date, y = ~season.smooth, color = "Trend + Seasonal"),
+                    data = fit.df, na.rm = TRUE,
+                    lwd = 0.5)
+
         tsplot <-
             if (multiseries)
                 tsplot + geom_line(aes_(x = ~Date, y = ~smooth, color = ~variable),
