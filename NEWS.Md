@@ -1,4 +1,5 @@
-
+## iNZightTS 1.5.7
+- print comparison plots so they are always shown in the graphics device
 
 ## iNZightTS 1.5.6
 - add colour legend to subtitle of decomposition plot

@@ -31,6 +31,7 @@ plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE,
 
     multiplicative <- is_multiplicative(x$tsObj, multiplicative)
 
+    dev.hold()
     on.exit(dev.flush())
     if (compare) {
         ## fetch the main time series plot
@@ -59,16 +60,12 @@ plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE,
                     width = c(6, 4)
                 )
 
-            dev.hold()
-            on.exit(dev.flush())
-            return(p)
         } else {
             ## don't show the seasonal effects (because there aren't any!)
-            p1 <- p1 + theme(legend.position = "bottom")
-            dev.hold()
-            p1
-            # dev.flush()
+            p <- p1 + theme(legend.position = "bottom")
         }
+        print(p)
+        return(invisible(p))
     } else {
         ## each series in its own row
         Np <- length(x$currVar)
@@ -164,7 +161,6 @@ plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE,
             plist$layout_matrix <- cbind(1:Np)
         }
 
-        dev.hold()
         do.call(gridExtra::grid.arrange, plist)
     }
 }
