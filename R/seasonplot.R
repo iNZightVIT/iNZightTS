@@ -80,7 +80,7 @@ seasonplot.iNZightTS <- function(obj, multiplicative = FALSE, t = 10, model.lim 
         geom_point() +
         geom_path() +
         scale_colour_gradient(
-            low = "darkorange", high = "blue", guide = FALSE
+            low = "darkorange", high = "blue", guide = "none"
         ) +
         labs(
             title = sprintf("Seasonal plot for %s", obj$currVar),

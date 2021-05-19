@@ -1,6 +1,6 @@
 ## Test environments
-* local ubuntu 18.04, R 4.0.2
-* ubuntu 20.04 (on travis-ci) R oldrel, release, and devel
+* local ubuntu 20.04, R 4.0.5
+* ubuntu 20.04 (on travis-ci) R release and devel
 * macos (on travis-ci), R release
 * win-builder (devel and release)
 
