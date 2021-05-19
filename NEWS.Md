@@ -1,5 +1,5 @@
-
-
+## iNZightTS 1.5.8
+- change arguments to avoid deprecation arguments with next ggplot2 release (#62)
 
 ## iNZightTS 1.5.7
 - print comparison plots so they are always shown in the graphics device

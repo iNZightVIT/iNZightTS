@@ -259,7 +259,7 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
                     "Raw data" = "black",
                     if (seasonal.trend) "Trend + Seasonal" = "green4" else NULL
                 ),
-                guide = FALSE
+                guide = "none"
             )
 
     if (plot && animate && !multiseries) {
