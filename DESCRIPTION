@@ -15,7 +15,6 @@ Depends:
 Imports:
     colorspace,
     dplyr,
-    egg,
     forcats,
     ggplot2,
     ggtext,
