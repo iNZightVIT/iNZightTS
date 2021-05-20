@@ -40,7 +40,7 @@
 #' C.C Holt (1957)
 #' Forecasting seasonals and trends by exponentially weighted
 #' moving averages,
-#' ONR Research Memorandum, Carnigie Institute 52.
+#' ONR Research Memorandum, Carnegie Institute 52.
 #'
 #' P.R Winters (1960)
 #' Forecasting sales by exponentially weighted moving averages,
@@ -355,7 +355,7 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
 #' Time series plot - depreciated
 #' @param ... arguments passed to `plot` method
 #' @export
-#' @return Called to draw a plot. Inivisbly returns a \code{ggplot} object.
+#' @return Called to draw a plot. Invisibly returns a \code{ggplot} object.
 rawplot <- function(...) {
     warning("Depreciated: use `plot()` instead.\n")
     plot(...)
