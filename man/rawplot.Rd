@@ -10,7 +10,7 @@ rawplot(...)
 \item{...}{arguments passed to `plot` method}
 }
 \value{
-Called to draw a plot. Inivisbly returns a \code{ggplot} object.
+Called to draw a plot. Invisibly returns a \code{ggplot} object.
 }
 \description{
 Time series plot - depreciated
