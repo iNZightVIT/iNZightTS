@@ -81,93 +81,80 @@
 #' plot(y)
 #'
 #' @export
-iNZightTS <- function(data, start = 1, end, freq = 1, var = 2,
-                      time.col = grep("time", names(data), ignore.case = TRUE)[1],
-                      ...) {
+iNZightTS <- function(data, index = guess_index_var(data),
+                      key = guess_key_var(data), fill_time_gaps = TRUE, ...) {
+  data[[index]] <- clean_index_format(data[[index]])
 
-    inzightts <- list()
+  inzightts <- as_tsibble(data, index = index, key = key, ...)
 
-    ## if the input is an object of class "ts", just extract info
-    if (methods::is(data, "ts")) {
-        inzightts$start <- stats::start(data)
-        inzightts$end <- stats::end(data)
-        inzightts$freq <- stats::frequency(data)
-        inzightts$tsObj <- data
-        if (is.null(dim(data))) {
-            inzightts$currVar <- 1
-            inzightts$data <- as.vector(data)
-        } else {
-            if (is.null(colnames(data)))
-                inzightts$currVar <- 1:dim(data)[2]
-            else
-                inzightts$currVar <- colnames(data)
-            inzightts$data <- data.frame(
-                matrix(as.vector(data), ncol=dim(data)[2]),
-                stringsAsFactors = TRUE
-            )
-            colnames(inzightts$data) <- colnames(data)
-        }
-    } else {
-        ## use either a data.frame or a file location as input
-        if (is.character(data))
-            data <- read.csv(data, as.is=TRUE, ..., stringsAsFactors = TRUE)
+  if (fill_time_gaps) inzightts <- tsibble::fill_gaps(inzightts)
 
-        inzightts <- list()
-        inzightts$data <- data
+  # class(inzightts) <- c("iNZightTS", class(inzightts))
+  # if (ncol(inzightts) - length(tsibble::key_vars(inzightts)) > 2) {
+  #   class(inzightts) <- c("iNZightMTS", class(inzightts))
+  # }
 
-        ## try to find the time column
-        ## search through the names
+  inzightts
+}
 
-        if (is.na(time.col))
-            time.col <- 1
 
-        ts.struc <- try(get.ts.structure(data[[time.col]]), silent = TRUE)
-        if (inherits(ts.struc, "try-error")) {
-            ts.struc <- list(start = NA, frequency = NA)
-        }
+guess_index_var <- function(data) { ## To be completed: more criteria
+  index_candidate <- purrr::map_chr(colnames(data), function(x) {
+    index_var_name <- NA
 
-        if (missing(start))
-            start <- ts.struc$start
-
-        if (missing(freq))
-            freq <- ts.struc$frequency
-
-        if (any(c(is.na(start), is.na(freq))))
-            stop("Unable to construct time series object: missing values, perhaps?")
-
-        inzightts$start <- start
-        inzightts$freq <- freq
-        ## calculate end if it is missing
-        if (missing(end)) {
-            n <- nrow(data)
-            if (length(start) > 1L && freq > 1) {
-                end <- numeric(2)
-                end[1] <- start[1] +
-                    (n + start[2] - 1) %/% freq
-                end[2] <- (n + start[2] - 1) %% freq
-            } else{
-                start <- start[1]
-                end <- start[1] + n - 1
-            }
-        }
-        inzightts$end <- end
-        inzightts$tsObj <- ts(
-            data[, var],
-            start = start,
-            end = end,
-            frequency = freq
-        )
-        if (is.numeric(var))
-            inzightts$currVar <- names(data)[var]
-        else
-            inzightts$currVar <- var
+    ## If variable name contains "date" or "time"
+    if (grepl("date|time", tolower(x))) {
+      index_var_name <- x
     }
 
-    class(inzightts) <- "iNZightTS"
-    if (length(inzightts$currVar) > 1)
-        class(inzightts) <- c("iNZightMTS", "iNZightTS")
+    ## If exists month or day of week labels
+    patt <- as.character(lubridate::month(seq_len(12), label = TRUE)) %>%
+      c(as.character(lubridate::wday(seq_len(7), label = TRUE))) %>%
+      paste(collapse = "|") %>%
+      tolower()
+    if (any(grepl(patt, tolower(data[[x]])))) {
+      index_var_name <- x
+    }
 
-    inzightts
+    ## If exists leading or trailing 4-digit numbers
+    if (all(grepl("^[0-9]{4}|[0-9]{4}$", data[[x]]))) {
+      index_var_name <- x
+    }
+
+    index_var_name
+  })
+
+  ## Assume index variable likely to be one of the firsts
+  if (all(is.na(index_candidate))) {
+    colnames(data)[1]
+  } else {
+    na.omit(index_candidate)[1]
+  }
+}
+
+
+guess_key_var <- function(data) { # TODO
+  NULL
+}
+
+
+clean_index_format <- function(x) { ## To be completed: more formats
+  ## If index is in year-month format
+  if (all(grepl("[0-9]{4}M[0-9]{2}", x))) {
+    x <- tsibble::yearmonth(as.character(x))
+  }
+
+  ## If index is in year-quarter format
+  if (all(grepl("[0-9]{4}Q[0-9]{1}", x))) {
+    x <- tsibble::yearquarter(as.character(x))
+  }
+
+  ## If index is in year-week format
+  if (all(grepl("[0-9]{4}W[0-9]{2}", x))) {
+    x <- tsibble::yearweek(as.character(x))
+  }
+
+  x
 }
 
 
