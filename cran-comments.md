@@ -1,8 +1,9 @@
 ## Test environments
-* local ubuntu 20.04, R 4.0.5
-* ubuntu 20.04 (on travis-ci) R release and devel
-* macos (on travis-ci), R release
-* win-builder (devel and release)
+
+- local ubuntu 21.04, R 4.1.0
+- ubuntu 21.04 (on travis-ci) R release
+- macos (on travis-ci), R release
+- win-builder (devel and release)
 
 ## R CMD check results
 
@@ -10,4 +11,4 @@
 
 ## Downstream dependencies
 
-There are currently no downstream dependencies for this package.
+There are no downstream dependencies for this package.
