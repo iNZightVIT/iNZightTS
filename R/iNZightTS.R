@@ -152,7 +152,7 @@ iNZightTS <- function(data, start = 1, end, freq = 1, var = 2,
         }
         inzightts$end <- end
         inzightts$tsObj <- ts(
-            data[, var],
+            data[, var, drop = TRUE],
             start = start,
             end = end,
             frequency = freq
