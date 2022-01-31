@@ -1,3 +1,5 @@
+## iNZightTS 1.5.9
+
 - fix bug that occurs if data passed to `iNZightTS()` is a tibble
 
 ## iNZightTS 1.5.8
