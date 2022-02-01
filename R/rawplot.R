@@ -64,7 +64,10 @@ plot.inzightts <- function(x, xlab = NULL, ylab = NULL, title = NULL, plot = TRU
     }
 
     if (is.null(xlab)) {
-        xlab <- stringr::str_to_title(class(x$index)[1])
+        xlab <- case_when(
+            is.numeric(x$index) ~ "Year",
+            TRUE ~ stringr::str_to_title(class(x$index)[1])
+        )
     }
     x <- dplyr::rename(x, !!xlab := index)
 
