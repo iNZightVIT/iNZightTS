@@ -17,6 +17,15 @@
 #' iNZightTS(UKgas)
 #'
 #' @export
+print.inzightts <- function(x, pivot_wider = TRUE) {
+    if (pivot_wider | tsibble::n_keys(x) == 1) {
+        print(tidyr::pivot_wider(x, names_from = key, values_from = value))
+    } else {
+        tibble:::print.tbl(x)
+    }
+}
+
+
 print.iNZightTS <- function(x, full = FALSE, ...) {
     writeLines("Current Variable:")
     print(x$currVar)

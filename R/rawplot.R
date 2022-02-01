@@ -54,6 +54,55 @@
 #' plot(t, forecast = 8)
 #'
 #' @export
+plot.inzightts <- function(x, xlab = NULL, ylab = NULL, title = NULL, plot = TRUE,
+                           xlim = NULL, aspect = 3, compare = TRUE) {
+    if (!is.null(xlim)) {
+        if (is.numeric(xlim)) {
+            xlim <- lubridate::ymd(paste0(xlim, c("0101", "1231")))
+        }
+        x <- dplyr::filter(x, dplyr::between(index, xlim[1], xlim[2]))
+    }
+
+    if (is.null(xlab)) {
+        xlab <- stringr::str_to_title(class(x$index)[1])
+    }
+    x <- dplyr::rename(x, !!xlab := index)
+
+    if (is.null(ylab)) {
+        ylab <- case_when(
+            tsibble::n_keys(x) > 1 ~ "Value", ## If is MTS
+            TRUE ~ tsibble::key_data(x)$key ## If is TS
+        )
+    }
+    if (is.null(title)) {
+        title <- case_when(
+            tsibble::n_keys(x) > 1 ~ "", ## If is MTS
+            TRUE ~ tsibble::key_data(x)$key ## If is TS
+        )
+    }
+
+    p <- fabletools::autoplot(x, size = 1) +
+        ggplot2::labs(y = ylab, title = title) +
+        ggplot2::theme(
+            legend.position = case_when(compare ~ "top", TRUE ~ "none"),
+            legend.title = element_blank()
+        )
+
+    if (!is.null(aspect) & compare) {
+        p <- p +
+            coord_fixed(ratio = diff(range(lubridate::as_date(x[[xlab]]))) /
+                diff(range(x$value)) / aspect)
+    }
+    if (!compare & tsibble::n_keys(x) > 1) {
+        p <- p + facet_wrap(~key, ncol = 1)
+    }
+
+    if (plot) print(p)
+
+    invisible(p)
+}
+
+
 plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab = "Date",
                            title = "%var",
                            animate = FALSE,
