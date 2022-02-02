@@ -54,8 +54,10 @@
 #' plot(t, forecast = 8)
 #'
 #' @export
-plot.inzightts <- function(x, xlab = NULL, ylab = NULL, title = NULL, plot = TRUE,
-                           xlim = NULL, aspect = 3, compare = TRUE) {
+plot.inzightts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
+                           plot = TRUE, xlim = NULL, aspect = 3, compare = TRUE) {
+    var <- feasts:::guess_plot_var(x, !!enquo(var))
+
     if (!is.null(xlim)) {
         if (is.numeric(xlim)) {
             xlim <- lubridate::ymd(paste0(xlim, c("0101", "1231")))
@@ -73,18 +75,18 @@ plot.inzightts <- function(x, xlab = NULL, ylab = NULL, title = NULL, plot = TRU
 
     if (is.null(ylab)) {
         ylab <- case_when(
-            tsibble::n_keys(x) > 1 ~ "Value", ## If is MTS
-            TRUE ~ tsibble::key_data(x)$key ## If is TS
+            tsibble::n_keys(x) > 1 ~ "Value",
+            TRUE ~ as.character(var)
         )
     }
     if (is.null(title)) {
         title <- case_when(
-            tsibble::n_keys(x) > 1 ~ "", ## If is MTS
-            TRUE ~ tsibble::key_data(x)$key ## If is TS
+            tsibble::n_keys(x) > 1 ~ "",
+            TRUE ~ as.character(var)
         )
     }
 
-    p <- fabletools::autoplot(x, size = 1) +
+    p <- fabletools::autoplot(x, !!var, size = 1) +
         ggplot2::labs(y = ylab, title = title) +
         ggplot2::theme(
             legend.position = case_when(compare ~ "top", TRUE ~ "none"),
@@ -92,9 +94,10 @@ plot.inzightts <- function(x, xlab = NULL, ylab = NULL, title = NULL, plot = TRU
         )
 
     if (!is.null(aspect) & compare) {
-        p <- p +
-            coord_fixed(ratio = diff(range(lubridate::as_date(x[[xlab]]))) /
-                diff(range(x$value)) / aspect)
+        p <- p + coord_fixed(
+            ratio = diff(range(lubridate::as_date(x[[xlab]]), na.rm = TRUE)) /
+                diff(range(x[[as.character(var)]], na.rm = TRUE)) / aspect
+        )
     }
     if (!compare & tsibble::n_keys(x) > 1) {
         p <- p + facet_wrap(~key, ncol = 1)

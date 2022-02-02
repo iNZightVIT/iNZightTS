@@ -162,17 +162,18 @@ inzightts <- function(data, start = 1, end, freq = 1, var = 2,
         else
             inzightts$currVar <- var
     }
-    
+
     if (length(inzightts$currVar) > 1) {
-        inzightts <- tsibble::as_tsibble(inzightts$tsObj)
+        inzightts <- tsibble::as_tsibble(inzightts$tsObj, pivot_longer = FALSE)
     } else {
         inzightts <- inzightts$tsObj %>%
             tsibble::as_tsibble() %>%
-            dplyr::mutate(key = inzightts$currVar) %>%
-            tsibble::update_tsibble(key = key)
+            dplyr::rename(!!inzightts$currVar := value)
     }
-    
-    tsibble::new_tsibble(inzightts, class = "inzightts")
+
+    inzightts %>%
+        tsibble::fill_gaps() %>%
+        tsibble::new_tsibble(class = "inzightts")
 }
 
 
