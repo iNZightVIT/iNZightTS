@@ -81,102 +81,6 @@
 #' plot(y)
 #'
 #' @export
-inzightts <- function(data, start = 1, end, freq = 1, var = 2,
-                          time.col = grep("time", names(data), ignore.case = TRUE)[1],
-                          ...) {
-    
-    inzightts <- list()
-    
-    ## if the input is an object of class "ts", just extract info
-    if (methods::is(data, "ts")) {
-        inzightts$start <- stats::start(data)
-        inzightts$end <- stats::end(data)
-        inzightts$freq <- stats::frequency(data)
-        inzightts$tsObj <- data
-        if (is.null(dim(data))) {
-            inzightts$currVar <- 1
-            inzightts$data <- as.vector(data)
-        } else {
-            if (is.null(colnames(data)))
-                inzightts$currVar <- 1:dim(data)[2]
-            else
-                inzightts$currVar <- colnames(data)
-            inzightts$data <- data.frame(
-                matrix(as.vector(data), ncol=dim(data)[2]),
-                stringsAsFactors = TRUE
-            )
-            colnames(inzightts$data) <- colnames(data)
-        }
-    } else {
-        ## use either a data.frame or a file location as input
-        if (is.character(data))
-            data <- read.csv(data, as.is=TRUE, ..., stringsAsFactors = TRUE)
-        
-        inzightts <- list()
-        inzightts$data <- data
-        
-        ## try to find the time column
-        ## search through the names
-        
-        if (is.na(time.col))
-            time.col <- 1
-        
-        ts.struc <- try(get.ts.structure(data[[time.col]]), silent = TRUE)
-        if (inherits(ts.struc, "try-error")) {
-            ts.struc <- list(start = NA, frequency = NA)
-        }
-        
-        if (missing(start))
-            start <- ts.struc$start
-        
-        if (missing(freq))
-            freq <- ts.struc$frequency
-        
-        if (any(c(is.na(start), is.na(freq))))
-            stop("Unable to construct time series object: missing values, perhaps?")
-        
-        inzightts$start <- start
-        inzightts$freq <- freq
-        ## calculate end if it is missing
-        if (missing(end)) {
-            n <- nrow(data)
-            if (length(start) > 1L && freq > 1) {
-                end <- numeric(2)
-                end[1] <- start[1] +
-                    (n + start[2] - 1) %/% freq
-                end[2] <- (n + start[2] - 1) %% freq
-            } else{
-                start <- start[1]
-                end <- start[1] + n - 1
-            }
-        }
-        inzightts$end <- end
-        inzightts$tsObj <- ts(
-            data[, var],
-            start = start,
-            end = end,
-            frequency = freq
-        )
-        if (is.numeric(var))
-            inzightts$currVar <- names(data)[var]
-        else
-            inzightts$currVar <- var
-    }
-
-    if (length(inzightts$currVar) > 1) {
-        inzightts <- tsibble::as_tsibble(inzightts$tsObj, pivot_longer = FALSE)
-    } else {
-        inzightts <- inzightts$tsObj %>%
-            tsibble::as_tsibble() %>%
-            dplyr::rename(!!inzightts$currVar := value)
-    }
-
-    inzightts %>%
-        tsibble::fill_gaps() %>%
-        tsibble::new_tsibble(class = "inzightts")
-}
-
-
 iNZightTS <- function(data, start = 1, end, freq = 1, var = 2,
                       time.col = grep("time", names(data), ignore.case = TRUE)[1],
                       ...) {
@@ -621,4 +525,101 @@ get.ts.structure <- function(vardata) {
         ## return  NA
         return(list(start = NA, frequency = NA))
     }
+}
+
+
+#' @export
+inzightts <- function(data, start = 1, end, freq = 1, var = 2,
+                      time.col = grep("time", names(data), ignore.case = TRUE)[1],
+                      ...) {
+    
+    inzightts <- list()
+    
+    ## if the input is an object of class "ts", just extract info
+    if (methods::is(data, "ts")) {
+        inzightts$start <- stats::start(data)
+        inzightts$end <- stats::end(data)
+        inzightts$freq <- stats::frequency(data)
+        inzightts$tsObj <- data
+        if (is.null(dim(data))) {
+            inzightts$currVar <- 1
+            inzightts$data <- as.vector(data)
+        } else {
+            if (is.null(colnames(data)))
+                inzightts$currVar <- 1:dim(data)[2]
+            else
+                inzightts$currVar <- colnames(data)
+            inzightts$data <- data.frame(
+                matrix(as.vector(data), ncol=dim(data)[2]),
+                stringsAsFactors = TRUE
+            )
+            colnames(inzightts$data) <- colnames(data)
+        }
+    } else {
+        ## use either a data.frame or a file location as input
+        if (is.character(data))
+            data <- read.csv(data, as.is=TRUE, ..., stringsAsFactors = TRUE)
+        
+        inzightts <- list()
+        inzightts$data <- data
+        
+        ## try to find the time column
+        ## search through the names
+        
+        if (is.na(time.col))
+            time.col <- 1
+        
+        ts.struc <- try(get.ts.structure(data[[time.col]]), silent = TRUE)
+        if (inherits(ts.struc, "try-error")) {
+            ts.struc <- list(start = NA, frequency = NA)
+        }
+        
+        if (missing(start))
+            start <- ts.struc$start
+        
+        if (missing(freq))
+            freq <- ts.struc$frequency
+        
+        if (any(c(is.na(start), is.na(freq))))
+            stop("Unable to construct time series object: missing values, perhaps?")
+        
+        inzightts$start <- start
+        inzightts$freq <- freq
+        ## calculate end if it is missing
+        if (missing(end)) {
+            n <- nrow(data)
+            if (length(start) > 1L && freq > 1) {
+                end <- numeric(2)
+                end[1] <- start[1] +
+                    (n + start[2] - 1) %/% freq
+                end[2] <- (n + start[2] - 1) %% freq
+            } else{
+                start <- start[1]
+                end <- start[1] + n - 1
+            }
+        }
+        inzightts$end <- end
+        inzightts$tsObj <- ts(
+            data[, var],
+            start = start,
+            end = end,
+            frequency = freq
+        )
+        if (is.numeric(var))
+            inzightts$currVar <- names(data)[var]
+        else
+            inzightts$currVar <- var
+    }
+    
+    if (length(inzightts$currVar) > 1) {
+        inzightts <- tsibble::as_tsibble(inzightts$tsObj, pivot_longer = FALSE)
+    } else {
+        inzightts <- inzightts$tsObj %>%
+            tsibble::as_tsibble() %>%
+            dplyr::rename(!!inzightts$currVar := value)
+    }
+    
+    inzightts %>%
+        tsibble::fill_gaps() %>%
+        tsibble::new_tsibble(class = "inzightts")
 }

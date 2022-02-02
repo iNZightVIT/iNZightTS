@@ -54,61 +54,6 @@
 #' plot(t, forecast = 8)
 #'
 #' @export
-plot.inzightts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
-                           plot = TRUE, xlim = NULL, aspect = 3, compare = TRUE) {
-    var <- feasts:::guess_plot_var(x, !!enquo(var))
-
-    if (!is.null(xlim)) {
-        if (is.numeric(xlim)) {
-            xlim <- lubridate::ymd(paste0(xlim, c("0101", "1231")))
-        }
-        x <- dplyr::filter(x, dplyr::between(index, xlim[1], xlim[2]))
-    }
-
-    if (is.null(xlab)) {
-        xlab <- case_when(
-            is.numeric(x$index) ~ "Year",
-            TRUE ~ stringr::str_to_title(class(x$index)[1])
-        )
-    }
-    x <- dplyr::rename(x, !!xlab := index)
-
-    if (is.null(ylab)) {
-        ylab <- case_when(
-            tsibble::n_keys(x) > 1 ~ "Value",
-            TRUE ~ as.character(var)
-        )
-    }
-    if (is.null(title)) {
-        title <- case_when(
-            tsibble::n_keys(x) > 1 ~ "",
-            TRUE ~ as.character(var)
-        )
-    }
-
-    p <- fabletools::autoplot(x, !!var, size = 1) +
-        ggplot2::labs(y = ylab, title = title) +
-        ggplot2::theme(
-            legend.position = case_when(compare ~ "top", TRUE ~ "none"),
-            legend.title = element_blank()
-        )
-
-    if (!is.null(aspect) & compare) {
-        p <- p + coord_fixed(
-            ratio = diff(range(lubridate::as_date(x[[xlab]]), na.rm = TRUE)) /
-                diff(range(x[[as.character(var)]], na.rm = TRUE)) / aspect
-        )
-    }
-    if (!compare & tsibble::n_keys(x) > 1) {
-        p <- p + facet_wrap(~key, ncol = 1)
-    }
-
-    if (plot) print(p)
-
-    invisible(p)
-}
-
-
 plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab = "Date",
                            title = "%var",
                            animate = FALSE,
@@ -421,3 +366,59 @@ rawplot <- function(...) {
 #' @return a time series forecasts object
 #' @export
 pred <- function(x) attr(x, "predictions")
+
+
+#' @export
+plot.inzightts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
+                           plot = TRUE, xlim = NULL, aspect = 3, compare = TRUE) {
+    var <- feasts:::guess_plot_var(x, !!enquo(var))
+    
+    if (!is.null(xlim)) {
+        if (is.numeric(xlim)) {
+            xlim <- lubridate::ymd(paste0(xlim, c("0101", "1231")))
+        }
+        x <- dplyr::filter(x, dplyr::between(index, xlim[1], xlim[2]))
+    }
+    
+    if (is.null(xlab)) {
+        xlab <- dplyr::case_when(
+            is.numeric(x$index) ~ "Year",
+            TRUE ~ stringr::str_to_title(class(x$index)[1])
+        )
+    }
+    x <- dplyr::rename(x, !!xlab := index)
+    
+    if (is.null(ylab)) {
+        ylab <- dplyr::case_when(
+            tsibble::n_keys(x) > 1 ~ "Value",
+            TRUE ~ as.character(var)
+        )
+    }
+    if (is.null(title)) {
+        title <- dplyr::case_when(
+            tsibble::n_keys(x) > 1 ~ "",
+            TRUE ~ as.character(var)
+        )
+    }
+    
+    p <- fabletools::autoplot(x, !!var, size = 1) +
+        ggplot2::labs(y = ylab, title = title) +
+        ggplot2::theme(
+            legend.position = dplyr::case_when(compare ~ "top", TRUE ~ "none"),
+            legend.title = element_blank()
+        )
+    
+    if (!is.null(aspect) & compare) { ## Turn off for multiple plots
+        p <- p + coord_fixed(
+            ratio = diff(range(lubridate::as_date(x[[xlab]]), na.rm = TRUE)) /
+                diff(range(x[[as.character(var)]], na.rm = TRUE)) / aspect
+        )
+    }
+    if (!compare & tsibble::n_keys(x) > 1) {
+        p <- p + facet_wrap(~key, ncol = 1)
+    }
+    
+    if (plot) print(p)
+    
+    invisible(p)
+}
