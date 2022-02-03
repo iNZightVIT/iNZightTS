@@ -372,53 +372,75 @@ pred <- function(x) attr(x, "predictions")
 plot.inzightts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
                            plot = TRUE, xlim = NULL, aspect = 3, compare = TRUE) {
     var <- feasts:::guess_plot_var(x, !!enquo(var))
-    
+
+    if (compare) compare <- TRUE ## Placeholder, to be implemented
     if (!is.null(xlim)) {
         if (is.numeric(xlim)) {
             xlim <- lubridate::ymd(paste0(xlim, c("0101", "1231")))
         }
         x <- dplyr::filter(x, dplyr::between(index, xlim[1], xlim[2]))
     }
-    
     if (is.null(xlab)) {
         xlab <- dplyr::case_when(
             is.numeric(x$index) ~ "Year",
             TRUE ~ stringr::str_to_title(class(x$index)[1])
         )
     }
-    x <- dplyr::rename(x, !!xlab := index)
-    
+    x <- dplyr::rename(x, !!dplyr::first(xlab) := index)
+
     if (is.null(ylab)) {
         ylab <- dplyr::case_when(
-            tsibble::n_keys(x) > 1 ~ "Value",
+            tsibble::n_keys(x) > 1 ~ rep("Value", length(var)),
             TRUE ~ as.character(var)
         )
+        if (length(var) > 1) ylab <- ylab[-1]
     }
     if (is.null(title)) {
         title <- dplyr::case_when(
-            tsibble::n_keys(x) > 1 ~ "",
-            TRUE ~ as.character(var)
+            tsibble::n_keys(x) > 1 | length(var) > 2 ~ "",
+            TRUE ~ dplyr::last(as.character(var))
         )
     }
-    
+
+    if (length(var) > 1) {
+        if (!isTRUE(all.equal(length(var) - 1, length(ylab)))) {
+            stop("var, xlab and ylab should have the same length.")
+        }
+    }
+
+    if (length(var) < 3) {
+        p <- plot_inzightts_var(x, var, xlab, ylab, title, aspect)
+    } else {
+        p_ls <- lapply(seq_len(length(var) - 1), function(i) {
+            y_var <- as.character(var)[i + 1]
+            plot_inzightts_var(x, sym(y_var), xlab, ylab[i], "", NULL)
+        })
+        p <- expr(patchwork::wrap_plots(!!!p_ls, ncol = 1)) %>%
+            rlang::new_quosure() %>%
+            rlang::eval_tidy() +
+            patchwork::plot_annotation(title = title)
+    }
+
+    if (plot) print(p)
+
+    invisible(p)
+}
+
+plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, compare = TRUE) {
     p <- fabletools::autoplot(x, !!var, size = 1) +
         ggplot2::labs(y = ylab, title = title) +
         ggplot2::theme(
             legend.position = dplyr::case_when(compare ~ "top", TRUE ~ "none"),
             legend.title = element_blank()
         )
-    
-    if (!is.null(aspect) & compare) { ## Turn off for multiple plots
+
+    if (!is.null(aspect)) {
+        var <- dplyr::last(as.character(var))
         p <- p + coord_fixed(
             ratio = diff(range(lubridate::as_date(x[[xlab]]), na.rm = TRUE)) /
-                diff(range(x[[as.character(var)]], na.rm = TRUE)) / aspect
+                diff(range(x[[var]], na.rm = TRUE)) / aspect
         )
     }
-    if (!compare & tsibble::n_keys(x) > 1) {
-        p <- p + facet_wrap(~key, ncol = 1)
-    }
-    
-    if (plot) print(p)
-    
-    invisible(p)
+
+    p
 }
