@@ -370,7 +370,7 @@ pred <- function(x) attr(x, "predictions")
 
 #' @export
 plot.inzightts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
-                           plot = TRUE, xlim = NULL, aspect = 3, compare = TRUE) {
+                           plot = TRUE, xlim = NULL, aspect = NULL, compare = TRUE) {
     var <- feasts:::guess_plot_var(x, !!enquo(var))
 
     if (compare) compare <- TRUE ## Placeholder, to be implemented
@@ -378,7 +378,7 @@ plot.inzightts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL
         if (is.numeric(xlim)) {
             xlim <- lubridate::ymd(paste0(xlim, c("0101", "1231")))
         }
-        x <- dplyr::filter(x, dplyr::between(index, xlim[1], xlim[2]))
+        x <- dplyr::filter(x, dplyr::between(lubridate::as_date(index), xlim[1], xlim[2]))
     }
     if (is.null(xlab)) {
         xlab <- dplyr::case_when(
@@ -402,9 +402,12 @@ plot.inzightts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL
         )
     }
 
-    if (length(var) > 1) {
+    if (length(var) > 2) {
         if (!isTRUE(all.equal(length(var) - 1, length(ylab)))) {
-            stop("var, xlab and ylab should have the same length.")
+            rlang::abort("var and ylab should have the same length.")
+        }
+        if (!is.null(aspect)) {
+            rlang::warn("Aspect ratio is automatic for multi-series plot.")
         }
     }
 
