@@ -370,7 +370,8 @@ pred <- function(x) attr(x, "predictions")
 
 #' @export
 plot.inzightts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
-                           plot = TRUE, xlim = NULL, aspect = NULL, compare = TRUE) {
+                           plot = TRUE, xlim = NULL, aspect = NULL, compare = TRUE,
+                           smoother = TRUE, model = "STL", mult_fit = FALSE) {
     var <- feasts:::guess_plot_var(x, !!enquo(var))
 
     if (compare) compare <- TRUE ## Placeholder, to be implemented
@@ -412,11 +413,18 @@ plot.inzightts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL
     }
 
     if (length(var) < 3) {
-        p <- plot_inzightts_var(x, var, xlab, ylab, title, aspect)
+        var <- sym(dplyr::last(as.character(var)))
+        p <- plot_inzightts_var(
+            x, var, xlab, ylab, title, aspect,
+            compare, smoother, model, mult_fit
+        )
     } else {
         p_ls <- lapply(seq_len(length(var) - 1), function(i) {
             y_var <- as.character(var)[i + 1]
-            plot_inzightts_var(x, sym(y_var), xlab, ylab[i], "", NULL)
+            plot_inzightts_var(
+                x, sym(y_var), xlab, ylab[i], "", NULL,
+                compare, smoother, model, mult_fit
+            )
         })
         p <- expr(patchwork::wrap_plots(!!!p_ls, ncol = 1)) %>%
             rlang::new_quosure() %>%
@@ -429,7 +437,8 @@ plot.inzightts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL
     invisible(p)
 }
 
-plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, compare = TRUE) {
+plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect,
+                               compare, smoother, model, mult_fit) {
     p <- fabletools::autoplot(x, !!var, size = 1) +
         ggplot2::labs(y = ylab, title = title) +
         ggplot2::theme(
@@ -442,6 +451,14 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, compare = TRUE
         p <- p + coord_fixed(
             ratio = diff(range(lubridate::as_date(x[[xlab]]), na.rm = TRUE)) /
                 diff(range(x[[var]], na.rm = TRUE)) / aspect
+        )
+    }
+
+    if (smoother) {
+        p <- p + geom_line(
+            mapping = aes(!!tsibble::index(x), trend),
+            data = decomp(x, var, model, mult_fit),
+            col = "red"
         )
     }
 

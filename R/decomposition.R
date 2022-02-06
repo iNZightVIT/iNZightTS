@@ -374,3 +374,28 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
 decompositionplot <- function(...) {
     warning("Deprecated: please use `plot(decompose(obj))`")
 }
+
+
+#' @export
+decomp <- function(x, var, model = c("STL"), mult_fit, ...) {
+    model <- match.arg(model)
+    arg <- list(...)
+
+    if (mult_fit) x <- dplyr::mutate(x, !!var := log({{ var }} + 1e-6))
+
+    if (model == "STL") {
+        t_window <- if (with(arg, exists("t.window"))) arg$t.window else NULL
+        decomp_data <- x %>%
+            fabletools::model(feasts::STL(
+                !!var ~ trend(window = t_window) + season(window = "periodic"),
+                robust = TRUE
+            )) %>%
+            fabletools::components()
+    }
+
+    decomp_data %>%
+        dplyr::mutate(trend = dplyr::case_when(
+            mult_fit ~ exp(trend) - 1e-6,
+            TRUE ~ trend
+        ))
+}
