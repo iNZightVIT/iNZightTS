@@ -384,16 +384,14 @@ decomp <- function(x, var, model = c("STL"), mult_fit = FALSE, ...) {
     if (mult_fit) x <- dplyr::mutate(x, !!var := log({{ var }} + 1e-6))
 
     if (model == "STL") {
-        t_window <- if (with(arg, exists("t.window"))) arg$t.window else NULL
         decomp_data <- x %>%
             fabletools::model(feasts::STL(
-                !!var ~ trend(window = t_window) + season(window = "periodic"),
+                !!var ~ trend(window = arg$t.window) + season(window = "periodic"),
                 robust = TRUE
             )) %>%
             fabletools::components() %>%
             dplyr::mutate(dplyr::across(
-                trend | remainder | dplyr::contains("season"),
-                function(x) {
+                trend | remainder | dplyr::contains("season"), function(x) {
                     dplyr::case_when(mult_fit ~ exp(x) - 1e-6, TRUE ~ x)
                 }
             ))
