@@ -374,12 +374,22 @@ plot.inzightts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL
                            smoother = TRUE, model = "STL", mult_fit = FALSE) {
     var <- feasts:::guess_plot_var(x, !!enquo(var))
 
-    if (compare) compare <- TRUE ## Placeholder, to be implemented
+    if (!compare) { ## Placeholder, to be implemented
+        compare <- TRUE
+        rlang::warn("Feature compare = FALSE is to be implemented.")
+    }
     if (!is.null(xlim)) {
-        if (is.numeric(xlim)) {
-            xlim <- lubridate::ymd(paste0(xlim, c("0101", "1231")))
+        if (!all(length(xlim) == 2, any(is.numeric(xlim), is(xlim, "Date")))) {
+            rlang::abort("xlim must be a numeric or Date vector of length 2.")
         }
-        x <- dplyr::filter(x, dplyr::between(lubridate::as_date(index), xlim[1], xlim[2]))
+        if (!is.numeric(x[[tsibble::index_var(x)]]) & is.numeric(xlim)) {
+            xlim <- lubridate::ymd(paste0(xlim, c("0101", "1231")))
+            x <- dplyr::filter(x, dplyr::between(lubridate::as_date(index), xlim[1], xlim[2]))
+        } else if (is.numeric(x[[tsibble::index_var(x)]]) & is(xlim, "Date")) {
+            x <- dplyr::filter(x, dplyr::between(index, lubridate::year(xlim[1]), lubridate::year(xlim[2])))
+        } else {
+            x <- dplyr::filter(x, dplyr::between(index, xlim[1], xlim[2]))
+        }
     }
     if (is.null(xlab)) {
         xlab <- dplyr::case_when(
@@ -390,10 +400,7 @@ plot.inzightts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL
     x <- dplyr::rename(x, !!dplyr::first(xlab) := index)
 
     if (is.null(ylab)) {
-        ylab <- dplyr::case_when(
-            tsibble::n_keys(x) > 1 ~ rep("Value", length(var)),
-            TRUE ~ as.character(var)
-        )
+        ylab <- as.character(var)
         if (length(var) > 1) ylab <- ylab[-1]
     }
     if (is.null(title)) {
@@ -407,12 +414,13 @@ plot.inzightts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL
         if (!isTRUE(all.equal(length(var) - 1, length(ylab)))) {
             rlang::abort("var and ylab should have the same length.")
         }
-        if (!is.null(aspect)) {
+        if (!is.null(aspect) | (!compare & tsibble::n_keys(x) > 1)) {
             rlang::warn("Aspect ratio is automatic for multi-series plot.")
         }
     }
 
     if (length(var) < 3) {
+        if (!compare & tsibble::n_keys(x) > 1) aspect <- NULL
         var <- sym(dplyr::last(as.character(var)))
         p <- plot_inzightts_var(
             x, var, xlab, ylab, title, aspect,
@@ -426,9 +434,10 @@ plot.inzightts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL
                 compare, smoother, model, mult_fit
             )
         })
-        p <- expr(patchwork::wrap_plots(!!!p_ls, ncol = 1)) %>%
+        p <- expr(patchwork::wrap_plots(!!!p_ls)) %>%
             rlang::new_quosure() %>%
             rlang::eval_tidy() +
+            patchwork::plot_layout(ncol = 1, guides = "collect") +
             patchwork::plot_annotation(title = title)
     }
 
@@ -437,29 +446,36 @@ plot.inzightts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL
     invisible(p)
 }
 
+
 plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect,
                                compare, smoother, model, mult_fit) {
     p <- fabletools::autoplot(x, !!var, size = 1) +
         ggplot2::labs(y = ylab, title = title) +
         ggplot2::theme(
-            legend.position = dplyr::case_when(compare ~ "top", TRUE ~ "none"),
+            legend.position = dplyr::case_when(compare ~ "right", TRUE ~ "none"),
             legend.title = element_blank()
         )
 
     if (!is.null(aspect)) {
-        var <- dplyr::last(as.character(var))
+        y_var <- dplyr::last(as.character(var))
         p <- p + coord_fixed(
             ratio = diff(range(lubridate::as_date(x[[xlab]]), na.rm = TRUE)) /
-                diff(range(x[[var]], na.rm = TRUE)) / aspect
+                diff(range(x[[y_var]], na.rm = TRUE)) / aspect
         )
     }
 
     if (smoother) {
-        p <- p + geom_line(
+        smoother_spec <- list(
             mapping = aes(!!tsibble::index(x), trend),
             data = decomp(x, var, model, mult_fit),
-            col = "red"
+            linetype = ifelse(compare & tsibble::n_keys(x) > 1, "dashed", "solid"),
+            size = ifelse(compare & tsibble::n_keys(x) > 1, 1, .5)
+        ) %>% c(
+            col = if (compare & tsibble::n_keys(x) > 1) NULL else "red"
         )
+        p <- expr(p + geom_line(!!!smoother_spec)) %>%
+            rlang::new_quosure() %>%
+            rlang::eval_tidy()
     }
 
     p
