@@ -377,7 +377,7 @@ decompositionplot <- function(...) {
 
 
 #' @export
-decomp <- function(x, var, model = c("STL"), mult_fit, ...) {
+decomp <- function(x, var, model = c("STL"), mult_fit = FALSE, ...) {
     model <- match.arg(model)
     arg <- list(...)
 
@@ -390,12 +390,14 @@ decomp <- function(x, var, model = c("STL"), mult_fit, ...) {
                 !!var ~ trend(window = t_window) + season(window = "periodic"),
                 robust = TRUE
             )) %>%
-            fabletools::components()
+            fabletools::components() %>%
+            dplyr::mutate(dplyr::across(
+                trend | remainder | dplyr::contains("season"),
+                function(x) {
+                    dplyr::case_when(mult_fit ~ exp(x) - 1e-6, TRUE ~ x)
+                }
+            ))
     }
 
-    decomp_data %>%
-        dplyr::mutate(trend = dplyr::case_when(
-            mult_fit ~ exp(trend) - 1e-6,
-            TRUE ~ trend
-        ))
+    decomp_data
 }
