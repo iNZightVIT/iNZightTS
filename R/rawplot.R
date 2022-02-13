@@ -371,7 +371,7 @@ pred <- function(x) attr(x, "predictions")
 #' @export
 plot.inzightts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
                            plot = TRUE, xlim = NULL, aspect = NULL, compare = TRUE,
-                           smoother = TRUE, model = "STL", mult_fit = FALSE) {
+                           smoother = TRUE, model = "stl", mult_fit = FALSE) {
     var <- feasts:::guess_plot_var(x, !!enquo(var))
 
     if (!compare) { ## Placeholder, to be implemented

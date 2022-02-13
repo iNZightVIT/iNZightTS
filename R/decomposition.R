@@ -377,25 +377,49 @@ decompositionplot <- function(...) {
 
 
 #' @export
-decomp <- function(x, var, model = c("STL"), mult_fit = FALSE, ...) {
+.decomp <- function(model, ...) {
+    UseMethod(".decomp")
+}
+
+
+decomp <- function(x, var, model = c("stl"), mult_fit = FALSE, ...) {
     model <- match.arg(model)
-    arg <- list(...)
+    decomp_spec <- list(...)
 
     if (mult_fit) x <- dplyr::mutate(x, !!var := log({{ var }} + 1e-6))
 
-    if (model == "STL") {
-        decomp_data <- x %>%
-            fabletools::model(feasts::STL(
-                !!var ~ trend(window = arg$t.window) + season(window = "periodic"),
-                robust = TRUE
-            )) %>%
-            fabletools::components() %>%
-            dplyr::mutate(dplyr::across(
-                trend | remainder | dplyr::contains("season"), function(x) {
-                    dplyr::case_when(mult_fit ~ exp(x) - 1e-6, TRUE ~ x)
-                }
-            ))
+    expr(.decomp(use_decomp_method(model), x, var, mult_fit, !!!decomp_spec)) %>%
+        rlang::new_quosure() %>%
+        rlang::eval_tidy() %>%
+        structure(class = c("inzightts_decomp", class(.)))
+}
+
+
+use_decomp_method <- function(method) {
+    structure(method, class = sprintf("use_%s", method))
+}
+
+
+#' @export
+.decomp.use_stl <- function(use_method, data, var, mult_fit, ...) {
+    stl_spec <- list(...)
+    if (with(stl_spec, exists("s.window"))) {
+        s.window <- stl_spec$s.window
+        stl_spec <- within(stl_spec, rm(s.window))
+    } else {
+        s.window <- "periodic"
     }
 
-    decomp_data
+    expr(fabletools::model(data, feasts::STL(
+        !!var ~ trend() + season(window = s.window),
+        !!!stl_spec
+    ))) %>%
+        rlang::new_quosure() %>%
+        rlang::eval_tidy() %>%
+        fabletools::components() %>%
+        dplyr::mutate(dplyr::across(
+            trend | remainder | dplyr::contains("season"), function(x) {
+                dplyr::case_when(mult_fit ~ exp(x) - 1e-6, TRUE ~ x)
+            }
+        ))
 }
