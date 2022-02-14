@@ -386,8 +386,6 @@ decomp <- function(x, var, model = c("stl"), mult_fit = FALSE, ...) {
     model <- match.arg(model)
     decomp_spec <- list(...)
 
-    if (mult_fit) x <- dplyr::mutate(x, !!var := log({{ var }} + 1e-6))
-
     expr(.decomp(use_decomp_method(model), x, var, mult_fit, !!!decomp_spec)) %>%
         rlang::new_quosure() %>%
         rlang::eval_tidy() %>%
@@ -409,6 +407,8 @@ use_decomp_method <- function(method) {
     } else {
         s.window <- "periodic"
     }
+
+    if (mult_fit) data <- dplyr::mutate(data, !!var := log({{ var }} + 1e-6))
 
     expr(fabletools::model(data, feasts::STL(
         !!var ~ trend() + season(window = s.window),
