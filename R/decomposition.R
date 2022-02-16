@@ -377,19 +377,25 @@ decompositionplot <- function(...) {
 
 
 #' @export
-.decomp <- function(model, ...) {
+.decomp <- function(sm_model, ...) {
     UseMethod(".decomp")
 }
 
 
-decomp <- function(x, var, model = c("stl"), mult_fit = FALSE, ...) {
-    model <- match.arg(model)
+decomp <- function(x, var, sm_model, mult_fit = FALSE, ...) {
+    sm_model_cand <- c("stl")
+    if (!sm_model %in% sm_model_cand) {
+        rlang::abort(gettextf("sm_model should be one of %s", paste(
+            dQuote(sm_model_cand),
+            collapse = ", "
+        )))
+    }
     decomp_spec <- list(...)
 
-    expr(.decomp(use_decomp_method(model), x, var, mult_fit, !!!decomp_spec)) %>%
+    expr(.decomp(use_decomp_method(sm_model), x, var, mult_fit, !!!decomp_spec)) %>%
         rlang::new_quosure() %>%
         rlang::eval_tidy() %>%
-        structure(class = c("inzightts_decomp", class(.)))
+        structure(class = c("inz_dcmp", class(.)))
 }
 
 

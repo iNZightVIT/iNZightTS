@@ -621,5 +621,5 @@ inzightts <- function(data, start = 1, end, freq = 1, var = 2,
     
     inzightts %>%
         tsibble::fill_gaps() %>%
-        tsibble::new_tsibble(class = "inzightts")
+        tsibble::new_tsibble(class = "inz_ts")
 }

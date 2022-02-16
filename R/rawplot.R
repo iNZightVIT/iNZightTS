@@ -369,10 +369,10 @@ pred <- function(x) attr(x, "predictions")
 
 
 #' @export
-plot.inzightts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
+plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
                            plot = TRUE, xlim = NULL, aspect = NULL, compare = TRUE,
-                           smoother = TRUE, model = "stl", mult_fit = FALSE) {
-    var <- feasts:::guess_plot_var(x, !!enquo(var))
+                           smoother = TRUE, sm_model = "stl", mult_fit = FALSE) {
+    var <- suppressMessages(feasts:::guess_plot_var(x, !!enquo(var)))
 
     if (!compare) { ## Placeholder, to be implemented
         compare <- TRUE
@@ -424,14 +424,14 @@ plot.inzightts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL
         var <- sym(dplyr::last(as.character(var)))
         p <- plot_inzightts_var(
             x, var, xlab, ylab, title, aspect,
-            compare, smoother, model, mult_fit
+            compare, smoother, sm_model, mult_fit
         )
     } else {
         p_ls <- lapply(seq_len(length(var) - 1), function(i) {
             y_var <- as.character(var)[i + 1]
             plot_inzightts_var(
                 x, sym(y_var), xlab, ylab[i], "", NULL,
-                compare, smoother, model, mult_fit
+                compare, smoother, sm_model, mult_fit
             )
         })
         p <- expr(patchwork::wrap_plots(!!!p_ls)) %>%
@@ -448,7 +448,7 @@ plot.inzightts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL
 
 
 plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect,
-                               compare, smoother, model, mult_fit) {
+                               compare, smoother, sm_model, mult_fit) {
     p <- fabletools::autoplot(x, !!var, size = 1) +
         ggplot2::labs(y = ylab, title = title) +
         ggplot2::theme(
@@ -467,7 +467,7 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect,
     if (smoother) {
         smoother_spec <- list(
             mapping = aes(!!tsibble::index(x), trend),
-            data = decomp(x, var, model, mult_fit),
+            data = decomp(x, var, sm_model, mult_fit),
             linetype = ifelse(compare & tsibble::n_keys(x) > 1, "dashed", "solid"),
             size = ifelse(compare & tsibble::n_keys(x) > 1, 1, .5)
         ) %>% c(
