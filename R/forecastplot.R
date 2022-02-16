@@ -48,7 +48,7 @@ predict.inz_ts <- function(x, var = NULL, h = "2 years", mult_fit = FALSE,
     fit <- fabletools::model(x, Prediction = pred_model(log_if(!!var, !!mult_fit)))
 
     fit %>%
-        fabletools::forecast() %>%
+        fabletools::forecast(h = h) %>%
         dplyr::mutate(
             lower = quantile(!!var, p = (1 - confint_width) / 2),
             upper = quantile(!!var, p = (1 + confint_width) / 2)
