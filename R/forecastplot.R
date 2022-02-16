@@ -21,4 +21,54 @@ forecastplot <-
     warning("Deprecated. Use plot(x, forecast = n) instead.\n")
     return(plot(x, ..., forecast = 2 * x$freq))
 
+    }
+
+
+log_if <- fabletools::new_transformation(
+    transformation = function(x, mult_fit) {
+        dplyr::case_when(mult_fit ~ log(x), TRUE ~ as.numeric(x))
+    },
+    inverse = function(x, mult_fit) {
+        dplyr::case_when(mult_fit ~ exp(x), TRUE ~ as.numeric(x))
+    }
+)
+
+
+#' @export
+predict.inz_ts <- function(x, var = NULL, h = "2 years", mult_fit = FALSE,
+                           pred_model = fable::ARIMA, confint_width = .95) {
+    var <- suppressMessages(feasts:::guess_plot_var(x, !!enquo(var)))
+    ## Only univariate forecasting is supported at the moment
+
+    if (any(x[[as.character(var)]] <= 0) & mult_fit) {
+        mult_fit <- !mult_fit
+        rlang::warn("Non-positive obs detected, setting mult_fit = FALSE")
+    }
+
+    fit <- fabletools::model(x, Prediction = pred_model(log_if(!!var, !!mult_fit)))
+
+    fit %>%
+        fabletools::forecast() %>%
+        dplyr::mutate(
+            lower = quantile(!!var, p = (1 - confint_width) / 2),
+            upper = quantile(!!var, p = (1 + confint_width) / 2)
+        ) %>%
+        tsibble::as_tsibble() %>%
+        dplyr::select(-(!!var)) %>%
+        dplyr::rename(!!var := .mean) %>%
+        dplyr::bind_rows(dplyr::mutate(
+            dplyr::rename(fitted(fit), !!var := .fitted),
+            .model = "Fitted"
+        )) %>%
+        dplyr::bind_rows(dplyr::mutate(
+            dplyr::select(x, !!var),
+            .model = "Raw data"
+        )) %>%
+        structure(class = c("inz_frct", class(.)))
+}
+
+
+#' @export
+plot.inz_frct <- function(x) {
+    
 }

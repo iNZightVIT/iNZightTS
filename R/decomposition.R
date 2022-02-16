@@ -414,7 +414,7 @@ use_decomp_method <- function(method) {
         s.window <- "periodic"
     }
 
-    if (mult_fit) data <- dplyr::mutate(data, !!var := log({{ var }} + 1e-6))
+    if (mult_fit) data <- dplyr::mutate(data, !!var := log(!!var))
 
     expr(fabletools::model(data, feasts::STL(
         !!var ~ trend() + season(window = s.window),
@@ -425,7 +425,7 @@ use_decomp_method <- function(method) {
         fabletools::components() %>%
         dplyr::mutate(dplyr::across(
             trend | remainder | dplyr::contains("season"), function(x) {
-                dplyr::case_when(mult_fit ~ exp(x) - 1e-6, TRUE ~ x)
+                dplyr::case_when(mult_fit ~ exp(x), TRUE ~ as.numeric(x))
             }
         ))
 }

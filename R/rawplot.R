@@ -378,6 +378,10 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
         compare <- TRUE
         rlang::warn("Feature compare = FALSE is to be implemented.")
     }
+    if (any(x[[as.character(var)]] <= 0) & mult_fit) {
+        mult_fit <- !mult_fit
+        rlang::warn("Non-positive obs detected, setting mult_fit = FALSE")
+    }
     if (!is.null(xlim)) {
         if (!all(length(xlim) == 2, any(is.numeric(xlim), is(xlim, "Date")))) {
             rlang::abort("xlim must be a numeric or Date vector of length 2.")
