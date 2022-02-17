@@ -390,8 +390,8 @@ guess_plot_var <- function(x, var) {
 
 #' @export
 plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
-                           plot = TRUE, xlim = NULL, aspect = NULL, compare = TRUE,
-                           smoother = TRUE, sm_model = "stl", mult_fit = FALSE) {
+                        plot = TRUE, xlim = NULL, aspect = NULL, compare = TRUE,
+                        smoother = TRUE, sm_model = "stl", mult_fit = FALSE) {
     var <- guess_plot_var(x, !!enquo(var))
 
     ## Placeholder, to be implemented

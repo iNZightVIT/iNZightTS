@@ -382,13 +382,13 @@ decompositionplot <- function(...) {
 }
 
 
-decomp <- function(x, var, sm_model, mult_fit = FALSE, ...) {
-    sm_model_cand <- c("stl")
-    if (!sm_model %in% sm_model_cand) {
-        rlang::abort(gettextf("sm_model should be one of %s", paste(
-            dQuote(sm_model_cand),
-            collapse = ", "
-        )))
+decomp <- function(x, var, sm_model = c("stl"), mult_fit = FALSE, ...) {
+    mismatch_err <- gsub(
+        "'arg'", "`sm_model`",
+        evaluate::try_capture_stack(match.arg(sm_model))$message
+    )
+    if (inherits(try(match.arg(sm_model), silent = TRUE), "try-error")) {
+        rlang::abort(mismatch_err)
     }
     decomp_spec <- list(...)
 
