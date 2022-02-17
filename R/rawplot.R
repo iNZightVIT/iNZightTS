@@ -394,11 +394,17 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
                            smoother = TRUE, sm_model = "stl", mult_fit = FALSE) {
     var <- guess_plot_var(x, !!enquo(var))
 
-    if (!compare) { ## Placeholder, to be implemented
+    ## Placeholder, to be implemented
+    if (!compare) {
         compare <- TRUE
         rlang::warn("Feature compare = FALSE is to be implemented.")
     }
-    if (any(x[[as.character(var)]] <= 0) & mult_fit) {
+
+    y_obs <- unlist(lapply(dplyr::case_when(
+        length(as.character(var)) > 2 ~ as.character(var)[-1],
+        TRUE ~ dplyr::last(as.character(var))
+    ), function(i) x[[i]]))
+    if (any(y_obs <= 0) & mult_fit) {
         mult_fit <- !mult_fit
         rlang::warn("Non-positive obs detected, setting `mult_fit = FALSE`")
     }

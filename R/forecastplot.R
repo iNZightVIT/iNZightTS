@@ -38,9 +38,12 @@ log_if <- fabletools::new_transformation(
 predict.inz_ts <- function(x, var = NULL, h = "2 years", mult_fit = FALSE,
                            pred_model = fable::ARIMA, confint_width = .95) {
     var <- guess_plot_var(x, !!enquo(var))
-    ## Only univariate forecasting is supported at the moment
 
-    if (any(x[[as.character(var)]] <= 0) & mult_fit) {
+    y_obs <- unlist(lapply(dplyr::case_when(
+        length(as.character(var)) > 2 ~ as.character(var)[-1],
+        TRUE ~ dplyr::last(as.character(var))
+    ), function(i) x[[i]]))
+    if (any(y_obs <= 0) & mult_fit) {
         mult_fit <- !mult_fit
         rlang::warn("Non-positive obs detected, setting `mult_fit = FALSE`")
     }
