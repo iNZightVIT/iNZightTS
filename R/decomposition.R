@@ -382,7 +382,10 @@ decompositionplot <- function(...) {
 }
 
 
-decomp <- function(x, var, sm_model = c("stl"), mult_fit = FALSE, ...) {
+#' @export
+decomp <- function(x, var = NULL, sm_model = c("stl"), mult_fit = FALSE, ...) {
+    var <- guess_plot_var(x, !!enquo(var))
+
     mismatch_err <- gsub(
         "'arg'", "`sm_model`",
         evaluate::try_capture_stack(match.arg(sm_model))$message

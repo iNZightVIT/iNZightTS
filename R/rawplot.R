@@ -497,7 +497,7 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect,
     if (smoother) {
         smoother_spec <- list(
             mapping = aes(!!tsibble::index(x), trend),
-            data = decomp(x, var, sm_model, mult_fit),
+            data = decomp(x, !!var, sm_model, mult_fit),
             linetype = ifelse(compare & tsibble::n_keys(x) > 1, "dashed", "solid"),
             size = ifelse(compare & tsibble::n_keys(x) > 1, 1, .5)
         ) %>% c(
