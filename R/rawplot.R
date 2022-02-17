@@ -368,11 +368,31 @@ rawplot <- function(...) {
 pred <- function(x) attr(x, "predictions")
 
 
+guess_plot_var <- function(x, var) {
+    ## From the *feasts* package, with amended message
+    if (rlang::quo_is_null(enquo(var))) {
+        mv <- tsibble::measured_vars(x)
+        pos <- which(vapply(x[mv], is.numeric, logical(1L)))
+        if (rlang::is_empty(pos)) {
+            rlang::abort("Could not automatically identify an appropriate plot variable, please specify the variable to plot.")
+        }
+        rlang::inform(sprintf(
+            "Plot variable not specified, automatically selected `var = %s`",
+            mv[pos[1]]
+        ))
+        sym(mv[pos[1]])
+    }
+    else {
+        rlang::get_expr(enexpr(var))
+    }
+}
+
+
 #' @export
 plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
                            plot = TRUE, xlim = NULL, aspect = NULL, compare = TRUE,
                            smoother = TRUE, sm_model = "stl", mult_fit = FALSE) {
-    var <- suppressMessages(feasts:::guess_plot_var(x, !!enquo(var)))
+    var <- guess_plot_var(x, !!enquo(var))
 
     if (!compare) { ## Placeholder, to be implemented
         compare <- TRUE
@@ -380,7 +400,7 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
     }
     if (any(x[[as.character(var)]] <= 0) & mult_fit) {
         mult_fit <- !mult_fit
-        rlang::warn("Non-positive obs detected, setting mult_fit = FALSE")
+        rlang::warn("Non-positive obs detected, setting `mult_fit = FALSE`")
     }
     if (!is.null(xlim)) {
         if (!all(length(xlim) == 2, any(is.numeric(xlim), is(xlim, "Date")))) {

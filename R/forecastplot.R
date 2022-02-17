@@ -37,12 +37,12 @@ log_if <- fabletools::new_transformation(
 #' @export
 predict.inz_ts <- function(x, var = NULL, h = "2 years", mult_fit = FALSE,
                            pred_model = fable::ARIMA, confint_width = .95) {
-    var <- suppressMessages(feasts:::guess_plot_var(x, !!enquo(var)))
+    var <- guess_plot_var(x, !!enquo(var))
     ## Only univariate forecasting is supported at the moment
 
     if (any(x[[as.character(var)]] <= 0) & mult_fit) {
         mult_fit <- !mult_fit
-        rlang::warn("Non-positive obs detected, setting mult_fit = FALSE")
+        rlang::warn("Non-positive obs detected, setting `mult_fit = FALSE`")
     }
 
     fit <- fabletools::model(x, Prediction = pred_model(log_if(!!var, !!mult_fit)))
