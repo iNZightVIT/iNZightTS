@@ -47,27 +47,42 @@ predict.inz_ts <- function(x, var = NULL, h = "2 years", mult_fit = FALSE,
         mult_fit <- !mult_fit
         rlang::warn("Non-positive obs detected, setting `mult_fit = FALSE`")
     }
+    var <- na.omit(dplyr::case_when(
+        length(var) < 3 ~ dplyr::last(as.character(var)),
+        TRUE ~ c(NA_real_, as.character(var)[-1])
+    ))
 
+    inzightts_forecast_ls <- lapply(var, function(y_var) {
+        predict_inzightts_var(x, sym(y_var), h, mult_fit, pred_model, confint_width)
+    })
+
+    dplyr::bind_rows(!!!inzightts_forecast_ls) %>%
+        structure(class = c("inz_frct", class(.)))
+}
+
+
+predict_inzightts_var <- function(x, var, h, mult_fit, pred_model, confint_width) {
     fit <- fabletools::model(x, Prediction = pred_model(log_if(!!var, !!mult_fit)))
 
     fit %>%
         fabletools::forecast(h = h) %>%
         dplyr::mutate(
-            lower = quantile(!!var, p = (1 - confint_width) / 2),
-            upper = quantile(!!var, p = (1 + confint_width) / 2)
+            .lower = quantile(!!var, p = (1 - confint_width) / 2),
+            .upper = quantile(!!var, p = (1 + confint_width) / 2)
         ) %>%
         tsibble::as_tsibble() %>%
         dplyr::select(-(!!var)) %>%
-        dplyr::rename(!!var := .mean) %>%
         dplyr::bind_rows(dplyr::mutate(
-            dplyr::rename(fitted(fit), !!var := .fitted),
+            dplyr::rename(fitted(fit), .mean := .fitted),
             .model = "Fitted"
         )) %>%
         dplyr::bind_rows(dplyr::mutate(
-            dplyr::select(x, !!var),
+            dplyr::select(dplyr::rename(x, .mean = !!var), .mean),
             .model = "Raw data"
         )) %>%
-        structure(class = c("inz_frct", class(.)))
+        dplyr::mutate(.var = !!as.character(var)) %>%
+        dplyr::select(.var, .model, index, .mean, .lower, .upper) %>%
+        tsibble::update_tsibble(key = c(.var, .model))
 }
 
 
