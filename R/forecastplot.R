@@ -113,7 +113,16 @@ plot.inz_frct <- function(x, xlab = NULL, ylab = NULL, title = NULL, plot = TRUE
     if (length(unique(x$.var)) == 1) {
         p <- plot_forecast_var(x, sym(unique(x$.var)), xlab, ylab, title)
     } else {
-        p_ls <- lapply()
+        p_ls <- lapply(seq_along(unique(x$.var)), function(i) {
+            y_var <- unique(x$.var)[i]
+            plot_forecast_var(x, sym(y_var), xlab, ylab[i], "")
+        })
+        p <- expr(patchwork::wrap_plots(!!!p_ls)) %>%
+            rlang::new_quosure() %>%
+            rlang::eval_tidy() +
+            patchwork::plot_layout(ncol = 1, guides = "collect") +
+            patchwork::plot_annotation(title = title) &
+            ggplot2::theme(legend.position = "bottom")
     }
 
     if (plot) print(p)
