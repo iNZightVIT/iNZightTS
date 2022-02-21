@@ -384,7 +384,7 @@ decompositionplot <- function(...) {
 
 #' @export
 decomp <- function(x, var = NULL, sm_model = c("stl"), mult_fit = FALSE, ...) {
-    var <- guess_plot_var(x, !!enquo(var))
+    var <- sym(guess_plot_var(x, !!enquo(var)))
 
     mismatch_err <- gsub(
         "'arg'", "`sm_model`",
