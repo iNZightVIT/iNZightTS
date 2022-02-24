@@ -368,8 +368,7 @@ rawplot <- function(...) {
 pred <- function(x) attr(x, "predictions")
 
 
-guess_plot_var <- function(x, var) {
-    ## From the *feasts* package, with amended message
+guess_plot_var <- function(x, var, tidy = FALSE) {
     if (rlang::quo_is_null(enquo(var))) {
         mv <- tsibble::measured_vars(x)
         pos <- which(vapply(x[mv], is.numeric, logical(1L)))
@@ -381,9 +380,10 @@ guess_plot_var <- function(x, var) {
             mv[pos[1]]
         ))
         sym(mv[pos[1]])
-    }
-    else {
+    } else if (tidy) {
         rlang::get_expr(enexpr(var))
+    } else {
+        c("", as.character(rlang::eval_tidy(enexpr(var))))
     }
 }
 
@@ -497,7 +497,7 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect,
     if (smoother) {
         smoother_spec <- list(
             mapping = aes(!!tsibble::index(x), trend),
-            data = decomp(x, !!var, sm_model, mult_fit),
+            data = decomp(x, as.character(var), sm_model, mult_fit),
             linetype = ifelse(compare & tsibble::n_keys(x) > 1, "dashed", "solid"),
             size = ifelse(compare & tsibble::n_keys(x) > 1, 1, .5)
         ) %>% c(

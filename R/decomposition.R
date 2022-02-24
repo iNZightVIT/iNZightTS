@@ -384,7 +384,7 @@ decompositionplot <- function(...) {
 
 #' @export
 decomp <- function(x, var = NULL, sm_model = c("stl"), mult_fit = FALSE, ...) {
-    var <- sym(guess_plot_var(x, !!enquo(var)))
+    var <- dplyr::last(as.character(guess_plot_var(x, !!enquo(var))))
 
     mismatch_err <- gsub(
         "'arg'", "`sm_model`",
@@ -409,6 +409,8 @@ use_decomp_method <- function(method) {
 
 #' @export
 .decomp.use_stl <- function(use_method, data, var, mult_fit, ...) {
+    if (is.character(var)) var <- sym(var)
+
     stl_spec <- list(...)
     if (with(stl_spec, exists("s.window"))) {
         s.window <- stl_spec$s.window
