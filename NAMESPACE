@@ -3,6 +3,7 @@
 S3method(.decomp,use_stl)
 S3method(plot,iNZightMTS)
 S3method(plot,iNZightTS)
+S3method(plot,inz_dcmp)
 S3method(plot,inz_frct)
 S3method(plot,inz_ts)
 S3method(plot,inzdecomp)

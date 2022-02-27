@@ -368,7 +368,7 @@ rawplot <- function(...) {
 pred <- function(x) attr(x, "predictions")
 
 
-guess_plot_var <- function(x, var, tidy = FALSE) {
+guess_plot_var <- function(x, var, tidy = FALSE, use = "Plot") {
     if (rlang::quo_is_null(enquo(var))) {
         mv <- tsibble::measured_vars(x)
         pos <- which(vapply(x[mv], is.numeric, logical(1L)))
@@ -376,7 +376,7 @@ guess_plot_var <- function(x, var, tidy = FALSE) {
             rlang::abort("Could not automatically identify an appropriate plot variable, please specify the variable to plot.")
         }
         rlang::inform(sprintf(
-            "Plot variable not specified, automatically selected `var = %s`",
+            paste(use, "variable not specified, automatically selected `var = %s`"),
             mv[pos[1]]
         ))
         sym(mv[pos[1]])
