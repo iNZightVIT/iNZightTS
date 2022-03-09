@@ -226,7 +226,7 @@ season_effect <- function(x, var, mult_fit = FALSE) {
         season <- sym(names(attributes(x_dcmp)$seasons))
         x_dcmp %>%
             dplyr::mutate(season_effect = dplyr::case_when(
-                mult_fit ~ !!season * remainder - 1,
+                mult_fit ~ !!season * remainder,
                 TRUE ~ !!season + remainder
             )) %>%
             structure(class = c("seas_ts", class(.)), mult_fit = mult_fit)
@@ -236,12 +236,12 @@ season_effect <- function(x, var, mult_fit = FALSE) {
 
 #' @export
 plot.seas_ts <- function(x, ylim = NULL, title = NULL) {
-    seas_aes <- aes(
-        x = !!tsibble::index(x),
-        y = !!sym(names(attributes(x)$seasons)) - attributes(x)$mult_fit
-    )
+    seas_aes <- aes(!!tsibble::index(x), !!sym(names(attributes(x)$seasons)))
     p <- feasts::gg_season(x, season_effect) +
-        geom_hline(yintercept = 0, colour = "gray", linetype = 2) +
+        geom_hline(
+            yintercept = as.numeric(attributes(x)$mult_fit),
+            colour = "gray", linetype = 2
+        ) +
         geom_line(seas_aes) +
         geom_point(seas_aes, pch = 21, fill = "white", stroke = 1.5) +
         scale_y_continuous(limits = ylim) +
