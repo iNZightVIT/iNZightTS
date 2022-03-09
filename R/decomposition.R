@@ -412,13 +412,16 @@ use_decomp_method <- function(method) {
     if (is.character(var)) var <- sym(var)
 
     stl_spec <- list(...)
-    if (with(stl_spec, exists("s.window"))) {
+    if (!is.null(stl_spec$s.window)) {
         s.window <- stl_spec$s.window
         stl_spec <- within(stl_spec, rm(s.window))
     } else {
         s.window <- "periodic"
     }
-
+    if (any(data[[var]] <= 0) & mult_fit) {
+        mult_fit <- !mult_fit
+        rlang::warn("Non-positive obs detected, setting `mult_fit = FALSE`")
+    }
     if (mult_fit) data <- dplyr::mutate(data, !!var := log(!!var))
 
     expr(fabletools::model(data, feasts::STL(
