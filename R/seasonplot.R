@@ -155,3 +155,100 @@ seasonplot.iNZightTS <- function(obj, multiplicative = FALSE, t = 10, model.lim 
     # egg::ggarrange(p1, p2, nrow = 1)
     gridExtra::grid.arrange(p1, p2, nrow = 1)
 }
+
+
+#' @export
+seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE, plot = TRUE, ...) {
+    var <- guess_plot_var(x, !!enquo(var))
+    spec <- list(...) ## Additional arguments passed to feasts::gg_season()
+
+    if (!is.null(spec$labels)) {
+        l <- spec$labels
+        spec <- within(spec, rm(labels))
+    } else {
+        l <- "both"
+    }
+    if (length(var) < 3) {
+        var <- dplyr::last(as.character(var))
+    } else {
+        var <- var[-1]
+    }
+
+    x_dcmp_ls <- season_effect(x, var, mult_fit)
+    y_span <- unlist(lapply(seq_along(var), function(i) {
+        diff(extendrange(x_dcmp_ls[[i]][[as.character(var)[i]]])) %>%
+            max(diff(extendrange(x[[as.character(var)[i]]])))
+    }))
+
+    if (length(var) < 2) {
+        p1 <- expr(feasts::gg_season(x, !!sym(var), labels = l, !!!spec)) %>%
+            rlang::new_quosure() %>%
+            rlang::eval_tidy() +
+            geom_point() +
+            ggplot2::ylim(mean(range(x[[var]])) + c(-.5, .5) * y_span) +
+            ggplot2::labs(title = "Seasonal plot", x = "")
+        p2 <- x_dcmp_ls[[1]] %>%
+            plot(
+                ylim = (if (mult_fit) NULL else c(-.5, .5) * y_span),
+                title = "Additive seasonal effects"
+            )
+        p <- patchwork::wrap_plots(p1, p2, nrow = 1)
+    } else {
+        p_ls <- lapply(seq_along(var), function(i) {
+            p1 <- expr(feasts::gg_season(x, !!sym(var[i]), labels = l, !!!spec)) %>%
+                rlang::new_quosure() %>%
+                rlang::eval_tidy() +
+                geom_point() +
+                ggplot2::ylim(mean(range(x[[var[i]]])) + c(-.5, .5) * y_span[i]) +
+                ggplot2::labs(title = ifelse(i == 1L, "Seasonal plot", ""), x = "")
+            p2 <- x_dcmp_ls[[i]] %>%
+                plot(
+                    ylim = (if (mult_fit) NULL else c(-.5, .5) * y_span[i]),
+                    title = ifelse(i == 1L, "Additive seasonal effects", "")
+                )
+            patchwork::wrap_plots(p1, p2, nrow = 1)
+        })
+        p <- expr(patchwork::wrap_plots(!!!p_ls)) %>%
+            rlang::new_quosure() %>%
+            rlang::eval_tidy() +
+            patchwork::plot_layout(ncol = 1)
+    }
+
+    if (plot) print(p)
+
+    invisible(p)
+}
+
+
+season_effect <- function(x, var, mult_fit = FALSE) {
+    lapply(as.character(var), function(v) {
+        x_dcmp <- decomp(x, v, "stl", mult_fit)
+        season <- sym(names(attributes(x_dcmp)$seasons))
+        x_dcmp %>%
+            dplyr::mutate(season_effect = dplyr::case_when(
+                mult_fit ~ !!season * remainder - 1,
+                TRUE ~ !!season + remainder
+            )) %>%
+            structure(class = c("seas_ts", class(.)), mult_fit = mult_fit)
+    })
+}
+
+
+#' @export
+plot.seas_ts <- function(x, ylim = NULL, title = NULL) {
+    seas_aes <- aes(
+        x = !!tsibble::index(x),
+        y = !!sym(names(attributes(x)$seasons)) - attributes(x)$mult_fit
+    )
+    p <- feasts::gg_season(x, season_effect) +
+        geom_hline(yintercept = 0, colour = "gray", linetype = 2) +
+        geom_line(seas_aes) +
+        geom_point(seas_aes, pch = 21, fill = "white", stroke = 1.5) +
+        scale_y_continuous(limits = ylim) +
+        ggplot2::labs(title = title, x = "", y = tsibble::measured_vars(x)[1])
+
+    p$mapping$colour <- NULL
+    p$layers[[1]]$aes_params$alpha <- .2
+
+    p
+}
