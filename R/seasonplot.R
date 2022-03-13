@@ -179,6 +179,15 @@ seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE, plot = TRUE, ...)
         diff(extendrange(x_dcmp_ls[[i]][[as.character(var)[i]]])) %>%
             max(diff(extendrange(x[[as.character(var)[i]]])))
     }))
+    if (mult_fit) {
+        eff_y_span <- seq_along(var) %>%
+            lapply(function(i) abs(range(x_dcmp_ls[[i]]$season_effect) - 1)) %>%
+            unlist() %>%
+            max()
+        eff_y_lim <- replicate(length(var), 1 + c(-1.05, 1.05) * eff_y_span, FALSE)
+    } else {
+        eff_y_lim <- lapply(seq_along(var), function(i) c(-.5, .5) * y_span[i])
+    }
 
     if (length(var) < 2) {
         p1 <- expr(feasts::gg_season(x, !!sym(var), labels = l, !!!spec)) %>%
@@ -188,10 +197,7 @@ seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE, plot = TRUE, ...)
             ggplot2::ylim(mean(range(x[[var]])) + c(-.5, .5) * y_span) +
             ggplot2::labs(title = "Seasonal plot", x = "")
         p2 <- x_dcmp_ls[[1]] %>%
-            plot(
-                ylim = (if (mult_fit) NULL else c(-.5, .5) * y_span),
-                title = "Additive seasonal effects"
-            )
+            plot(ylim = eff_y_lim[[1]], title = "Additive seasonal effects")
         p <- patchwork::wrap_plots(p1, p2, nrow = 1)
     } else {
         p_ls <- lapply(seq_along(var), function(i) {
@@ -202,10 +208,7 @@ seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE, plot = TRUE, ...)
                 ggplot2::ylim(mean(range(x[[var[i]]])) + c(-.5, .5) * y_span[i]) +
                 ggplot2::labs(title = ifelse(i == 1L, "Seasonal plot", ""), x = "")
             p2 <- x_dcmp_ls[[i]] %>%
-                plot(
-                    ylim = (if (mult_fit) NULL else c(-.5, .5) * y_span[i]),
-                    title = ifelse(i == 1L, "Additive seasonal effects", "")
-                )
+                plot(ylim = eff_y_lim[[i]], title = "Additive seasonal effects")
             patchwork::wrap_plots(p1, p2, nrow = 1)
         })
         p <- expr(patchwork::wrap_plots(!!!p_ls)) %>%
