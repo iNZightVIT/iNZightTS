@@ -9,7 +9,7 @@ The iNZightTS package provides some simple analysis tools for
 exploring time series data. It is used in the iNZight software.
 }
 \seealso{
-\code{iNZight}
+\code{\link[iNZightTS]{inzightts}}
 }
 \author{
 Tom Elliott (previously: Marco Kuper, Simon Potter, and David Banks)

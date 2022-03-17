@@ -1,29 +1,21 @@
-#' Plot a raw time series together with it's fitted curve and add
-#' forecasts and prediction intervals to the end.
+#' Log-transform the input if \code{mult_fit = TRUE}, else return the original input.
 #'
-#' The predictions and prediction intervals are the result of models
-#' fitted by the Holt-Winters method. The amount of predicted
-#' observations is calculated by 2 * \code{freq}, where \code{freq} is
-#' the frequency of the time series object.
+#' @title Toggleable log logarithmic transformation
 #'
-#' @title Forecast plot - DEPRECATED
+#' @param x a \code{numeric}
+#' @param mult_fit whether or not to apply logarithmic transformation to the input
+#' @return a \code{numeric}
 #'
-#' @param x \code{iNZightTS} object
-#' @param ... additional arguments passed on
+#' @rdname log_if
 #'
-#' @return Called for the side effect of drawing a plot.
-#'         The constructed \code{ggplot} object is returned invisibly.
+#' @seealso \code{\link[fabletools]{new_transformation}}
+#'
+#' @examples
+#' x <- runif(1e4, 1, 100)
+#' all.equal(log_if(x, TRUE), log(x))
+#' all.equal(log_if(x, FALSE), x)
 #'
 #' @export
-forecastplot <-
-    function(x, ...) {
-
-    warning("Deprecated. Use plot(x, forecast = n) instead.\n")
-    return(plot(x, ..., forecast = 2 * x$freq))
-
-    }
-
-
 log_if <- fabletools::new_transformation(
     transformation = function(x, mult_fit) {
         dplyr::case_when(mult_fit ~ log(x), TRUE ~ as.numeric(x))
@@ -34,15 +26,43 @@ log_if <- fabletools::new_transformation(
 )
 
 
+#' Produce future predictions of the time series from an inzightts object.
+#'
+#' The output object includes the predicted mean and prediction intervals,
+#' as well as the raw data and fitted values.
+#'
+#' @title Produce forecasts for inzightts objects
+#'
+#' @param object an inzightts (\code{inz_ts}) object
+#' @param var a character vector of the variable(s) to forecast, or \code{NULL}
+#' @param h The forecast horison
+#' @param mult_fit If \code{TRUE}, a multiplicative model is used, otherwise
+#'        an additive model is used by default.
+#' @param pred_model a \code{fable} model function
+#' @param confint_width a decimal, the width of the prediction interval
+#' @param ... additional arguments (ignored)
+#' @return an \code{inz_frct} object
+#'
+#' @rdname forecastplot
+#'
+#' @seealso \code{\link[fable]{fable-package}}
+#'
+#' @examples
+#' t <- inzightts(visitorsQ, var = c(2, 4))
+#' ## The following two examples are equivalent
+#' pred <- predict(t, names(t)[-1], h = "2 years")
+#' pred <- predict(t, names(t)[-1], h = 8)
+#' plot(pred)
+#'
 #' @export
-predict.inz_ts <- function(x, var = NULL, h = "2 years", mult_fit = FALSE,
-                           pred_model = fable::ARIMA, confint_width = .95) {
-    var <- guess_plot_var(x, !!enquo(var))
+predict.inz_ts <- function(object, var = NULL, h = "2 years", mult_fit = FALSE,
+                           pred_model = fable::ARIMA, confint_width = .95, ...) {
+    var <- guess_plot_var(object, !!enquo(var))
 
     y_obs <- unlist(lapply(dplyr::case_when(
         length(as.character(var)) > 2 ~ as.character(var)[-1],
         TRUE ~ dplyr::last(as.character(var))
-    ), function(i) x[[i]]))
+    ), function(i) object[[i]]))
     if (any(y_obs <= 0) & mult_fit) {
         mult_fit <- !mult_fit
         rlang::warn("Non-positive obs detected, setting `mult_fit = FALSE`")
@@ -54,7 +74,7 @@ predict.inz_ts <- function(x, var = NULL, h = "2 years", mult_fit = FALSE,
     }
 
     inzightts_forecast_ls <- lapply(var, function(y_var) {
-        predict_inzightts_var(x, sym(y_var), h, mult_fit, pred_model, confint_width)
+        predict_inzightts_var(object, sym(y_var), h, mult_fit, pred_model, confint_width)
     })
 
     dplyr::bind_rows(!!!inzightts_forecast_ls) %>%
@@ -87,8 +107,19 @@ predict_inzightts_var <- function(x, var, h, mult_fit, pred_model, confint_width
 }
 
 
+#' @param x an \code{inz_frct} object
+#' @param xlab a title for the x axis
+#' @param ylab a title for the y axis
+#' @param title a title for the graph
+#' @param plot logical, if \code{FALSE}, the graph isn't drawn
+#' @param ... additional arguments (ignored)
+#'
+#' @rdname decomposition
+#'
+#' @import patchwork
+#' 
 #' @export
-plot.inz_frct <- function(x, xlab = NULL, ylab = NULL, title = NULL, plot = TRUE) {
+plot.inz_frct <- function(x, xlab = NULL, ylab = NULL, title = NULL, plot = TRUE, ...) {
     if (is.null(xlab)) {
         xlab <- dplyr::case_when(
             is.numeric(x$index) ~ "Year",

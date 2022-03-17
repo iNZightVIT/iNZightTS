@@ -3,10 +3,10 @@ context("Basic time series graphs")
 # data(visitorsM2)
 
 ## single series
-t <- iNZightTS(visitorsQ)
+t <- inzightts(visitorsQ)
 test_that("Basic ts graph works", {
     expect_is(plot(t), "ggplot")
-    expect_is(plot(t, multiplicative = TRUE), "ggplot")
+    expect_is(plot(t, mult_fit = TRUE), "ggplot")
 })
 
 test_that("Smoother can be disabled", {
@@ -14,72 +14,53 @@ test_that("Smoother can be disabled", {
 })
 
 test_that("Decomposition and recomposition plots work", {
-    expect_silent(d <- decompose(t, data.name = "Visitors"))
-    expect_is(plot(d), "inzdecomp")
-    expect_is(plot(d, recompose.progress = c(0, 20)), "inzdecomp")
-    expect_is(
-        plot(d, recompose.progress = c(1, 20)),
-        "inzdecomp"
-    )
-    expect_is(
-        plot(decompose(t, multiplicative = TRUE)),
-        "inzdecomp"
-    )
+    expect_silent(d <- decomp(t, var = "Australia"))
+    expect_is(plot(d), "inz_dcmp")
+    expect_is(plot(d, recompose.progress = c(0, 20)), "inz_dcmp")
+    expect_is(plot(d, recompose.progress = c(1, 20)), "inz_dcmp")
+    expect_is(plot(decomp(t, mult_fit = TRUE)), "inz_dcmp")
     plot(d, recompose = TRUE)
 })
 
 test_that("Season plot is OK", {
-    expect_is(seasonplot(t), "gtable")
-    expect_is(seasonplot(t, multiplicative = TRUE), "gtable")
+    expect_is(seasonplot(t), "patchwork")
+    expect_is(seasonplot(t, mult_fit = TRUE), "patchwork")
     expect_is(
-        seasonplot(iNZightTS(visitorsM2, var = 4), multiplicative = TRUE),
-        "gtable"
+        seasonplot(inzightts(visitorsM2, var = 4), mult_fit = TRUE),
+        "patchwork"
     )
 })
 
 test_that("Forecast is fine", {
-    expect_is(plot(t, forecast = 8), "ggplot")
-    expect_is(plot(t, forecast = 4*2, model.lim = c(2000, 2010)), "ggplot")
-    expect_is(pred(plot(t, forecast = 8)), "mts")
-    expect_is(plot(t, forecast = 8, multiplicative = TRUE), "ggplot")
+    expect_is(plot(predict(t, h = 8)), "ggplot")
+    expect_is(plot(predict(t, h = "2 years")), "ggplot")
+    expect_is(plot(predict(t, h = 8, mult_fit = TRUE)), "ggplot")
 })
 
 ## multi series
-tm <- iNZightTS(visitorsQ, var = 2:5)
+tm <- inzightts(visitorsQ, var = 2:5)
+var_name <- names(tm)[-1]
 test_that("Multi series graph works", {
-    expect_is(plot(tm), "patchwork")
-    expect_is(plot(tm, multiplicative = TRUE), "patchwork")
-    expect_is(plot(tm, smoother = FALSE), "patchwork")
-    expect_is(suppressWarnings(plot(tm, compare = FALSE)), "gtable")
-    expect_is(
-        suppressWarnings(plot(tm, compare = FALSE, multiplicative = TRUE)),
-        "gtable"
-    )
-    expect_is(
-        suppressWarnings(plot(tm, smoother = FALSE, compare = FALSE)),
-        "gtable"
-    )
+    expect_is(plot(tm, var_name), "patchwork")
+    expect_is(plot(tm, var_name, mult_fit = TRUE), "patchwork")
+    expect_is(plot(tm, var_name, smoother = FALSE), "patchwork")
+    # expect_is(suppressWarnings(plot(tm, compare = FALSE)), "gtable")
+    # expect_is(
+    #     suppressWarnings(plot(tm, compare = FALSE, multiplicative = TRUE)),
+    #     "gtable"
+    # )
+    # expect_is(
+    #     suppressWarnings(plot(tm, smoother = FALSE, compare = FALSE)),
+    #     "gtable"
+    # )
 })
 
-test_that("Unsupported plots error", {
-    expect_warning(decompositionplot(t))
-    expect_warning(recompose(decompositionplot(t)))
-    expect_warning(decompositionplot(tm))
-    expect_warning(recompose(decompositionplot(tm)))
-    expect_error(seasonplot(tm))
-    expect_warning(capture.output(forecastplot(tm)))
-})
-
-test_that("Annual data", {
-    t <- iNZightTS(visitorsA2)
-    tm <- iNZightTS(visitorsA2, var = 2:5)
-    expect_is(plot(t), "ggplot")
-    expect_warning(
-        plot(t, forecast = 2),
-        "Forecasting not available for annual data"
-    )
-    expect_is(plot(tm), "ggplot")
-    expect_is(plot(tm, compare = FALSE), "gtable")
+test_that("Annual data forecast is fine", {
+    t <- inzightts(visitorsA2)
+    tm <- inzightts(visitorsA2, var = 2:5)
+    expect_is(plot(predict(t)), "ggplot")
+    expect_is(plot(predict(tm)), "ggplot")
+    # expect_is(plot(tm, compare = FALSE), "gtable")
 })
 
 ## clean up

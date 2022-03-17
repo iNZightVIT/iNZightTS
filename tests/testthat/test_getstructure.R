@@ -69,7 +69,7 @@ test_that("iNZightTS object can be created from a base ts object", {
         frequency = 4
     )
     expect_equal(
-        iNZightTS(t)$tsObj,
-        iNZightTS(visitorsQ)$tsObj
+        inzightts(t)[[2]],
+        inzightts(visitorsQ)[[2]]
     )
 })

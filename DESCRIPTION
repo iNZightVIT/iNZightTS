@@ -8,7 +8,8 @@ Authors@R: c(
     person("Simon", "Potter",   role = "aut"),
     person("David", "Banks",    role = "aut"),
     person("Marco", "Kuper",    role = "ctb"),
-    person("Dongning", "Zhang", role = "ctb")
+    person("Dongning", "Zhang", role = "ctb"),
+    person("Zhaoming", "Su",    role = "ctb")
     )
 Depends:
     R (>= 3.2)
@@ -29,7 +30,15 @@ Imports:
     rlang,
     stats,
     tidyr,
-    utils
+    utils,
+    tsibble,
+    fable,
+    fabletools,
+    feasts,
+    evaluate,
+    lubridate,
+    stringr,
+    tibble
 Suggests:
     covr,
     testthat

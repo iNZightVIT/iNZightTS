@@ -10,7 +10,7 @@
 #'
 #' @keywords iNZight
 #'
-#' @seealso \code{iNZight}
+#' @seealso \code{\link[iNZightTS]{inzightts}}
 #'
 #' @import grid grDevices graphics stats utils
 #' @importFrom magrittr '%>%'
