@@ -56,9 +56,16 @@ log_if <- fabletools::new_transformation(
 #'
 #' @export
 predict.inz_ts <- function(object, var = NULL, h = "2 years", mult_fit = FALSE,
-                           pred_model = fable::ARIMA, confint_width = .95, ...) {
+                           pred_model = fable::ARIMA, confint_width = .95,
+                           plot_range = NULL, model_range = NULL, ...) {
     var <- guess_plot_var(object, !!enquo(var))
 
+    if (all(is.na(plot_range))) plot_range <- NULL
+    if (all(is.na(model_range))) model_range <- NULL
+
+    if (length(tsibble::key(object)) > 0) {
+        rlang::abort("prediction for inz_ts objects with key is not supported.")
+    }
     y_obs <- unlist(lapply(dplyr::case_when(
         length(as.character(var)) > 2 ~ as.character(var)[-1],
         TRUE ~ dplyr::last(as.character(var))
@@ -67,6 +74,58 @@ predict.inz_ts <- function(object, var = NULL, h = "2 years", mult_fit = FALSE,
         mult_fit <- !mult_fit
         rlang::warn("Non-positive obs detected, setting `mult_fit = FALSE`")
     }
+    if (!is.null(plot_range)) {
+        if (!is.null(model_range) & class(model_range)[1] != class(plot_range)[1]) {
+            rlang::abort("model_range and plot_range must have the same primary class.")
+        }
+        if (!all(length(plot_range) == 2, any(is.numeric(plot_range), is(plot_range, "Date")))) {
+            rlang::abort("plot_range must be a numeric or Date vector of length 2.")
+        }
+        na_i <- which(is.na(plot_range))[1]
+        t_range <- range(object$index)
+        if (!is.numeric(object[[tsibble::index_var(object)]]) & is.numeric(plot_range)) {
+            plot_range[na_i] <- lubridate::year(dplyr::case_when(
+                as.logical(na_i - 1) ~ dplyr::last(object$index),
+                TRUE ~ object$index[1]
+            ))
+            plot_range <- lubridate::ymd(paste0(plot_range, c("0101", "1231")))
+            object <- dplyr::filter(object, dplyr::between(lubridate::as_date(index), plot_range[1], plot_range[2]))
+        } else if (is.numeric(object[[tsibble::index_var(object)]]) & is(plot_range, "Date")) {
+            plot_range[na_i] <- lubridate::ymd(paste0(ifelse(na_i - 1, dplyr::last(object$index), object$index[1]), "0101"))
+            object <- dplyr::filter(object, dplyr::between(index, lubridate::year(plot_range[1]), lubridate::year(plot_range[2])))
+        } else {
+            plot_range[na_i] <- dplyr::case_when(
+                as.logical(na_i - 1) ~ dplyr::last(object$index),
+                TRUE ~ object$index[1]
+            )
+            object <- dplyr::filter(object, dplyr::between(index, plot_range[1], plot_range[2]))
+        }
+    }
+    if (!is.null(model_range)) {
+        if (!all(length(model_range) == 2, any(is.numeric(model_range), is(model_range, "Date")))) {
+            rlang::abort("model_range must be a numeric or Date vector of length 2.")
+        }
+        na_i <- which(is.na(model_range))[1]
+        if (!is.numeric(object[[tsibble::index_var(object)]]) & is.numeric(model_range)) {
+            model_range[na_i] <- lubridate::year(dplyr::case_when(
+                as.logical(na_i - 1) ~ dplyr::last(object$index),
+                TRUE ~ object$index[1]
+            ))
+            model_range <- lubridate::ymd(paste0(model_range, c("0101", "1231")))
+            x <- dplyr::filter(object, dplyr::between(lubridate::as_date(index), model_range[1], model_range[2]))
+        } else if (is.numeric(object[[tsibble::index_var(object)]]) & is(model_range, "Date")) {
+            model_range[na_i] <- lubridate::ymd(paste0(ifelse(na_i - 1, dplyr::last(object$index), object$index[1]), "0101"))
+            x <- dplyr::filter(object, dplyr::between(index, lubridate::year(model_range[1]), lubridate::year(model_range[2])))
+        } else {
+            model_range[na_i] <- dplyr::case_when(
+                as.logical(na_i - 1) ~ dplyr::last(object$index),
+                TRUE ~ object$index[1]
+            )
+            x <- dplyr::filter(object, dplyr::between(index, model_range[1], model_range[2]))
+        }
+    } else {
+        x <- object
+    }
     if (length(var) < 3) {
         var <- dplyr::last(as.character(var))
     } else {
@@ -74,10 +133,19 @@ predict.inz_ts <- function(object, var = NULL, h = "2 years", mult_fit = FALSE,
     }
 
     inzightts_forecast_ls <- lapply(var, function(y_var) {
-        predict_inzightts_var(object, sym(y_var), h, mult_fit, pred_model, confint_width)
+        predict_inzightts_var(x, sym(y_var), h, mult_fit, pred_model, confint_width)
     })
 
-    dplyr::bind_rows(!!!inzightts_forecast_ls) %>%
+    object %>%
+        dplyr::select(index, !!!var) %>%
+        tidyr::pivot_longer(!index, names_to = ".var", values_to = ".mean") %>%
+        dplyr::mutate(.model = "Raw data") %>%
+        tibble::as_tibble() %>%
+        dplyr::bind_rows(!!!inzightts_forecast_ls) %>%
+        dplyr::filter(
+            !tsibble::are_duplicated(., index = index, key = c(.var, .model))
+        ) %>%
+        tsibble::as_tsibble(index = index, key = c(.var, .model)) %>%
         structure(class = c("inz_frct", class(.)))
 }
 
@@ -117,7 +185,7 @@ predict_inzightts_var <- function(x, var, h, mult_fit, pred_model, confint_width
 #' @rdname decomposition
 #'
 #' @import patchwork
-#' 
+#'
 #' @export
 plot.inz_frct <- function(x, xlab = NULL, ylab = NULL, title = NULL, plot = TRUE, ...) {
     if (is.null(xlab)) {

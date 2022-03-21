@@ -58,9 +58,9 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
                         plot = TRUE, xlim = NULL, aspect = NULL, compare = TRUE,
                         smoother = TRUE, sm_model = "stl", mult_fit = FALSE, ...) {
     var <- guess_plot_var(x, !!enquo(var))
+    if (all(is.na(xlim))) xlim <- NULL
 
-    ## Placeholder, to be implemented
-    if (!compare) {
+    if (!compare) { ## Placeholder, to be implemented
         compare <- TRUE
         rlang::warn("Feature compare = FALSE is to be implemented.")
     }
@@ -76,9 +76,6 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
     if (!is.null(xlim)) {
         if (!all(length(xlim) == 2, any(is.numeric(xlim), is(xlim, "Date")))) {
             rlang::abort("xlim must be a numeric or Date vector of length 2.")
-        }
-        if (sum(is.na(xlim)) > 1) {
-            rlang::abort("xlim can only consist of at most one NA.")
         }
         na_i <- which(is.na(xlim))[1]
         t_range <- range(x$index)
