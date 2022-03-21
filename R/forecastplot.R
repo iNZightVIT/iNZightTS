@@ -40,6 +40,10 @@ log_if <- fabletools::new_transformation(
 #'        an additive model is used by default.
 #' @param pred_model a \code{fable} model function
 #' @param confint_width a decimal, the width of the prediction interval
+#' @param plot_range range of data to be plotted, specified as dates or years
+#' @param model_range range of data to be fitted for forecasts, specified as
+#'        dates or years, if part of \code{model_range} specified is outside
+#'        the range of \code{plot_range}, the exceeding proportion is ignored.
 #' @param ... additional arguments (ignored)
 #' @return an \code{inz_frct} object
 #'
@@ -78,7 +82,7 @@ predict.inz_ts <- function(object, var = NULL, h = "2 years", mult_fit = FALSE,
         if (!is.null(model_range) & class(model_range)[1] != class(plot_range)[1]) {
             rlang::abort("model_range and plot_range must have the same primary class.")
         }
-        if (!all(length(plot_range) == 2, any(is.numeric(plot_range), is(plot_range, "Date")))) {
+        if (!all(length(plot_range) == 2, any(is.numeric(plot_range), methods::is(plot_range, "Date")))) {
             rlang::abort("plot_range must be a numeric or Date vector of length 2.")
         }
         na_i <- which(is.na(plot_range))[1]
@@ -90,7 +94,7 @@ predict.inz_ts <- function(object, var = NULL, h = "2 years", mult_fit = FALSE,
             ))
             plot_range <- lubridate::ymd(paste0(plot_range, c("0101", "1231")))
             object <- dplyr::filter(object, dplyr::between(lubridate::as_date(index), plot_range[1], plot_range[2]))
-        } else if (is.numeric(object[[tsibble::index_var(object)]]) & is(plot_range, "Date")) {
+        } else if (is.numeric(object[[tsibble::index_var(object)]]) & methods::is(plot_range, "Date")) {
             plot_range[na_i] <- lubridate::ymd(paste0(ifelse(na_i - 1, dplyr::last(object$index), object$index[1]), "0101"))
             object <- dplyr::filter(object, dplyr::between(index, lubridate::year(plot_range[1]), lubridate::year(plot_range[2])))
         } else {
@@ -102,7 +106,7 @@ predict.inz_ts <- function(object, var = NULL, h = "2 years", mult_fit = FALSE,
         }
     }
     if (!is.null(model_range)) {
-        if (!all(length(model_range) == 2, any(is.numeric(model_range), is(model_range, "Date")))) {
+        if (!all(length(model_range) == 2, any(is.numeric(model_range), methods::is(model_range, "Date")))) {
             rlang::abort("model_range must be a numeric or Date vector of length 2.")
         }
         na_i <- which(is.na(model_range))[1]
@@ -113,7 +117,7 @@ predict.inz_ts <- function(object, var = NULL, h = "2 years", mult_fit = FALSE,
             ))
             model_range <- lubridate::ymd(paste0(model_range, c("0101", "1231")))
             x <- dplyr::filter(object, dplyr::between(lubridate::as_date(index), model_range[1], model_range[2]))
-        } else if (is.numeric(object[[tsibble::index_var(object)]]) & is(model_range, "Date")) {
+        } else if (is.numeric(object[[tsibble::index_var(object)]]) & methods::is(model_range, "Date")) {
             model_range[na_i] <- lubridate::ymd(paste0(ifelse(na_i - 1, dplyr::last(object$index), object$index[1]), "0101"))
             x <- dplyr::filter(object, dplyr::between(index, lubridate::year(model_range[1]), lubridate::year(model_range[2])))
         } else {

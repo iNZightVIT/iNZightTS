@@ -15,6 +15,12 @@
 #' @import grid grDevices graphics stats utils
 #' @importFrom magrittr '%>%'
 #' @importFrom rlang .data
+#' @importFrom rlang ':='
 #'
 #' @name iNZightTS-package
 NULL
+
+utils::globalVariables(c(
+    ".", "trend", "remainder", "seasonal", "residual", "Date", "value",
+    "index", ".var", ".model", ".mean", ".lower", ".upper", ".fitted"
+))

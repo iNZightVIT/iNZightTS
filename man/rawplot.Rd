@@ -33,7 +33,7 @@
 
 \item{plot}{logical, if \code{FALSE}, the graph isn't drawn}
 
-\item{xlim}{axis limits, specified as dates}
+\item{xlim}{axis limits, specified as dates or years}
 
 \item{aspect}{the aspect ratio of the plot;
 it will be about \code{aspect} times wider than it is high}
