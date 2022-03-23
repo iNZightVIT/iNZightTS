@@ -38,7 +38,8 @@ Imports:
     evaluate,
     lubridate,
     stringr,
-    tibble
+    tibble,
+    urca
 Suggests:
     covr,
     testthat
