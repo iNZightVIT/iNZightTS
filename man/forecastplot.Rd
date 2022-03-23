@@ -11,7 +11,7 @@
   mult_fit = FALSE,
   pred_model = fable::ARIMA,
   confint_width = 0.95,
-  plot_range = NULL,
+  t_range = NULL,
   model_range = NULL,
   ...
 )
@@ -30,11 +30,11 @@ an additive model is used by default.}
 
 \item{confint_width}{a decimal, the width of the prediction interval}
 
-\item{plot_range}{range of data to be plotted, specified as dates or years}
+\item{t_range}{range of data to be plotted, specified as dates or years}
 
 \item{model_range}{range of data to be fitted for forecasts, specified as
 dates or years, if part of \code{model_range} specified is outside
-the range of \code{plot_range}, the exceeding proportion is ignored.}
+the range of \code{t_range}, the exceeding proportion is ignored.}
 
 \item{...}{additional arguments (ignored)}
 }

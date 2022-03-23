@@ -26,15 +26,42 @@ seasonplot <- function(x, ...) {
 
 
 #' @export
-seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE, plot = TRUE, ...) {
+seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE,
+                              model_range = NULL, plot = TRUE, ...) {
     var <- guess_plot_var(x, !!enquo(var))
     spec <- list(...)
+
+    if (all(is.na(model_range))) model_range <- NULL
 
     if (!is.null(spec$labels)) {
         l <- spec$labels
         spec <- within(spec, rm(labels))
     } else {
         l <- "both"
+    }
+    if (!is.null(model_range)) {
+        if (!all(length(model_range) == 2, any(is.numeric(model_range), methods::is(model_range, "Date")))) {
+            rlang::abort("model_range must be a numeric or Date vector of length 2.")
+        }
+        na_i <- which(is.na(model_range))[1]
+        t_range <- range(x$index)
+        if (!is.numeric(x[[tsibble::index_var(x)]]) & is.numeric(model_range)) {
+            model_range[na_i] <- lubridate::year(dplyr::case_when(
+                as.logical(na_i - 1) ~ dplyr::last(x$index),
+                TRUE ~ x$index[1]
+            ))
+            model_range <- lubridate::ymd(paste0(model_range, c("0101", "1231")))
+            x <- dplyr::filter(x, dplyr::between(lubridate::as_date(index), model_range[1], model_range[2]))
+        } else if (is.numeric(x[[tsibble::index_var(x)]]) & methods::is(model_range, "Date")) {
+            model_range[na_i] <- lubridate::ymd(paste0(ifelse(na_i - 1, dplyr::last(x$index), x$index[1]), "0101"))
+            x <- dplyr::filter(x, dplyr::between(index, lubridate::year(model_range[1]), lubridate::year(model_range[2])))
+        } else {
+            model_range[na_i] <- dplyr::case_when(
+                as.logical(na_i - 1) ~ dplyr::last(x$index),
+                TRUE ~ x$index[1]
+            )
+            x <- dplyr::filter(x, dplyr::between(index, model_range[1], model_range[2]))
+        }
     }
     if (length(var) < 3) {
         var <- dplyr::last(as.character(var))

@@ -6,7 +6,14 @@
 \alias{plot.inz_frct}
 \title{Decompose a time series object}
 \usage{
-decomp(x, var = NULL, sm_model = c("stl"), mult_fit = FALSE, ...)
+decomp(
+  x,
+  var = NULL,
+  sm_model = c("stl"),
+  mult_fit = FALSE,
+  model_range = NULL,
+  ...
+)
 
 \method{plot}{inz_dcmp}(
   x,
@@ -31,6 +38,10 @@ decomp(x, var = NULL, sm_model = c("stl"), mult_fit = FALSE, ...)
 
 \item{mult_fit}{If \code{TRUE}, a multiplicative model is used, otherwise
 an additive model is used by default.}
+
+\item{model_range}{range of data to be decomposed by the model, specified as
+dates or years, if part of \code{model_range} specified is outside
+the range of the data, the exceeding proportion is ignored.}
 
 \item{...}{additional arguments (ignored)}
 

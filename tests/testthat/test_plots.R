@@ -63,16 +63,36 @@ test_that("Annual data forecast is fine", {
     # expect_is(plot(tm, compare = FALSE), "gtable")
 })
 
+test_that("Check raw-plot configuration", {
+    expect_is(plot(t, xlim = c(NA, NA)), "ggplot")
+    expect_warning(plot(t, compare = FALSE))
+    t_neg <- t
+    t_neg$Australia[1] <- -1
+    expect_warning(plot(t_neg, mult_fit = TRUE))
+    expect_is(plot(t, xlim = c(2005, 2010)), "ggplot")
+    expect_warning(plot(t, xlim = lubridate::ymd(c(20050101, 20101231))))
+    x <- inzightts(visitorsQ, var = 2:5)
+    expect_error(plot(x, c("Australia", "Japan"), ylab = "AUS"))
+    expect_warning(plot(x, names(x)[-1], aspect = 4))
+    expect_is(plot(t, aspect = 1), "ggplot")
+    expect_equal(guess_plot_var(t, "test"), c("", "test"))
+    expect_is(guess_plot_var(t, NULL), "name")
+})
+
+test_that("Check decomposition plot configuration", {
+    expect_error(decomp(t, sm_model = "null_model"))
+    expect_is(iNZightTS:::use_decomp_method("stl"), "use_stl")
+    expect_is(iNZightTS:::use_decomp_method("test"), "use_test")
+    expect_equal(iNZightTS:::as_year.character("2010"), 2010)
+    expect_equal(iNZightTS:::as_year.vctrs_vctr(tsibble::yearquarter("2010Q1")), 2010)
+    expect_equal(iNZightTS:::as_year.numeric(2010), 2010)
+    expect_true(fabletools::is_dable(
+        .decomp(
+            iNZightTS:::use_decomp_method("stl"),
+            t, "Australia", mult_fit = TRUE
+        )
+    ))
+})
+
 ## clean up
 unlink("Rplot.pdf")
-
-
-
-
-if (FALSE) {
-    d <- decompose(t, data.name = "Visitors")
-    ## demo playthrough
-    for (i in 0:1)
-        for (j in 1:nrow(d$data))
-            plot(d, recompose.progress = c(i, j))
-}

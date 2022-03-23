@@ -40,10 +40,10 @@ log_if <- fabletools::new_transformation(
 #'        an additive model is used by default.
 #' @param pred_model a \code{fable} model function
 #' @param confint_width a decimal, the width of the prediction interval
-#' @param plot_range range of data to be plotted, specified as dates or years
+#' @param t_range range of data to be plotted, specified as dates or years
 #' @param model_range range of data to be fitted for forecasts, specified as
 #'        dates or years, if part of \code{model_range} specified is outside
-#'        the range of \code{plot_range}, the exceeding proportion is ignored.
+#'        the range of \code{t_range}, the exceeding proportion is ignored.
 #' @param ... additional arguments (ignored)
 #' @return an \code{inz_frct} object
 #'
@@ -61,10 +61,10 @@ log_if <- fabletools::new_transformation(
 #' @export
 predict.inz_ts <- function(object, var = NULL, h = "2 years", mult_fit = FALSE,
                            pred_model = fable::ARIMA, confint_width = .95,
-                           plot_range = NULL, model_range = NULL, ...) {
+                           t_range = NULL, model_range = NULL, ...) {
     var <- guess_plot_var(object, !!enquo(var))
 
-    if (all(is.na(plot_range))) plot_range <- NULL
+    if (all(is.na(t_range))) t_range <- NULL
     if (all(is.na(model_range))) model_range <- NULL
 
     if (length(tsibble::key(object)) > 0) {
@@ -78,31 +78,31 @@ predict.inz_ts <- function(object, var = NULL, h = "2 years", mult_fit = FALSE,
         mult_fit <- !mult_fit
         rlang::warn("Non-positive obs detected, setting `mult_fit = FALSE`")
     }
-    if (!is.null(plot_range)) {
-        if (!is.null(model_range) & class(model_range)[1] != class(plot_range)[1]) {
-            rlang::abort("model_range and plot_range must have the same primary class.")
+    if (!is.null(t_range)) {
+        if (!is.null(model_range) & class(model_range)[1] != class(t_range)[1]) {
+            rlang::abort("model_range and t_range must have the same primary class.")
         }
-        if (!all(length(plot_range) == 2, any(is.numeric(plot_range), methods::is(plot_range, "Date")))) {
-            rlang::abort("plot_range must be a numeric or Date vector of length 2.")
+        if (!all(length(t_range) == 2, any(is.numeric(t_range), methods::is(t_range, "Date")))) {
+            rlang::abort("t_range must be a numeric or Date vector of length 2.")
         }
-        na_i <- which(is.na(plot_range))[1]
+        na_i <- which(is.na(t_range))[1]
         t_range <- range(object$index)
-        if (!is.numeric(object[[tsibble::index_var(object)]]) & is.numeric(plot_range)) {
-            plot_range[na_i] <- lubridate::year(dplyr::case_when(
+        if (!is.numeric(object[[tsibble::index_var(object)]]) & is.numeric(t_range)) {
+            t_range[na_i] <- lubridate::year(dplyr::case_when(
                 as.logical(na_i - 1) ~ dplyr::last(object$index),
                 TRUE ~ object$index[1]
             ))
-            plot_range <- lubridate::ymd(paste0(plot_range, c("0101", "1231")))
-            object <- dplyr::filter(object, dplyr::between(lubridate::as_date(index), plot_range[1], plot_range[2]))
-        } else if (is.numeric(object[[tsibble::index_var(object)]]) & methods::is(plot_range, "Date")) {
-            plot_range[na_i] <- lubridate::ymd(paste0(ifelse(na_i - 1, dplyr::last(object$index), object$index[1]), "0101"))
-            object <- dplyr::filter(object, dplyr::between(index, lubridate::year(plot_range[1]), lubridate::year(plot_range[2])))
+            t_range <- lubridate::ymd(paste0(t_range, c("0101", "1231")))
+            object <- dplyr::filter(object, dplyr::between(lubridate::as_date(index), t_range[1], t_range[2]))
+        } else if (is.numeric(object[[tsibble::index_var(object)]]) & methods::is(t_range, "Date")) {
+            t_range[na_i] <- lubridate::ymd(paste0(ifelse(na_i - 1, dplyr::last(object$index), object$index[1]), "0101"))
+            object <- dplyr::filter(object, dplyr::between(index, lubridate::year(t_range[1]), lubridate::year(t_range[2])))
         } else {
-            plot_range[na_i] <- dplyr::case_when(
+            t_range[na_i] <- dplyr::case_when(
                 as.logical(na_i - 1) ~ dplyr::last(object$index),
                 TRUE ~ object$index[1]
             )
-            object <- dplyr::filter(object, dplyr::between(index, plot_range[1], plot_range[2]))
+            object <- dplyr::filter(object, dplyr::between(index, t_range[1], t_range[2]))
         }
     }
     if (!is.null(model_range)) {
