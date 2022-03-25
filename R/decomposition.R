@@ -36,6 +36,7 @@
 decomp <- function(x, var = NULL, sm_model = c("stl"),
                    mult_fit = FALSE, model_range = NULL, ...) {
     var <- dplyr::last(as.character(guess_plot_var(x, !!enquo(var), use = "Decomp")))
+
     if (all(is.na(model_range))) model_range <- NULL
 
     if (!is.null(model_range)) {
@@ -43,7 +44,6 @@ decomp <- function(x, var = NULL, sm_model = c("stl"),
             rlang::abort("model_range must be a numeric or Date vector of length 2.")
         }
         na_i <- which(is.na(model_range))[1]
-        t_range <- range(x$index)
         if (!is.numeric(x[[tsibble::index_var(x)]]) & is.numeric(model_range)) {
             model_range[na_i] <- lubridate::year(dplyr::case_when(
                 as.logical(na_i - 1) ~ dplyr::last(x$index),

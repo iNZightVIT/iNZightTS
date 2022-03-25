@@ -18,10 +18,10 @@
 #' @export
 log_if <- fabletools::new_transformation(
     transformation = function(x, mult_fit) {
-        dplyr::case_when(mult_fit ~ log(x), TRUE ~ as.numeric(x))
+        if (mult_fit) log(x) else as.numeric(x)
     },
     inverse = function(x, mult_fit) {
-        dplyr::case_when(mult_fit ~ exp(x), TRUE ~ as.numeric(x))
+        if (mult_fit) exp(x) else as.numeric(x)
     }
 )
 
@@ -70,9 +70,10 @@ predict.inz_ts <- function(object, var = NULL, h = "2 years", mult_fit = FALSE,
     if (length(tsibble::key(object)) > 0) {
         rlang::abort("prediction for inz_ts objects with key is not supported.")
     }
-    y_obs <- unlist(lapply(dplyr::case_when(
-        length(as.character(var)) > 2 ~ as.character(var)[-1],
-        TRUE ~ dplyr::last(as.character(var))
+    y_obs <- unlist(lapply(ifelse(
+        length(as.character(var)) > 2,
+        c("", as.character(var)[-1]),
+        dplyr::last(as.character(var))
     ), function(i) object[[i]]))
     if (any(y_obs <= 0) & mult_fit) {
         mult_fit <- !mult_fit
@@ -86,7 +87,6 @@ predict.inz_ts <- function(object, var = NULL, h = "2 years", mult_fit = FALSE,
             rlang::abort("t_range must be a numeric or Date vector of length 2.")
         }
         na_i <- which(is.na(t_range))[1]
-        t_range <- range(object$index)
         if (!is.numeric(object[[tsibble::index_var(object)]]) & is.numeric(t_range)) {
             t_range[na_i] <- lubridate::year(dplyr::case_when(
                 as.logical(na_i - 1) ~ dplyr::last(object$index),

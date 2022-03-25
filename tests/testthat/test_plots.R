@@ -63,11 +63,12 @@ test_that("Annual data forecast is fine", {
     # expect_is(plot(tm, compare = FALSE), "gtable")
 })
 
+t_neg <- t
+t_neg$Australia[1] <- -1
+
 test_that("Check raw-plot configuration", {
     expect_is(plot(t, xlim = c(NA, NA)), "ggplot")
     expect_warning(plot(t, compare = FALSE))
-    t_neg <- t
-    t_neg$Australia[1] <- -1
     expect_warning(plot(t_neg, mult_fit = TRUE))
     expect_is(plot(t, xlim = c(2005, 2010)), "ggplot")
     expect_warning(plot(t, xlim = lubridate::ymd(c(20050101, 20101231))))
@@ -92,6 +93,26 @@ test_that("Check decomposition plot configuration", {
             t, "Australia", mult_fit = TRUE
         )
     ))
+})
+
+test_that("Check season plot configuration", {
+    expect_is(seasonplot(t, labels = "none"), "patchwork")
+    expect_error(seasonplot(t, model_range = 2001))
+    expect_warning(seasonplot(t, model_range = lubridate::ymd(c(20050101, 20101231))))
+    expect_is(seasonplot(tm, names(tm)[-1]), "patchwork")
+})
+
+test_that("Check forecasting configuration", {
+    expect_warning(predict(t_neg, mult_fit = TRUE))
+    expect_error(predict(t, t_range = c(2001, 2002), model_range = lubridate::ymd(c(20010101, 20021231))))
+    expect_error(predict(t, t_range = 2001))
+    expect_error(predict(t, model_range = 2001))
+    expect_is(predict(t, t_range = c(NA, 2008), model_range = c(2002, NA)), "inz_frct")
+    expect_warning(predict(t,
+        t_range = lubridate::ymd(c(20010101, 20101231)),
+        model_range = lubridate::ymd(c(20010101, 20051231))
+    ))
+    expect_error(plot(predict(tm, names(tm)[-1]), ylab = "A"))
 })
 
 ## clean up

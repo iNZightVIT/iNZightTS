@@ -65,9 +65,10 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
         rlang::warn("Feature compare = FALSE is to be implemented.")
     }
 
-    y_obs <- unlist(lapply(dplyr::case_when(
-        length(as.character(var)) > 2 ~ as.character(var)[-1],
-        TRUE ~ dplyr::last(as.character(var))
+    y_obs <- unlist(lapply(ifelse(
+        length(as.character(var)) > 2,
+        c("", as.character(var)[-1]),
+        dplyr::last(as.character(var))
     ), function(i) x[[i]]))
     if (any(y_obs <= 0) & mult_fit) {
         mult_fit <- !mult_fit
@@ -78,7 +79,6 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
             rlang::abort("xlim must be a numeric or Date vector of length 2.")
         }
         na_i <- which(is.na(xlim))[1]
-        t_range <- range(x$index)
         if (!is.numeric(x[[tsibble::index_var(x)]]) & is.numeric(xlim)) {
             xlim[na_i] <- lubridate::year(dplyr::case_when(
                 as.logical(na_i - 1) ~ dplyr::last(x$index),
