@@ -528,3 +528,78 @@ inzightts <- function(data, start = 1, end, freq = 1, var = 2,
         tsibble::fill_gaps() %>%
         tsibble::new_tsibble(class = "inz_ts")
 }
+
+
+#' @export
+inzightts <- function(x, ...) {
+    UseMethod("inzightts")
+}
+
+
+#' @export
+inzightts.character <- function(x, stringsAsFactors = TRUE, as.is = TRUE, ...) {
+    inzightts(read.csv(x, stringsAsFactors = stringsAsFactors, as.is = as.is, ...))
+}
+
+
+#' @export
+inzightts.data.frame <- function(x, var = 2, start = NULL, end = NULL,
+                                 freq = NULL, index_col = NULL, ...) {
+    if (is.null(index_col)) {
+        index_col <- grep("time", names(x), ignore.case = TRUE)[1]
+        if (is.na(index_col)) index_col <- 1
+    }
+
+    ts.struc <- try(get.ts.structure(x[[index_col]]), silent = TRUE)
+    if (inherits(ts.struc, "try-error")) {
+        ts.struc <- list(start = NA, frequency = NA)
+    }
+    if (is.null(start)) {
+        start <- ts.struc$start
+    }
+    if (is.null(freq)) {
+        freq <- ts.struc$frequency
+    }
+    if (any(c(is.na(start), is.na(freq)))) {
+        rlang::abort(paste(
+            "Could not automatically identify `start` and `freq`",
+            "please explicitly specify them.",
+            sep = ", "
+        ))
+    }
+    if (is.null(end)) {
+        n <- nrow(x)
+        if (length(start) > 1L && freq > 1) {
+            end <- numeric(2)
+            end[1] <- start[1] +
+                (n + start[2] - 1) %/% freq
+            end[2] <- (n + start[2] - 1) %% freq
+        } else {
+            start <- start[1]
+            end <- start[1] + n - 1
+        }
+    }
+    inzightts_ts <- ts(
+        x[, var],
+        start = start,
+        end = end,
+        frequency = freq
+    )
+
+    inzightts(inzightts_ts)
+}
+
+
+#' @export
+inzightts.ts <- function(x, pivot_longer = FALSE, ...) {
+    if (is.mts(x)) {
+        inzightts <- tsibble::as_tsibble(x, pivot_longer = pivot_longer, ...)
+    } else {
+        pivot_longer <- NULL
+        inzightts <- tsibble::as_tsibble(x, ...)
+    }
+    
+    inzightts %>%
+        tsibble::fill_gaps() %>%
+        tsibble::new_tsibble(class = "inz_ts")
+}
