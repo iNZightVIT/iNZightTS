@@ -579,6 +579,8 @@ inzightts.data.frame <- function(x, var = 2, start = NULL, end = NULL,
             end <- start[1] + n - 1
         }
     }
+    if (is.numeric(var)) var <- names(x)[var]
+
     inzightts_ts <- ts(
         x[, var],
         start = start,
@@ -586,19 +588,23 @@ inzightts.data.frame <- function(x, var = 2, start = NULL, end = NULL,
         frequency = freq
     )
 
-    inzightts(inzightts_ts)
+    inzightts(inzightts_ts, var)
 }
 
 
 #' @export
-inzightts.ts <- function(x, pivot_longer = FALSE, ...) {
+inzightts.ts <- function(x, var_name = NULL, pivot_longer = FALSE, ...) {
     if (is.mts(x)) {
+        var_name <- NULL
         inzightts <- tsibble::as_tsibble(x, pivot_longer = pivot_longer, ...)
     } else {
+        if (is.null(var_name)) var_name <- "value"
         pivot_longer <- NULL
-        inzightts <- tsibble::as_tsibble(x, ...)
+        inzightts <- x %>%
+            tsibble::as_tsibble(...) %>%
+            dplyr::rename(!!sym(var_name) := value)
     }
-    
+
     inzightts %>%
         tsibble::fill_gaps() %>%
         tsibble::new_tsibble(class = "inz_ts")

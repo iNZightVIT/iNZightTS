@@ -4,17 +4,12 @@
 \alias{inzightts}
 \title{inzightts (Time-Series) Objects}
 \usage{
-inzightts(
-  data,
-  start = 1,
-  end,
-  freq = 1,
-  var = 2,
-  time.col = grep("time", names(data), ignore.case = TRUE)[1],
-  ...
-)
+inzightts(x, ...)
 }
 \arguments{
+\item{...}{additional information passed to \code{read.csv()} and used when
+\code{data} is a path}
+
 \item{data}{a \code{data.frame} containing time information and
 observation or a path to a \code{.csv} file with
 such information or a \code{ts} object}
@@ -33,9 +28,6 @@ same way as \code{start}}
 from \code{data} in the actual time series}
 
 \item{time.col}{which column contains the time variable}
-
-\item{...}{additional information passed to \code{read.csv()} and used when
-\code{data} is a path}
 
 \item{ignore.case}{logical, ignore the case?}
 }
