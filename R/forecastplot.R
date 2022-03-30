@@ -62,7 +62,7 @@ log_if <- fabletools::new_transformation(
 predict.inz_ts <- function(object, var = NULL, h = "2 years", mult_fit = FALSE,
                            pred_model = fable::ARIMA, confint_width = .95,
                            t_range = NULL, model_range = NULL, ...) {
-    var <- guess_plot_var(object, !!enquo(var))
+    var <- guess_plot_var(object, !!enquo(var), use = "Predict")
 
     if (all(is.na(t_range))) t_range <- NULL
     if (all(is.na(model_range))) model_range <- NULL
@@ -150,7 +150,15 @@ predict.inz_ts <- function(object, var = NULL, h = "2 years", mult_fit = FALSE,
             !tsibble::are_duplicated(., index = index, key = c(.var, .model))
         ) %>%
         tsibble::as_tsibble(index = index, key = c(.var, .model)) %>%
-        structure(class = c("inz_frct", class(.)))
+        structure(
+            class = c("inz_frct", class(.)),
+            fit = lapply(inzightts_forecast_ls, function(x) {
+                dplyr::rename(
+                    attributes(x)$fit,
+                    !!unique(x$.var) := Prediction
+                )
+            })
+        )
 }
 
 
@@ -175,7 +183,8 @@ predict_inzightts_var <- function(x, var, h, mult_fit, pred_model, confint_width
         )) %>%
         dplyr::mutate(.var = !!as.character(var)) %>%
         dplyr::select(.var, .model, index, .mean, .lower, .upper) %>%
-        tsibble::update_tsibble(key = c(.var, .model))
+        tsibble::update_tsibble(key = c(.var, .model)) %>%
+        structure(fit = fit)
 }
 
 
@@ -275,4 +284,49 @@ plot_forecast_var <- function(x, var, xlab, ylab, title) {
             legend.position = "bottom",
             legend.title = element_blank()
         )
+}
+
+
+#' @export
+summary.inz_frct <- function(object, var = NULL, ...) {
+    if (is.null(var)) {
+        var <- unique(object$.var)[1]
+        rlang::inform(sprintf(
+            "Summary variable not specified, automatically selected `var = %s`",
+            var
+        ))
+    }
+    if (length(var) > 1) {
+        var <- dplyr::first(var)
+        rlang::warn(sprintf(
+            "Please specify one variable, automatically selected `var = %s`",
+            var
+        ))
+    }
+    fit <- attributes(object)$fit
+    i <- which(unlist(lapply(fit, names)) == var)
+    mod_spec <- fabletools::model_sum(fit[[i]][[1]][[1]])
+    pred <- object %>%
+        tibble::as_tibble() %>%
+        dplyr::filter(.var == !!var, .model == "Prediction") %>%
+        dplyr::select(-c(.var, .model)) %>%
+        head()
+
+    with(fit[[i]][[1]][[1]], list(
+        head_pred = pred,
+        spec = mod_spec,
+        model = fit$model
+    )) %>%
+        structure(class = "summary_inz_frct")
+}
+
+
+#' @export
+print.summary_inz_frct <- function(x, ...) {
+    cat("\nThe first few forecasted observations:\n")
+    print(as.data.frame(x$head_pred), row.names = FALSE)
+    cat("\nModel:\n")
+    cat(x$spec)
+    cat("\n")
+    print(x$model)
 }
