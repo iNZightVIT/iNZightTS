@@ -287,6 +287,30 @@ plot_forecast_var <- function(x, var, xlab, ylab, title) {
 }
 
 
+#' \code{summary} method for objects of class \code{inz_frct}.
+#'
+#' @title Summarising forecasts for inzightts objects
+#'
+#' @param object an \code{inz_frct} object
+#' @param var a character vector of length one, or \code{NULL}
+#' @param ... additional arguments (ignored)
+#' @return a \code{summary_inz_frct} object, which consists of the first few
+#'         forecast observations, the model used for forecasting and the model
+#'         details (call, coefficients and goodness of fit statistics).
+#'
+#' @rdname forecastsummary
+#'
+#' @seealso \code{\link[iNZightTS]{predict.inz_ts}}
+#'
+#' @examples
+#' library(dplyr)
+#' s <- visitorsQ %>%
+#'     inzightts(var = 2:5) %>%
+#'     predict("Japan") %>%
+#'     summary("Japan")
+#' s
+#' print(s, show_details = TRUE)
+#'
 #' @export
 summary.inz_frct <- function(object, var = NULL, ...) {
     if (is.null(var)) {
@@ -321,12 +345,21 @@ summary.inz_frct <- function(object, var = NULL, ...) {
 }
 
 
+#' @param x a \code{summary_inz_frct} object
+#' @param show_details logical, if \code{TRUE} the model details, the call,
+#'        coefficients and goodness of fit statistics, will be printed.
+#' @param ... additional arguments (ignored)
+#'
+#' @rdname forecastsummary
+#' 
 #' @export
-print.summary_inz_frct <- function(x, ...) {
+print.summary_inz_frct <- function(x, show_details = FALSE, ...) {
     cat("\nThe first few forecasted observations:\n")
     print(as.data.frame(x$head_pred), row.names = FALSE)
     cat("\nModel:\n")
     cat(x$spec)
     cat("\n")
-    print(x$model)
+    if (show_details) {
+        print(x$model)
+    }
 }
