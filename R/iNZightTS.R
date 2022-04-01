@@ -549,8 +549,14 @@ inzightts.data.frame <- function(x, var = 2, start = NULL, end = NULL,
         index_col <- grep("time", names(x), ignore.case = TRUE)[1]
         if (is.na(index_col)) index_col <- 1
     }
+
     if (lubridate::is.Date(x[[index_col]]) | inherits(x[[index_col]], "vctrs_vctr")) {
-        return(tsibble::as_tsibble(x, index = !!names(x)[index_col]))
+        return(
+            dplyr::rename(x, index = !!names(x)[index_col]) %>%
+                tsibble::as_tsibble(index = index) %>%
+                tsibble::fill_gaps() %>%
+                tsibble::new_tsibble(class = "inz_ts")
+        )
     }
 
     ts.struc <- try(get.ts.structure(x[[index_col]]), silent = TRUE)
