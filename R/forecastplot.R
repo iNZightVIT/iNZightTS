@@ -362,7 +362,7 @@ print.summary_inz_frct <- function(x, show_details = FALSE, ...) {
     cat("\nModel:\n")
     cat(x$spec)
     cat("\n")
-    if (show_details & inherits(attributes(x)$model, "ARIMA")) {
+    if (show_details & attributes(x)$model == "ARIMA") {
         print(x$model)
     }
 }
