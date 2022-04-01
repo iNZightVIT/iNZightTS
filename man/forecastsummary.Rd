@@ -18,8 +18,8 @@
 
 \item{x}{a \code{summary_inz_frct} object}
 
-\item{show_details}{logical, if \code{TRUE} the model details, the call,
-coefficients and goodness of fit statistics, will be printed.}
+\item{show_details}{logical, if \code{TRUE} the model details will be shown,
+only if \code{pred_model = fable::ARIMA} in the \code{predict} call.}
 }
 \value{
 a \code{summary_inz_frct} object, which consists of the first few

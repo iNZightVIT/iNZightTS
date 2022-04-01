@@ -341,17 +341,20 @@ summary.inz_frct <- function(object, var = NULL, ...) {
         spec = mod_spec,
         model = fit$model
     )) %>%
-        structure(class = "summary_inz_frct")
+        structure(
+            class = "summary_inz_frct",
+            model = class(fit[[i]][[1]][[1]]$fit)
+        )
 }
 
 
 #' @param x a \code{summary_inz_frct} object
-#' @param show_details logical, if \code{TRUE} the model details, the call,
-#'        coefficients and goodness of fit statistics, will be printed.
+#' @param show_details logical, if \code{TRUE} the model details will be shown,
+#'        only if \code{pred_model = fable::ARIMA} in the \code{predict} call.
 #' @param ... additional arguments (ignored)
 #'
 #' @rdname forecastsummary
-#' 
+#'
 #' @export
 print.summary_inz_frct <- function(x, show_details = FALSE, ...) {
     cat("\nThe first few forecasted observations:\n")
@@ -359,7 +362,7 @@ print.summary_inz_frct <- function(x, show_details = FALSE, ...) {
     cat("\nModel:\n")
     cat(x$spec)
     cat("\n")
-    if (show_details) {
+    if (show_details & inherits(attributes(x)$model, "ARIMA")) {
         print(x$model)
     }
 }
