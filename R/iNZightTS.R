@@ -362,7 +362,12 @@ get.ts.structure <- function(vardata) {
 #' If a \code{ts} object is used to create the inzightts object,
 #' all the domain information is extracted from that object.
 #'
-#' The function recognises the following time variable formatS without case sensitive:
+#' \code{index_col} should be a \code{character}, \code{Date},
+#' \code{\link[tsibble]{yearweek}}, \code{\link[tsibble]{yearmonth}} or
+#' \code{\link[tsibble]{yearquarter}} object.
+#'
+#' If \code{index_col} is a \code{character}, the function recognises the
+#' following time variable formatS without case sensitive:
 #'  \itemize{
 #'   \item "(Y)yyyy" annually data e.g."(Y)1991"
 #'   \item "(Y)yyyyMmm" monthly data e.g."(Y)1991M01"
@@ -385,27 +390,8 @@ get.ts.structure <- function(vardata) {
 #'
 #' @title inzightts (Time-Series) Objects
 #'
-#' @param data a \code{data.frame} containing time information and
-#'             observation or a path to a \code{.csv} file with
-#'             such information or a \code{ts} object
-#'
-#' @param start the time of the first observation.
-#'              Either a single number or a vector
-#'              of two integers, which specify a natural time unit
-#'              and a (1-based) number of samples into the time unit
-#'
-#' @param end the time of the last observation, specified in the
-#'            same way as \code{start}
-#'
-#' @param freq the number of observations per unit of time
-#'
-#' @param var the column number or name for the observations used
-#'            from \code{data} in the actual time series
-#'
-#' @param time.col which column contains the time variable
-#' @param ignore.case logical, ignore the case?
-#' @param ... additional information passed to \code{read.csv()} and used when
-#' \code{data} is a path
+#' @param x a \code{data.frame}, \code{ts} or path
+#' @param ... additional arguments to be passed to or from methods
 #'
 #' @return an inzightts (\code{inz_ts}) object, a sub-class of tsibble
 #'         which includes the index variable, temporal variable and,
@@ -413,7 +399,7 @@ get.ts.structure <- function(vardata) {
 #'
 #' @rdname inzightts
 #'
-#' @seealso \code{\link[tsibble]{tsibble}}
+#' @seealso \code{\link[tsibble]{tsibble}}, \code{\link[tsibble]{as_tsibble}}
 #'
 #' @examples
 #' # create from a ts object
@@ -421,127 +407,53 @@ get.ts.structure <- function(vardata) {
 #' plot(z)
 #'
 #' # create from a data.frame
-#' x <- inzightts(data.frame(Return = rnorm(100), Time = 1900:1999),
-#'     var = "Return")
+#' x <- inzightts(
+#'     data.frame(Return = rnorm(100), Time = 1900:1999),
+#'     var = "Return"
+#' )
 #' # or specify a time column
-#' x <- inzightts(data.frame(Return = rnorm(100), Year = 1900:1999),
-#'     var = "Return", time.col = "Year")
+#' x <- inzightts(
+#'     data.frame(Return = rnorm(100), Year = 1900:1999),
+#'     var = "Return", index_col = "Year"
+#' )
 #'
 #' # create from a data.frame with modified time frame
-#' y <- inzightts(data.frame(Return = rnorm(100)),
-#'     start = c(1990, 1), end = c(1993, 5), freq = 12, var = 1)
+#' y <- inzightts(
+#'     data.frame(Return = rnorm(100)),
+#'     start = c(1990, 1), end = c(1993, 5), freq = 12, var = 1
+#' )
 #' plot(y)
 #'
-#' @export
-inzightts <- function(data, start = 1, end, freq = 1, var = 2,
-                      time.col = grep("time", names(data), ignore.case = TRUE)[1],
-                      ...) {
-    
-    inzightts <- list()
-    
-    ## if the input is an object of class "ts", just extract info
-    if (methods::is(data, "ts")) {
-        inzightts$start <- stats::start(data)
-        inzightts$end <- stats::end(data)
-        inzightts$freq <- stats::frequency(data)
-        inzightts$tsObj <- data
-        if (is.null(dim(data))) {
-            inzightts$currVar <- 1
-            inzightts$data <- as.vector(data)
-        } else {
-            if (is.null(colnames(data)))
-                inzightts$currVar <- 1:dim(data)[2]
-            else
-                inzightts$currVar <- colnames(data)
-            inzightts$data <- data.frame(
-                matrix(as.vector(data), ncol=dim(data)[2]),
-                stringsAsFactors = TRUE
-            )
-            colnames(inzightts$data) <- colnames(data)
-        }
-    } else {
-        ## use either a data.frame or a file location as input
-        if (is.character(data))
-            data <- read.csv(data, as.is=TRUE, ..., stringsAsFactors = TRUE)
-        
-        inzightts <- list()
-        inzightts$data <- data
-        
-        ## try to find the time column
-        ## search through the names
-        
-        if (is.na(time.col))
-            time.col <- 1
-        
-        ts.struc <- try(get.ts.structure(data[[time.col]]), silent = TRUE)
-        if (inherits(ts.struc, "try-error")) {
-            ts.struc <- list(start = NA, frequency = NA)
-        }
-        
-        if (missing(start))
-            start <- ts.struc$start
-        
-        if (missing(freq))
-            freq <- ts.struc$frequency
-        
-        if (any(c(is.na(start), is.na(freq))))
-            stop("Unable to construct time series object: missing values, perhaps?")
-        
-        inzightts$start <- start
-        inzightts$freq <- freq
-        ## calculate end if it is missing
-        if (missing(end)) {
-            n <- nrow(data)
-            if (length(start) > 1L && freq > 1) {
-                end <- numeric(2)
-                end[1] <- start[1] +
-                    (n + start[2] - 1) %/% freq
-                end[2] <- (n + start[2] - 1) %% freq
-            } else{
-                start <- start[1]
-                end <- start[1] + n - 1
-            }
-        }
-        inzightts$end <- end
-        inzightts$tsObj <- ts(
-            data[, var],
-            start = start,
-            end = end,
-            frequency = freq
-        )
-        if (is.numeric(var))
-            inzightts$currVar <- names(data)[var]
-        else
-            inzightts$currVar <- var
-    }
-    
-    if (length(inzightts$currVar) > 1) {
-        inzightts <- tsibble::as_tsibble(inzightts$tsObj, pivot_longer = FALSE)
-    } else {
-        if (!is.character(inzightts$currVar)) inzightts$currVar <- "value"
-        inzightts <- inzightts$tsObj %>%
-            tsibble::as_tsibble() %>%
-            dplyr::rename(!!sym(inzightts$currVar) := value)
-    }
-    
-    inzightts %>%
-        tsibble::fill_gaps() %>%
-        tsibble::new_tsibble(class = "inz_ts")
-}
-
-
 #' @export
 inzightts <- function(x, ...) {
     UseMethod("inzightts")
 }
 
 
+#' @param stringsAsFactors see \code{\link[utils]{read.csv}}
+#' @param as.is see \code{\link[utils]{read.csv}}
+#'
+#' @rdname inzightts
+#'
 #' @export
 inzightts.character <- function(x, stringsAsFactors = TRUE, as.is = TRUE, ...) {
     inzightts(read.csv(x, stringsAsFactors = stringsAsFactors, as.is = as.is, ...))
 }
 
 
+#' @param var the column number or name for the observations used
+#'        from \code{data} in the actual time series
+#' @param start the time of the first observation.
+#'        Either a single number or a vector
+#'        of two integers, which specify a natural time unit
+#'        and a (1-based) number of samples into the time unit
+#' @param end the time of the last observation, specified in the
+#'        same way as \code{start}
+#' @param freq the number of observations per unit of time
+#' @param index_col which column contains the time variable
+#'
+#' @rdname inzightts
+#'
 #' @export
 inzightts.data.frame <- function(x, var = 2, start = NULL, end = NULL,
                                  freq = NULL, index_col = NULL, ...) {
@@ -601,6 +513,13 @@ inzightts.data.frame <- function(x, var = 2, start = NULL, end = NULL,
 }
 
 
+#' @param var_name rename the variable column of the univariate time series,
+#'        applicable only if \code{x} is not an \code{mts} object.
+#' @param pivot_longer logical, \code{TRUE} gives a "longer" form of the data,
+#'        otherwise as is, applicable only if \code{x} is an \code{mts} object.
+#'
+#' @rdname inzightts
+#'
 #' @export
 inzightts.ts <- function(x, var_name = NULL, pivot_longer = FALSE, ...) {
     if (is.mts(x)) {

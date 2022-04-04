@@ -21,6 +21,6 @@
 NULL
 
 utils::globalVariables(c(
-    ".", "trend", "remainder", "seasonal", "residual", "Date", "value",
-    "index", ".var", ".model", ".mean", ".lower", ".upper", ".fitted"
+    "trend", "remainder", "seasonal", "residual", "Date", "value", "Prediction",
+    "index", ".var", ".model", ".mean", ".lower", ".upper", ".fitted", "."
 ))

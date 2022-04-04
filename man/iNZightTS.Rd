@@ -2,17 +2,38 @@
 % Please edit documentation in R/iNZightTS.R
 \name{inzightts}
 \alias{inzightts}
+\alias{inzightts.character}
+\alias{inzightts.data.frame}
+\alias{inzightts.ts}
 \title{inzightts (Time-Series) Objects}
 \usage{
 inzightts(x, ...)
+
+\method{inzightts}{character}(x, stringsAsFactors = TRUE, as.is = TRUE, ...)
+
+\method{inzightts}{data.frame}(
+  x,
+  var = 2,
+  start = NULL,
+  end = NULL,
+  freq = NULL,
+  index_col = NULL,
+  ...
+)
+
+\method{inzightts}{ts}(x, var_name = NULL, pivot_longer = FALSE, ...)
 }
 \arguments{
-\item{...}{additional information passed to \code{read.csv()} and used when
-\code{data} is a path}
+\item{x}{a \code{data.frame}, \code{ts} or path}
 
-\item{data}{a \code{data.frame} containing time information and
-observation or a path to a \code{.csv} file with
-such information or a \code{ts} object}
+\item{...}{additional arguments to be passed to or from methods}
+
+\item{stringsAsFactors}{see \code{\link[utils]{read.csv}}}
+
+\item{as.is}{see \code{\link[utils]{read.csv}}}
+
+\item{var}{the column number or name for the observations used
+from \code{data} in the actual time series}
 
 \item{start}{the time of the first observation.
 Either a single number or a vector
@@ -24,12 +45,13 @@ same way as \code{start}}
 
 \item{freq}{the number of observations per unit of time}
 
-\item{var}{the column number or name for the observations used
-from \code{data} in the actual time series}
+\item{index_col}{which column contains the time variable}
 
-\item{time.col}{which column contains the time variable}
+\item{var_name}{rename the variable column of the univariate time series,
+applicable only if \code{x} is not an \code{mts} object.}
 
-\item{ignore.case}{logical, ignore the case?}
+\item{pivot_longer}{logical, \code{TRUE} gives a "longer" form of the data,
+otherwise as is, applicable only if \code{x} is an \code{mts} object.}
 }
 \value{
 an inzightts (\code{inz_ts}) object, a sub-class of tsibble
@@ -49,7 +71,12 @@ data principles, which are both data- and model-oriented.
 If a \code{ts} object is used to create the inzightts object,
 all the domain information is extracted from that object.
 
-The function recognises the following time variable formatS without case sensitive:
+\code{index_col} should be a \code{character}, \code{Date},
+\code{\link[tsibble]{yearweek}}, \code{\link[tsibble]{yearmonth}} or
+\code{\link[tsibble]{yearquarter}} object.
+
+If \code{index_col} is a \code{character}, the function recognises the
+following time variable formatS without case sensitive:
  \itemize{
   \item "(Y)yyyy" annually data e.g."(Y)1991"
   \item "(Y)yyyyMmm" monthly data e.g."(Y)1991M01"
@@ -75,18 +102,24 @@ z <- inzightts(UKgas)
 plot(z)
 
 # create from a data.frame
-x <- inzightts(data.frame(Return = rnorm(100), Time = 1900:1999),
-    var = "Return")
+x <- inzightts(
+    data.frame(Return = rnorm(100), Time = 1900:1999),
+    var = "Return"
+)
 # or specify a time column
-x <- inzightts(data.frame(Return = rnorm(100), Year = 1900:1999),
-    var = "Return", time.col = "Year")
+x <- inzightts(
+    data.frame(Return = rnorm(100), Year = 1900:1999),
+    var = "Return", index_col = "Year"
+)
 
 # create from a data.frame with modified time frame
-y <- inzightts(data.frame(Return = rnorm(100)),
-    start = c(1990, 1), end = c(1993, 5), freq = 12, var = 1)
+y <- inzightts(
+    data.frame(Return = rnorm(100)),
+    start = c(1990, 1), end = c(1993, 5), freq = 12, var = 1
+)
 plot(y)
 
 }
 \seealso{
-\code{\link[tsibble]{tsibble}}
+\code{\link[tsibble]{tsibble}}, \code{\link[tsibble]{as_tsibble}}
 }
