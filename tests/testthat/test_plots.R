@@ -113,6 +113,12 @@ test_that("Check forecasting configuration", {
         model_range = lubridate::ymd(c(20010101, 20051231))
     ))
     expect_error(plot(predict(tm, names(tm)[-1]), ylab = "A"))
+    pred_arima <- predict(t)
+    expect_is(summary(pred_arima), "summary_inz_frct")
+    expect_message(summary(pred_arima))
+    expect_warning(summary(pred_arima, c("Australia", "Japan")))
+    expect_output(print(summary(pred_arima, "Australia"), show_details = TRUE))
+    expect_output(print(summary(pred_arima, "Australia")))
 })
 
 ## clean up
