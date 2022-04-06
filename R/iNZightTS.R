@@ -388,7 +388,7 @@ get.ts.structure <- function(vardata) {
 #' time-series.
 #'
 #'
-#' @title inzightts (Time-Series) Objects
+#' @title Coerce to an inzightts (Time-Series) Objects
 #'
 #' @param x a \code{data.frame}, \code{ts} or path
 #' @param ... additional arguments to be passed to or from methods
@@ -400,6 +400,7 @@ get.ts.structure <- function(vardata) {
 #' @rdname inzightts
 #'
 #' @seealso \code{\link[tsibble]{tsibble}}, \code{\link[tsibble]{as_tsibble}}
+#'          and \code{\link[tsibble]{new_tsibble}}
 #'
 #' @examples
 #' # create from a ts object
@@ -536,4 +537,15 @@ inzightts.ts <- function(x, var_name = NULL, pivot_longer = FALSE, ...) {
     inzightts %>%
         tsibble::fill_gaps() %>%
         tsibble::new_tsibble(class = "inz_ts")
+}
+
+
+#' @rdname inzightts
+#'
+#' @export
+inzightts.tbl_ts <- function(x, ...) {
+    x %>%
+        dplyr::rename(index = !!tsibble::index(x)) %>%
+        tsibble::fill_gaps() %>%
+        tsibble::new_tsibble(..., class = "inz_ts")
 }
