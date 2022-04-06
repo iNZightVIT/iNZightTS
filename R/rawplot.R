@@ -6,7 +6,7 @@ guess_plot_var <- function(x, var, tidy = FALSE, use = "Plot") {
             rlang::abort("Could not automatically identify an appropriate plot variable, please specify the variable to plot.")
         }
         rlang::inform(sprintf(
-            paste(use, "variable not specified, automatically selected `var = %s`"),
+            paste(use, 'variable not specified, automatically selected `var = "%s"`'),
             mv[pos[1]]
         ))
         sym(mv[pos[1]])
@@ -55,16 +55,15 @@ guess_plot_var <- function(x, var, tidy = FALSE, use = "Plot") {
 #'
 #' @export
 plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
-                        plot = TRUE, xlim = NULL, aspect = NULL, compare = TRUE,
+                        plot = TRUE, xlim = NULL, aspect = NULL, compare = FALSE,
                         smoother = TRUE, sm_model = "stl", mult_fit = FALSE, ...) {
     var <- guess_plot_var(x, !!enquo(var))
     if (all(is.na(xlim))) xlim <- NULL
 
-    if (!compare) { ## Placeholder, to be implemented
-        compare <- TRUE
-        rlang::warn("Feature compare = FALSE is to be implemented.")
+    if (smoother & nrow(tsibble::key_data(x)) > 1) {
+        smoother <- !smoother
+        rlang::warn("Smoother does not work for data with keys.")
     }
-
     y_obs <- unlist(lapply(ifelse(
         length(as.character(var)) > 2,
         c("", as.character(var)[-1]),
@@ -161,6 +160,10 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect,
             legend.position = dplyr::case_when(compare ~ "right", TRUE ~ "none"),
             legend.title = element_blank()
         )
+
+    if (!compare) {
+        p <- p + facet_wrap(vars(!!!tsibble::key(x)), nrow = 1)
+    }
 
     if (!is.null(aspect)) {
         y_var <- dplyr::last(as.character(var))
