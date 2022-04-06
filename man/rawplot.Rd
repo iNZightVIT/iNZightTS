@@ -13,7 +13,7 @@
   plot = TRUE,
   xlim = NULL,
   aspect = NULL,
-  compare = TRUE,
+  compare = FALSE,
   smoother = TRUE,
   sm_model = "stl",
   mult_fit = FALSE,

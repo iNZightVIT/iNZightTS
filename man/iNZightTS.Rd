@@ -5,7 +5,8 @@
 \alias{inzightts.character}
 \alias{inzightts.data.frame}
 \alias{inzightts.ts}
-\title{inzightts (Time-Series) Objects}
+\alias{inzightts.tbl_ts}
+\title{Coerce to an inzightts (Time-Series) Objects}
 \usage{
 inzightts(x, ...)
 
@@ -22,6 +23,8 @@ inzightts(x, ...)
 )
 
 \method{inzightts}{ts}(x, var_name = NULL, pivot_longer = FALSE, ...)
+
+\method{inzightts}{tbl_ts}(x, ...)
 }
 \arguments{
 \item{x}{a \code{data.frame}, \code{ts} or path}
@@ -122,4 +125,5 @@ plot(y)
 }
 \seealso{
 \code{\link[tsibble]{tsibble}}, \code{\link[tsibble]{as_tsibble}}
+         and \code{\link[tsibble]{new_tsibble}}
 }

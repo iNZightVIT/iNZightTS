@@ -68,7 +68,7 @@ t_neg$Australia[1] <- -1
 
 test_that("Check raw-plot configuration", {
     expect_is(plot(t, xlim = c(NA, NA)), "ggplot")
-    expect_warning(plot(t, compare = FALSE))
+    # expect_warning(plot(t, compare = FALSE))
     expect_warning(plot(t_neg, mult_fit = TRUE))
     expect_is(plot(t, xlim = c(2005, 2010)), "ggplot")
     expect_warning(plot(t, xlim = lubridate::ymd(c(20050101, 20101231))))
