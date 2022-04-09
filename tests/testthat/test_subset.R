@@ -50,7 +50,7 @@ test_that("Subset of multi series graph works", {
 
 ## covid data
 test_that("Modelling limits are OK", {
-    ct <- inzightts(covid, time.var = 6, var = 5)
+    ct <- inzightts(covid, var = 5, index = 6)
 
     # expect_is(plot(ct, xlim = c(10, 20)), "ggplot")
     expect_is(plot(ct), "ggplot")

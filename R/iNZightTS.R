@@ -1,353 +1,47 @@
-is.leapyear <- function(year){
-    ( (year %% 4 == 0) & (year %% 100 != 0) ) |
-        (year %% 400 == 0)
-}
+format_index <- function(x) {
+    x <- as.character(x)
 
-
-get.ts.structure <- function(vardata) {
-    ## check for factor and converting if it is factor
-    if (is.factor(vardata))
-        vardata <- as.character(vardata)
-    
-    ## check for NA return NA if there is
-    if (any(is.na(vardata))) {
-        return(list(start = NA, frequency = NA))
-    }
-    
-    ## check for numeric value with decimal place
-    if (is.numeric(vardata)) {
-        if (any(vardata != round(vardata)))
-            return(list(start = NA, frequency = NA))
-        vardata <- as.character(vardata)
-        ## if the variable is numeric, it can only be yearly data with only 4 digits
-        if (any(nchar(vardata) > 4))
-            return(list(start = NA, frequency = NA))
-    }
-    
-    ## extract the first and last value
-    firstval <- vardata[1]
-    
-    lastval <- vardata[length(vardata)]
-    
-    
-    
-    ### extract the first and the last year by fingding the first few digits if the
-    ### time variable starts with Y or just digits
-    if (all(grepl("^[Y]?[0-9]+", vardata,ignore.case = TRUE))) {
-        
-        ## find the location of the year
-        first.year.loc <- regexpr("[Y]?[0-9]+", firstval, ignore.case = TRUE)
-        
-        last.year.loc <- regexpr("[Y]?[0-9]+", lastval, ignore.case = TRUE)
-        
-        ##check if there is a Y in the year and substring the year
-        if (attr(first.year.loc, "match.length") == 4){
-            first.year <- as.numeric(
-                substr(firstval,first.year.loc,
-                       attr(first.year.loc, "match.length") +
-                           first.year.loc - 1
-                )
-            )
-            
-            last.year <-  as.numeric(
-                substr(lastval, last.year.loc,
-                       attr(last.year.loc, "match.length") +
-                           last.year.loc - 1
-                )
-            )
-        } else  {
-            first.year <- as.numeric(
-                substr(firstval,first.year.loc + 1,
-                       attr(first.year.loc, "match.length") +
-                           first.year.loc - 1
-                )
-            )
-            
-            last.year <-  as.numeric(
-                substr(lastval, last.year.loc + 1,
-                       attr(last.year.loc, "match.length") +
-                           last.year.loc - 1
-                )
-            )
-        }
-    }
-    ### if the frequency is yearly and check for holes in the series by
-    ### comparing the numerber of observation with the number of year
-    ### calculated by the first year and last year
-    if (all(grepl("^[Y]?[0-9]+$", vardata,ignore.case = TRUE))) {
-        if (last.year - first.year +1 == length(vardata)) {
-            return(list(start = c(first.year), frequency = 1))
-        } else {
-            ## if the number of observations does not match
-            ## return NAs
-            return(list(start = NA, frequency = NA))
-        }
-    }
-    
-    ### check for monthly with yearly seasonality "1886M02"
-    
-    if (all(grepl("^[Y]?[0-9]+[M][0-9]+$", vardata,ignore.case = TRUE))) {
-        
-        ## extract the first month and last month
-        first.month.loc <- regexpr("[M][0-9]+", firstval,ignore.case = TRUE)
-        
-        last.month.loc <- regexpr("[M][0-9]+", lastval,ignore.case = TRUE)
-        
-        first.month <- as.numeric(
-            substr(firstval, first.month.loc + 1,
-                   attr(first.month.loc, "match.length") + first.month.loc - 1
-            )
-        )
-        
-        last.month <- as.numeric(
-            substr(lastval, last.month.loc + 1,
-                   attr(last.month.loc, "match.length") + last.month.loc - 1
-            )
-        )
-        
-        ## check for holes in the obervation by comparing the number of
-        ## observations and the number of month calculated by the using the
-        ## number of years and month
-        ## it works if the observation is in same year
-        hole_check <- 12 - first.month + 1 + last.month +
-            (last.year - first.year - 1) * 12
-        if (hole_check  == length(vardata)) {
-            return(
-                list(
-                    start = c(first.year, first.month),
-                    frequency = 12
-                )
-            )
-        } else {
-            ## if the numbers do not match, return NAs
-            return(list(start = NA, frequency = NA))
-        }
-    }
-    
-    ### check for quarterly with yearly seasonality "1994Q03"
-    if (all(grepl("^[Y]?[0-9]+[Q][0-9]+$", vardata, ignore.case = TRUE))) {
-        ## extract the quarters
-        first.quarter.loc <- regexpr("[Q][0-9]+", firstval, ignore.case = TRUE)
-        
-        last.quarter.loc <- regexpr("[Q][0-9]+", lastval, ignore.case = TRUE)
-        
-        first.quarter <- as.numeric(
-            substr(firstval, first.quarter.loc + 1,
-                   attr(first.quarter.loc, "match.length") +
-                       first.quarter.loc - 1
-            )
-        )
-        
-        last.quarter <- as.numeric(
-            substr(lastval, last.quarter.loc + 1,
-                   attr(last.quarter.loc, "match.length") +
-                       last.quarter.loc - 1
-            )
-        )
-        
-        ## check for holes in the observation by comparing the
-        ## number of observations and the number of quaters calculated by
-        ## the number of years and the number of quaters
-        hole_check <- 4 - first.quarter + 1 + last.quarter +
-            (last.year - first.year -1) * 4
-        if (hole_check == length(vardata)) {
-            return(
-                list(
-                    start = c(first.year, first.quarter),
-                    frequency = 4
-                )
-            )
-        } else {
-            ## if the numbers do not match, return NAs
-            return(list(start = NA, frequency = NA))
-        }
-    }
-    
-    ### check for weekly with yearly seasonality "1990W01"
-    if (all(grepl("^[Y]?[0-9]+[W][0-9]+$", vardata, ignore.case = TRUE))) {
-        ## extract the first and last week
-        first.week.loc <- regexpr("[W][0-9]+", firstval,ignore.case = TRUE)
-        
-        last.week.loc <- regexpr("[W][0-9]+", lastval,ignore.case = TRUE)
-        
-        first.week <- as.numeric(
-            substr(firstval, first.week.loc + 1,
-                   attr(first.week.loc, "match.length") +
-                       first.week.loc - 1
-            )
-        )
-        
-        last.week <- as.numeric(
-            substr(lastval, last.week.loc + 1,
-                   attr(last.week.loc, "match.length") + last.week.loc - 1
-            )
-        )
-        
-        ## check for holes by comparing the number of observations and the number
-        ## of the weeks calculated by years and weeks
-        hole_check <- 52 - first.week + 1 + last.week +
-            (last.year - first.year -1) * 52
-        if (hole_check == length(vardata)) {
-            return(
-                list(
-                    start = c(first.year, first.week),
-                    frequency = 52
-                )
-            )
-        } else {
-            ## if numbers do not match, return NAs
-            return(list(start = NA, frequency = NA))
-        }
-    }
-    
-    ### check for daily with yearly seasonality "1991D1"
-    if (all(grepl("^[Y]?[0-9]+[D][0-9]+$", vardata, ignore.case = TRUE))) {
-        ## extract the days in first and last value
-        first.day.loc <- regexpr("[D][0-9]+", firstval, ignore.case = TRUE)
-        
-        last.day.loc <- regexpr("[D][0-9]+", lastval, ignore.case = TRUE)
-        
-        first.day <- as.numeric(
-            substr(firstval, first.day.loc + 1,
-                   attr(first.day.loc, "match.length") + first.day.loc - 1
-            )
-        )
-        
-        last.day <- as.numeric(
-            substr(lastval, last.day.loc + 1,
-                   attr(last.day.loc, "match.length") + last.day.loc - 1
-            )
-        )
-        
-        ## generate a sequence of year without the first and last year
-        if (last.year - first.year > 2) {
-            years <- seq(first.year + 1, last.year - 1)
-        } else {
-            years <- -1
-        }
-        
-        hole_check <- 365 - first.day + 1 + last.day +
-            365 * (last.year - first.year - 1) + sum(is.leapyear(years)) +
-            ( is.leapyear(first.year) & (first.day <= 59) )
-        if (hole_check == length(vardata)) {
-            return(
-                list(
-                    start = c(first.year, first.day),
-                    frequency = 365.25
-                )
-            )
-        } else {
-            return(list(start = NA, frequency = NA))
-        }
-    }
-    
-    ### check for daily data in weekly seasonality "W01D01"
-    if (all(grepl("^[w][0-9]+[D][0-9]+$", vardata, ignore.case = TRUE))) {
-        ## extract the week and days from the first and last value
-        first.week.loc <- regexpr("[w][0-9]+", firstval, ignore.case = TRUE)
-        
-        last.week.loc <- regexpr("[w][0-9]+", lastval, ignore.case = TRUE)
-        
-        first.week <- as.numeric(
-            substr(firstval, first.week.loc + 1,
-                   attr(first.week.loc, "match.length") + first.week.loc - 1
-            )
-        )
-        
-        last.week <- as.numeric(
-            substr(lastval, last.week.loc + 1,
-                   attr(last.week.loc, "match.length") + last.week.loc - 1
-            )
-        )
-        
-        first.day.loc <- regexpr("[D][0-9]+", firstval, ignore.case = TRUE)
-        
-        last.day.loc <- regexpr("[D][0-9]+", lastval, ignore.case = TRUE)
-        
-        first.day <- as.numeric(
-            substr(firstval, first.day.loc + 1,
-                   attr(first.day.loc, "match.length") + first.day.loc - 1
-            )
-        )
-        
-        last.day <- as.numeric(
-            substr(lastval, first.day.loc + 1,
-                   attr(last.day.loc, "match.length") + last.day.loc - 1
-            )
-        )
-        
-        # determine frequency as 5 or 7 day week
-        freq <- ifelse(
-            all(grepl("[d][0-5]+$", vardata, ignore.case = TRUE)),
-            5,
-            7
-        )
-        
-        ## check holes by comparin the number of observations and the number of days obtained
-        ## by calculation using the weeks and the days
-        hole_check <- freq - first.day + 1 + last.day +
-            (last.week - first.week - 1) * freq
-        if (hole_check == length(vardata)) {
-            return(
-                list(
-                    start = c(first.week, first.day),
-                    frequency = freq
-                )
-            )
-        } else {
-            return(list(start = NA, frequency = NA))
-        }
-    }
-    
-    ## hourly in daily seasonality "D01H01"
-    if (all(grepl("^[D][0-9]+[H][0-9]+$", vardata, ignore.case = TRUE))) {
-        ## extract the days and the hours from the first and last value
-        first.day.loc <- regexpr("[d][0-9]+", firstval, ignore.case = TRUE)
-        last.day.loc <- regexpr("[D][0-9]+", lastval, ignore.case = TRUE)
-        first.day <- as.numeric(
-            substr(firstval, first.day.loc + 1,
-                   attr(first.day.loc, "match.length") + first.day.loc - 1
-            )
-        )
-        last.day <- as.numeric(
-            substr(lastval, last.day.loc + 1,
-                   attr(last.day.loc, "match.length") + last.day.loc - 1
-            )
-        )
-        
-        first.hour.loc <- regexpr("[h][0-9]+", firstval, ignore.case = TRUE)
-        last.hour.loc <- regexpr("[h][0-9]+", lastval, ignore.case = TRUE)
-        first.hour <- as.numeric(
-            substr(firstval, first.hour.loc + 1,
-                   attr(first.hour.loc, "match.length") + first.hour.loc - 1
-            )
-        )
-        
-        last.hour <- as.numeric(
-            substr(lastval, last.hour.loc + 1,
-                   attr(last.hour.loc, "match.length") + last.hour.loc - 1
-            )
-        )
-        
-        ## check for holes by comparing the number of the observation and the
-        ## number obtained by calculation using the days and hours obtained above
-        hole_check <- 24 - first.hour + 1 + last.hour +
-            (last.day - first.day - 1) * 24
-        if (hole_check == length(vardata)) {
-            return(
-                list(
-                    start = c(first.day, first.hour),
-                    frequency  = 24
-                )
-            )
-        } else {
-            return(list(start = NA, frequency = NA))
-        }
+    if (all(grepl("^[Y]?[0-9]+$", x, TRUE))) {
+        x <- as.numeric(gsub("^[Y]?", "", x, TRUE))
+    } else if (all(grepl("^[Y]?[0-9]+[M][0-9]+$", x, TRUE))) {
+        x <- tsibble::yearmonth(gsub("^[Y]?", "", x, TRUE))
+    } else if (all(grepl("^[Y]?[0-9]+[Q][0-9]+$", x, TRUE))) {
+        x <- gsub("^[Y]?([0-9]+[Q])[0-9]?([0-9]{1})$", "\\1\\2", x, TRUE) %>%
+            tsibble::yearquarter()
+    } else if (all(grepl("^[Y]?[0-9]+[W][0-9]+$", x, TRUE))) {
+        x <- tsibble::yearweek(gsub("^[Y]?", "", x, TRUE))
+    } else if (all(grepl("^[Y]?[0-9]+[D][0-9]+$", x, TRUE))) {
+        y <- (gsub("^[Y]?([0-9]+)[D][0-9]+$", "\\1", x, TRUE) %>%
+            paste0("0101") %>%
+            as.numeric() %>%
+            lubridate::ymd())
+        d <- (gsub("^[Y]?[0-9]+[D]([0-9]+)$", "\\1", x, TRUE) %>%
+            as.numeric() - 1) %>%
+            lubridate::days()
+        x <- y + d
+    } else if (all(grepl("^[W][0-9]+[D][0-9]+$", x, TRUE))) {
+        y <- lubridate::ymd("00010101")
+        w <- (gsub("^[W]([0-9]+)[D][0-9]+$", "\\1", x, TRUE) %>%
+            as.numeric() - 1) %>%
+            lubridate::weeks()
+        d <- (gsub("^[W][0-9]+[D]([0-9]+)$", "\\1", x, TRUE) %>%
+            as.numeric() - 1) %>%
+            lubridate::days()
+        x <- y + w + d
+    } else if (all(grepl("^[D][0-9]+[H][0-9]+$", x, TRUE))) {
+        y <- lubridate::ymd("00010101")
+        d <- (gsub("^[D]([0-9]+)[H][0-9]+$", "\\1", x, TRUE) %>%
+            as.numeric() - 1) %>%
+            lubridate::days()
+        h <- gsub("^[D][0-9]+[H]([0-9]+)$", "\\1", x, TRUE) %>%
+            as.numeric() %>%
+            lubridate::hours()
+        x <- y + d + h
     } else {
-        ## if  the varable does not match all the format above
-        ## return  NA
-        return(list(start = NA, frequency = NA))
+        rlang::abort("Invalid index format")
     }
+
+    x
 }
 
 
@@ -362,11 +56,11 @@ get.ts.structure <- function(vardata) {
 #' If a \code{ts} object is used to create the inzightts object,
 #' all the domain information is extracted from that object.
 #'
-#' \code{index_col} should be a \code{character}, \code{Date},
+#' \code{index} should be a \code{character}, \code{Date},
 #' \code{\link[tsibble]{yearweek}}, \code{\link[tsibble]{yearmonth}} or
 #' \code{\link[tsibble]{yearquarter}} object.
 #'
-#' If \code{index_col} is a \code{character}, the function recognises the
+#' If \code{index} is a \code{character}, the function recognises the
 #' following time variable formatS without case sensitive:
 #'  \itemize{
 #'   \item "(Y)yyyy" annually data e.g."(Y)1991"
@@ -377,8 +71,8 @@ get.ts.structure <- function(vardata) {
 #'   \item "WwwDdd"  daily data with weekly seasonality e.g. "W01D01"
 #'   \item "DddHhh" hourly data with daily seasonality e.g. "D01H01"
 #' }
-#' The length of digits of each time unit could be flexible and allowing space between the
-#' time unit
+#' The length of digits of each time unit could be flexible and allowing space
+#' between the time unit
 #'
 #' In case of \code{data} being a data.frame or path to a \code{.csv}
 #' file and \code{start} being omitted, the starting date and the
@@ -415,7 +109,7 @@ get.ts.structure <- function(vardata) {
 #' # or specify a time column
 #' x <- inzightts(
 #'     data.frame(Return = rnorm(100), Year = 1900:1999),
-#'     var = "Return", index_col = "Year"
+#'     var = "Return", index = "Year"
 #' )
 #'
 #' # create from a data.frame with modified time frame
@@ -444,6 +138,8 @@ inzightts.character <- function(x, stringsAsFactors = TRUE, as.is = TRUE, ...) {
 
 #' @param var the column number or name for the observations used
 #'        from \code{data} in the actual time series
+#' @param index which column contains the time variable
+#' @param key Variable(s) that uniquely determine time indices
 #' @param start the time of the first observation.
 #'        Either a single number or a vector
 #'        of two integers, which specify a natural time unit
@@ -451,66 +147,57 @@ inzightts.character <- function(x, stringsAsFactors = TRUE, as.is = TRUE, ...) {
 #' @param end the time of the last observation, specified in the
 #'        same way as \code{start}
 #' @param freq the number of observations per unit of time
-#' @param index_col which column contains the time variable
 #'
 #' @rdname inzightts
 #'
 #' @export
-inzightts.data.frame <- function(x, var = 2, start = NULL, end = NULL,
-                                 freq = NULL, index_col = NULL, ...) {
-    if (is.null(index_col)) {
-        index_col <- grep("time", names(x), ignore.case = TRUE)[1]
-        if (is.na(index_col)) index_col <- 1
+inzightts.data.frame <- function(x, var = NULL, index = NULL, key = NULL,
+                                 start = NULL, end = NULL, freq = NULL, ...) {
+    if (is.null(index) & sum(is.null(start), is.null(end), is.null(freq)) > 1) {
+        index <- grep("time|date|index", names(x), ignore.case = TRUE)[1]
     }
 
-    if (lubridate::is.Date(x[[index_col]]) | inherits(x[[index_col]], "vctrs_vctr")) {
-        return(
-            dplyr::rename(x, index = !!names(x)[index_col]) %>%
-                tsibble::as_tsibble(index = index) %>%
-                tsibble::fill_gaps() %>%
-                tsibble::new_tsibble(class = "inz_ts")
-        )
-    }
+    if (is.numeric(index)) index <- names(x)[index]
+    if (is.numeric(key)) key <- names(x)[key]
 
-    ts.struc <- try(get.ts.structure(x[[index_col]]), silent = TRUE)
-    if (inherits(ts.struc, "try-error")) {
-        ts.struc <- list(start = NA, frequency = NA)
-    }
-    if (is.null(start)) {
-        start <- ts.struc$start
-    }
-    if (is.null(freq)) {
-        freq <- ts.struc$frequency
-    }
-    if (any(c(is.na(start), is.na(freq)))) {
-        rlang::abort(paste(
-            "Could not automatically identify `start` and `freq`",
-            "please explicitly specify them.",
-            sep = ", "
-        ))
-    }
-    if (is.null(end)) {
-        n <- nrow(x)
-        if (length(start) > 1L && freq > 1) {
-            end <- numeric(2)
-            end[1] <- start[1] +
-                (n + start[2] - 1) %/% freq
-            end[2] <- (n + start[2] - 1) %% freq
-        } else {
-            start <- start[1]
-            end <- start[1] + n - 1
-        }
+    if (is.null(var)) {
+        var <- seq_len(ncol(x))
     }
     if (is.numeric(var)) var <- names(x)[var]
 
-    inzightts_ts <- ts(
-        x[, var],
-        start = start,
-        end = end,
-        frequency = freq
-    )
+    x <- dplyr::select(x, !!unique(na.omit(c(index, var))))
 
-    inzightts(inzightts_ts, var)
+    if (is.null(index) | isTRUE(is.na(index))) {
+        if (sum(is.null(start), is.null(end), is.null(freq)) > 1) {
+            rlang::abort("Unable to automatically identify the index column.")
+        }
+        ts_spec <- list()
+        if (!is.null(start)) ts_spec$start <- start
+        if (!is.null(end)) ts_spec$end <- end
+        if (!is.null(freq)) ts_spec$freq <- freq
+        inzightts <- expr(ts(x[, var], !!!ts_spec)) %>%
+            rlang::new_quosure() %>%
+            rlang::eval_tidy()
+    } else if (inherits(x[[index]], "Date") | inherits(x[[index]], "vctrs_vctr")) {
+        inzightts <- try(
+            tsibble::as_tsibble(x, index = !!index, key = !!key),
+            silent = TRUE
+        )
+    } else if (
+        is.character(x[[index]]) | is.factor(x[[index]]) | is.numeric(x[[index]])
+    ) {
+        inzightts <- try(
+            dplyr::mutate(x, !!index := format_index(!!sym(index))) %>%
+                tsibble::as_tsibble(index = !!index, key = !!key),
+            silent = TRUE
+        )
+    }
+
+    if (inherits(inzightts, "try-error")) {
+        rlang::abort("Invalid data. Maybe you forgot to specify `key`?")
+    } else {
+        inzightts(inzightts, var_name = var)
+    }
 }
 
 
@@ -534,9 +221,7 @@ inzightts.ts <- function(x, var_name = NULL, pivot_longer = FALSE, ...) {
             dplyr::rename(!!sym(var_name) := value)
     }
 
-    inzightts %>%
-        tsibble::fill_gaps() %>%
-        tsibble::new_tsibble(class = "inz_ts")
+    inzightts(inzightts)
 }
 
 

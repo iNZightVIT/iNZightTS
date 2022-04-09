@@ -14,11 +14,12 @@ inzightts(x, ...)
 
 \method{inzightts}{data.frame}(
   x,
-  var = 2,
+  var = NULL,
+  index = NULL,
+  key = NULL,
   start = NULL,
   end = NULL,
   freq = NULL,
-  index_col = NULL,
   ...
 )
 
@@ -38,6 +39,10 @@ inzightts(x, ...)
 \item{var}{the column number or name for the observations used
 from \code{data} in the actual time series}
 
+\item{index}{which column contains the time variable}
+
+\item{key}{Variable(s) that uniquely determine time indices}
+
 \item{start}{the time of the first observation.
 Either a single number or a vector
 of two integers, which specify a natural time unit
@@ -47,8 +52,6 @@ and a (1-based) number of samples into the time unit}
 same way as \code{start}}
 
 \item{freq}{the number of observations per unit of time}
-
-\item{index_col}{which column contains the time variable}
 
 \item{var_name}{rename the variable column of the univariate time series,
 applicable only if \code{x} is not an \code{mts} object.}
@@ -74,11 +77,11 @@ data principles, which are both data- and model-oriented.
 If a \code{ts} object is used to create the inzightts object,
 all the domain information is extracted from that object.
 
-\code{index_col} should be a \code{character}, \code{Date},
+\code{index} should be a \code{character}, \code{Date},
 \code{\link[tsibble]{yearweek}}, \code{\link[tsibble]{yearmonth}} or
 \code{\link[tsibble]{yearquarter}} object.
 
-If \code{index_col} is a \code{character}, the function recognises the
+If \code{index} is a \code{character}, the function recognises the
 following time variable formatS without case sensitive:
  \itemize{
   \item "(Y)yyyy" annually data e.g."(Y)1991"
@@ -89,8 +92,8 @@ following time variable formatS without case sensitive:
   \item "WwwDdd"  daily data with weekly seasonality e.g. "W01D01"
   \item "DddHhh" hourly data with daily seasonality e.g. "D01H01"
 }
-The length of digits of each time unit could be flexible and allowing space between the
-time unit
+The length of digits of each time unit could be flexible and allowing space
+between the time unit
 
 In case of \code{data} being a data.frame or path to a \code{.csv}
 file and \code{start} being omitted, the starting date and the
@@ -112,7 +115,7 @@ x <- inzightts(
 # or specify a time column
 x <- inzightts(
     data.frame(Return = rnorm(100), Year = 1900:1999),
-    var = "Return", index_col = "Year"
+    var = "Return", index = "Year"
 )
 
 # create from a data.frame with modified time frame
