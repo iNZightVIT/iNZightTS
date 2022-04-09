@@ -9,6 +9,7 @@ test_that("Various index formats can be recognised", {
     expect_equal(format_index("Y2022Q01"), tsibble::yearquarter("2022Q1"))
     expect_equal(format_index("Y2022W01"), tsibble::yearweek("2022W01"))
     expect_equal(format_index("Y2022D31"), lubridate::ymd(20220131))
+    expect_is(format_index("D01H01"), "POSIXct")
     expect_error(format_index("2022 Jan 01"))
 })
 
@@ -23,4 +24,6 @@ test_that("Various data classes can be loaded", {
         dplyr::mutate(key = sample(LETTERS[1:3], nrow(visitorsQ), TRUE))
     expect_is(inzightts(data_with_key, key = "key"), "inz_ts")
     expect_error(inzightts(rbind(visitorsQ, visitorsQ)))
+    x <- dplyr::mutate(visitorsQ, Date = tsibble::yearquarter(as.character(Date)))
+    expect_is(inzightts(x), "inz_ts")
 })
