@@ -100,6 +100,18 @@ use_decomp_method <- function(method) {
     }
     if (mult_fit) data <- dplyr::mutate(data, !!var := log(!!var))
 
+    if (any(is.na(data[[var]]))) {
+        rlang::warn("NA detected, returning NULL model.")
+        return(data %>%
+            dplyr::select(!!tsibble::index(data), !!var) %>%
+            dplyr::mutate(
+                trend = NA_real_,
+                season_null = NA_real_,
+                remainder = NA_real_
+            ) %>%
+            structure(null_mdl = 1))
+    }
+
     expr(fabletools::model(data, feasts::STL(
         !!var ~ trend() + season(window = s.window),
         !!!stl_spec
@@ -186,6 +198,10 @@ plot.inz_dcmp <- function(x, recompose.progress = c(0, 0),
     var <- suppressMessages(guess_plot_var(x, NULL))
     if (is.null(xlim)) xlim <- as_year(range(x[[tsibble::index_var(x)]]))
     if (is.null(ylab)) ylab <- as.character(var)
+
+    if (!is.null(attributes(x)$null_mdl)) {
+        return(suppressWarnings(plot.inz_ts(x, tsibble::measured_vars(x)[1])))
+    }
 
     td <- x %>%
         back_transform(var, attributes(x)$mult_fit) %>%

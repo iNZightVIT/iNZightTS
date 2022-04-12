@@ -93,6 +93,9 @@ test_that("Check decomposition plot configuration", {
             t, "Australia", mult_fit = TRUE
         )
     ))
+    t_gap <- t
+    t_gap$Australia[3] <- NA
+    expect_warning(decomp(t_gap, "Australia"))
 })
 
 test_that("Check season plot configuration", {

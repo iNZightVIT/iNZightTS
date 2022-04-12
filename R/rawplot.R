@@ -161,7 +161,7 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect,
             legend.title = element_blank()
         )
 
-    if (!compare) {
+    if (!compare & tsibble::n_keys(x) > 1) {
         p <- p + facet_wrap(vars(!!!tsibble::key(x)), nrow = 1)
     }
 
