@@ -78,6 +78,39 @@ decomp <- function(x, var = NULL, sm_model = c("stl"),
 }
 
 
+decomp_key <- function(x, var, sm_model, mult_fit) {
+    key_data <- tsibble::key_data(x)
+    key_vars <- tsibble::key_vars(x)
+    dplyr::bind_rows(!!!lapply(
+        seq_len(nrow(key_data)),
+        function(i) {
+            key_data[i, ] %>%
+                dplyr::left_join(x, by = key_vars) %>%
+                tsibble::as_tsibble(
+                    index = !!tsibble::index(x),
+                    key = !!key_vars
+                ) %>%
+                decomp(as.character(var), sm_model, mult_fit) %>%
+                tibble::as_tibble()
+        }
+    )) %>%
+        dplyr::filter(dplyr::if_all(
+            !!key_vars[key_vars %in% names(.)],
+            ~ !is.na(.x)
+        )) %>%
+        tsibble::as_tsibble(
+            index = !!tsibble::index(x),
+            key = !!key_vars[key_vars %in% names(.)]
+        ) %>%
+        structure(seasons = {
+            n <- names(.)[grep("season_", names(.))]
+            n <- n[n != "season_adjust"]
+            n <- ifelse(length(n) > 1, n[n != "season_null"], n)
+            as.list(tibble::tibble(!!n := 1))
+        })
+}
+
+
 use_decomp_method <- function(method) {
     structure(method, class = sprintf("use_%s", method))
 }
@@ -101,7 +134,7 @@ use_decomp_method <- function(method) {
     if (mult_fit) data <- dplyr::mutate(data, !!var := log(!!var))
 
     if (any(is.na(data[[var]]))) {
-        rlang::warn("NA detected, returning NULL model.")
+        rlang::warn("Time gaps detected, STL returning NULL model.")
         return(data %>%
             dplyr::select(!!tsibble::index(data), !!var) %>%
             dplyr::mutate(
@@ -109,7 +142,7 @@ use_decomp_method <- function(method) {
                 season_null = NA_real_,
                 remainder = NA_real_
             ) %>%
-            structure(null_mdl = 1))
+            structure(null_mdl = 1, seasons = list(season_null = 1)))
     }
 
     expr(fabletools::model(data, feasts::STL(
@@ -214,10 +247,10 @@ plot.inz_dcmp <- function(x, recompose.progress = c(0, 0),
         tibble::as_tibble(x) %>%
         dplyr::select(Date, value, trend, seasonal, residual)
 
+    ## FIXME: CODE BELOW NEEDS TO BE OPTIMISED
     if (recompose && all(recompose.progress == 0)) {
         recompose.progress <- c(1, nrow(td))
     }
-    
     
     ## Create ONE SINGLE plot
     ## but transform the SEASONAL and RESIDUAL components below the main data

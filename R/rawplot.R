@@ -31,7 +31,7 @@ guess_plot_var <- function(x, var, tidy = FALSE, use = "Plot") {
 #' @param xlim axis limits, specified as dates or years
 #' @param aspect the aspect ratio of the plot;
 #'        it will be about \code{aspect} times wider than it is high
-#' @param compare logical (not used)
+#' @param compare logical, whether to plot the key levels in a single plot
 #' @param smoother logical, if \code{TRUE} the smoother will be drawn
 #' @param sm_model the smoothing method to be used
 #' @param mult_fit If \code{TRUE}, a multiplicative model is used, otherwise
@@ -55,15 +55,11 @@ guess_plot_var <- function(x, var, tidy = FALSE, use = "Plot") {
 #'
 #' @export
 plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
-                        plot = TRUE, xlim = NULL, aspect = NULL, compare = FALSE,
+                        plot = TRUE, xlim = NULL, aspect = NULL, compare = TRUE,
                         smoother = TRUE, sm_model = "stl", mult_fit = FALSE, ...) {
     var <- guess_plot_var(x, !!enquo(var))
     if (all(is.na(xlim))) xlim <- NULL
 
-    if (smoother & nrow(tsibble::key_data(x)) > 1) {
-        smoother <- !smoother
-        rlang::warn("Smoother does not work for data with keys.")
-    }
     y_obs <- unlist(lapply(ifelse(
         length(as.character(var)) > 2,
         c("", as.character(var)[-1]),
@@ -174,17 +170,27 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect,
     }
 
     if (smoother) {
+        if (tsibble::n_keys(x) > 1) {
+            sm_data <- decomp_key(x, as.character(var), sm_model, mult_fit)
+        } else {
+            sm_data <- decomp(x, as.character(var), sm_model, mult_fit)
+        }
         smoother_spec <- list(
             mapping = aes(!!tsibble::index(x), trend),
-            data = decomp(x, as.character(var), sm_model, mult_fit),
+            data = sm_data,
             linetype = ifelse(compare & tsibble::n_keys(x) > 1, "dashed", "solid"),
-            size = ifelse(compare & tsibble::n_keys(x) > 1, 1, .5)
-        ) %>% c(
-            col = if (compare & tsibble::n_keys(x) > 1) NULL else "red"
+            size = .5
         )
-        p <- expr(p + geom_line(!!!smoother_spec)) %>%
-            rlang::new_quosure() %>%
-            rlang::eval_tidy()
+        if (tsibble::n_keys(x) == 1) {
+            smoother_spec <- c(smoother_spec, col = "red")
+        }
+        if (!all(is.na(sm_data$trend))) {
+            p <- expr(p + geom_line(!!!smoother_spec)) %>%
+                rlang::new_quosure() %>%
+                rlang::eval_tidy()
+        } else {
+            rlang::warn("Time gaps in all (key) levels, turning off smoothers.")
+        }
     }
 
     p

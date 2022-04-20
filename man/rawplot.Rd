@@ -13,7 +13,7 @@
   plot = TRUE,
   xlim = NULL,
   aspect = NULL,
-  compare = FALSE,
+  compare = TRUE,
   smoother = TRUE,
   sm_model = "stl",
   mult_fit = FALSE,
@@ -38,7 +38,7 @@
 \item{aspect}{the aspect ratio of the plot;
 it will be about \code{aspect} times wider than it is high}
 
-\item{compare}{logical (not used)}
+\item{compare}{logical, whether to plot the key levels in a single plot}
 
 \item{smoother}{logical, if \code{TRUE} the smoother will be drawn}
 

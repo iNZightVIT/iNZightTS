@@ -37,22 +37,12 @@ test_that("Forecast is fine", {
     expect_is(plot(predict(t, h = 8, mult_fit = TRUE)), "ggplot")
 })
 
-## multi series
 tm <- inzightts(visitorsQ, var = 2:5)
 var_name <- names(tm)[-1]
 test_that("Multi series graph works", {
     expect_is(plot(tm, var_name), "patchwork")
     expect_is(plot(tm, var_name, mult_fit = TRUE), "patchwork")
     expect_is(plot(tm, var_name, smoother = FALSE), "patchwork")
-    # expect_is(suppressWarnings(plot(tm, compare = FALSE)), "gtable")
-    # expect_is(
-    #     suppressWarnings(plot(tm, compare = FALSE, multiplicative = TRUE)),
-    #     "gtable"
-    # )
-    # expect_is(
-    #     suppressWarnings(plot(tm, smoother = FALSE, compare = FALSE)),
-    #     "gtable"
-    # )
 })
 
 test_that("Annual data forecast is fine", {
@@ -60,15 +50,16 @@ test_that("Annual data forecast is fine", {
     tm <- inzightts(visitorsA2, var = 2:5)
     expect_is(plot(predict(t)), "ggplot")
     expect_is(plot(predict(tm)), "ggplot")
-    # expect_is(plot(tm, compare = FALSE), "gtable")
 })
 
 t_neg <- t
 t_neg$Australia[1] <- -1
+y <- visitorsQ %>%
+    dplyr::mutate(key = rep(c("A", "B", "C"), each = 18)) %>%
+    inzightts(key = "key")
 
 test_that("Check raw-plot configuration", {
     expect_is(plot(t, xlim = c(NA, NA)), "ggplot")
-    # expect_warning(plot(t, compare = FALSE))
     expect_warning(plot(t_neg, mult_fit = TRUE))
     expect_is(plot(t, xlim = c(2005, 2010)), "ggplot")
     expect_warning(plot(t, xlim = lubridate::ymd(c(20050101, 20101231))))
@@ -78,6 +69,8 @@ test_that("Check raw-plot configuration", {
     expect_is(plot(t, aspect = 1), "ggplot")
     expect_equal(guess_plot_var(t, "test"), c("", "test"))
     expect_is(guess_plot_var(t, NULL), "name")
+    expect_is(plot(y), "ggplot")
+    expect_is(plot(y, compare = FALSE), "ggplot")
 })
 
 test_that("Check decomposition plot configuration", {
@@ -103,6 +96,10 @@ test_that("Check season plot configuration", {
     expect_error(seasonplot(t, model_range = 2001))
     expect_warning(seasonplot(t, model_range = lubridate::ymd(c(20050101, 20101231))))
     expect_is(seasonplot(tm, names(tm)[-1]), "patchwork")
+    t_key_gap <- y
+    t_key_gap$Australia[3] <- NA
+    expect_warning(seasonplot(t_key_gap, "Australia"))
+    expect_is(suppressWarnings(seasonplot(t_key_gap)), "patchwork")
 })
 
 test_that("Check forecasting configuration", {

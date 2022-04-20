@@ -37,7 +37,7 @@ seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE,
         l <- spec$labels
         spec <- within(spec, rm(labels))
     } else {
-        l <- "both"
+        l <- "none"
     }
     if (!is.null(model_range)) {
         if (!all(length(model_range) == 2, any(is.numeric(model_range), methods::is(model_range, "Date")))) {
@@ -91,6 +91,12 @@ seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE,
             geom_point() +
             ggplot2::ylim(mean(range(x[[var]])) + c(-.5, .5) * y_span) +
             ggplot2::labs(title = "Seasonal plot", x = "")
+        if (tsibble::n_keys(x) > 1) {
+            p1$facet$params$rows -> cols
+            p1$facet$params$cols -> rows
+            p1$facet$params$rows <- rows
+            p1$facet$params$cols <- cols
+        }
         p2 <- x_dcmp_ls[[1]] %>%
             plot(ylim = eff_y_lim[[1]], title = "Additive seasonal effects")
         p <- patchwork::wrap_plots(p1, p2, nrow = 1)
@@ -102,6 +108,12 @@ seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE,
                 geom_point() +
                 ggplot2::ylim(mean(range(x[[var[i]]])) + c(-.5, .5) * y_span[i]) +
                 ggplot2::labs(title = ifelse(i == 1L, "Seasonal plot", ""), x = "")
+            if (tsibble::n_keys(x) > 1) {
+                p1$facet$params$rows -> cols
+                p1$facet$params$cols -> rows
+                p1$facet$params$rows <- rows
+                p1$facet$params$cols <- cols
+            }
             p2 <- x_dcmp_ls[[i]] %>%
                 plot(ylim = eff_y_lim[[i]], title = "Additive seasonal effects")
             patchwork::wrap_plots(p1, p2, nrow = 1)
@@ -120,32 +132,59 @@ seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE,
 
 season_effect <- function(x, var, mult_fit = FALSE) {
     lapply(as.character(var), function(v) {
-        x_dcmp <- decomp(x, v, "stl", mult_fit)
+        if (tsibble::n_keys(x) > 1) {
+            x_dcmp <- decomp_key(x, v, "stl", mult_fit)
+        } else {
+            x_dcmp <- decomp(x, v, "stl", mult_fit)
+        }
         season <- sym(names(attributes(x_dcmp)$seasons))
         x_dcmp %>%
             dplyr::mutate(season_effect = dplyr::case_when(
                 mult_fit ~ !!season * remainder,
                 TRUE ~ !!season + remainder
             )) %>%
-            structure(class = c("seas_ts", class(.)), mult_fit = mult_fit)
+            structure(
+                class = c("seas_ts", class(.)),
+                mult_fit = mult_fit,
+                seasons = attributes(x_dcmp)$seasons
+            )
     })
 }
 
 
 #' @export
 plot.seas_ts <- function(x, ylim = NULL, title = NULL, ...) {
-    seas_aes <- aes(!!tsibble::index(x), !!sym(names(attributes(x)$seasons)))
-    p <- feasts::gg_season(x, season_effect, ...) +
-        geom_hline(
-            yintercept = as.numeric(attributes(x)$mult_fit),
-            colour = "gray", linetype = 2
-        ) +
+    seas_aes <- aes(
+        x = !!tsibble::index(x),
+        y = !!sym(names(attributes(x)$seasons)),
+        col = !!(if (tsibble::n_keys(x) > 1) {
+            key_vars <- tsibble::key_vars(x)
+            sym(key_vars[key_vars != ".model"])
+        } else {
+            NULL
+        })
+    )
+    p <- feasts::gg_season(x, season_effect, ...)
+
+    p$mapping$colour <- NULL
+
+    p <- p + geom_hline(
+        yintercept = as.numeric(attributes(x)$mult_fit),
+        colour = "gray", linetype = 2
+    ) +
         geom_line(seas_aes) +
         geom_point(seas_aes, pch = 21, fill = "white", stroke = 1.5) +
         scale_y_continuous(limits = ylim) +
         ggplot2::labs(title = title, x = "", y = tsibble::measured_vars(x)[1])
 
-    p$mapping$colour <- NULL
+    if (tsibble::n_keys(x) > 1) {
+        p <- suppressMessages(p + scale_colour_discrete()) +
+            facet_wrap(NULL) +
+            ggplot2::theme(
+                strip.background = element_blank(),
+                strip.text = element_blank()
+            )
+    }
     p$layers[[1]]$aes_params$alpha <- .2
 
     p
