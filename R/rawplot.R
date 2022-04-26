@@ -36,9 +36,18 @@ guess_plot_var <- function(x, var, tidy = FALSE, use = "Plot") {
 #' @param sm_model the smoothing method to be used
 #' @param mult_fit If \code{TRUE}, a multiplicative model is used, otherwise
 #'        an additive model is used by default.
+#' @param emphasise integer vector to specify the key level(s) to focus in the
+#'        plot. The integer maps to the specific key level(s) corresponding to
+#'        the ith row of \code{tsibble::key_data(x)}.
+#' @param non_emph_opacity numeric. If \code{(0, 1]}, this argument determines
+#'        the opacity of the series other than the focused one(s) (to highlight
+#'        the focused series). If \code{non_emph_opacity = 0}, the plot draws
+#'        the focused series in its own scales.
 #' @param ... additional arguments (ignored)
 #' @return a time series plot (constructed with ggplot2) is returned invisibly,
 #'         which can be added to if desired.
+#'
+#' @seealso \code{\link[tsibble]{key_data}}
 #'
 #' @rdname rawplot
 #'
@@ -56,16 +65,25 @@ guess_plot_var <- function(x, var, tidy = FALSE, use = "Plot") {
 #' @export
 plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
                         plot = TRUE, xlim = NULL, aspect = NULL, compare = TRUE,
-                        smoother = TRUE, sm_model = "stl", mult_fit = FALSE, ...) {
+                        smoother = TRUE, sm_model = "stl", mult_fit = FALSE,
+                        emphasise = NULL, non_emph_opacity = .2, ...) {
     var <- guess_plot_var(x, !!enquo(var))
     if (all(is.na(xlim))) xlim <- NULL
 
+    if (tsibble::n_keys(x) > 1) {
+        x <- x %>%
+            dplyr::mutate(dplyr::across(
+                !!tsibble::key_vars(.), function(x) {
+                    factor(x, levels = sort(unique(x)))
+                }
+            ))
+    }
     y_obs <- unlist(lapply(ifelse(
         length(as.character(var)) > 2,
         c("", as.character(var)[-1]),
         dplyr::last(as.character(var))
     ), function(i) x[[i]]))
-    if (any(y_obs <= 0) & mult_fit) {
+    if (any(y_obs <= 0, na.rm = TRUE) & mult_fit) {
         mult_fit <- !mult_fit
         rlang::warn("Non-positive obs detected, setting `mult_fit = FALSE`")
     }
@@ -110,6 +128,14 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
             TRUE ~ dplyr::last(as.character(var))
         )
     }
+    if (!any(is.null(emphasise), is.null(non_emph_opacity), tsibble::n_keys(x) == 1)) {
+        emph <- list(
+            data = tsibble::key_data(x)[emphasise, ],
+            opacity = non_emph_opacity
+        )
+    } else {
+        emph <- NULL
+    }
 
     if (length(var) > 2) {
         if (!isTRUE(all.equal(length(var) - 1, length(ylab)))) {
@@ -124,7 +150,7 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
         if (!compare & tsibble::n_keys(x) > 1) aspect <- NULL
         var <- sym(dplyr::last(as.character(var)))
         p <- plot_inzightts_var(
-            x, var, xlab, ylab, title, aspect,
+            x, var, xlab, ylab, title, aspect, emph,
             compare, smoother, sm_model, mult_fit
         )
     } else {
@@ -132,7 +158,7 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
             y_var <- as.character(var)[i + 1]
             plot_inzightts_var(
                 x, sym(y_var), xlab, ylab[i], "", NULL,
-                compare, smoother, sm_model, mult_fit
+                emph, compare, smoother, sm_model, mult_fit
             )
         })
         p <- expr(patchwork::wrap_plots(!!!p_ls)) %>%
@@ -148,14 +174,30 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
 }
 
 
-plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect,
+plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph,
                                compare, smoother, sm_model, mult_fit) {
-    p <- fabletools::autoplot(x, !!var, size = 1) +
+    if (!is.null(emph)) {
+        emph_data <- emph$data %>%
+            dplyr::left_join(x, by = tsibble::key_vars(x)) %>%
+            tsibble::as_tsibble(
+                index = !!tsibble::index(x),
+                key = !!tsibble::key_vars(x)
+            )
+        if (emph$opacity == 0) x <- emph_data
+    }
+    op <- ifelse(!is.null(emph), emph$opacity, 1)
+
+    p <- fabletools::autoplot(x, !!var, size = 1, alpha = op) +
         ggplot2::labs(y = ylab, title = title) +
         ggplot2::theme(
             legend.position = dplyr::case_when(compare ~ "right", TRUE ~ "none"),
             legend.title = element_blank()
         )
+
+    if (!is.null(emph)) {
+        p <- suppressMessages(p + scale_colour_discrete(drop = FALSE)) +
+            geom_line(data = emph_data, size = 1)
+    }
 
     if (!compare & tsibble::n_keys(x) > 1) {
         p <- p + facet_wrap(vars(!!!tsibble::key(x)), nrow = 1)
@@ -179,7 +221,8 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect,
             mapping = aes(!!tsibble::index(x), trend),
             data = sm_data,
             linetype = ifelse(compare & tsibble::n_keys(x) > 1, "dashed", "solid"),
-            size = .5
+            size = .5,
+            alpha = op
         )
         if (tsibble::n_keys(x) == 1) {
             smoother_spec <- c(smoother_spec, col = "red")
@@ -190,6 +233,14 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect,
                 rlang::eval_tidy()
         } else {
             rlang::warn("Time gaps in all (key) levels, turning off smoothers.")
+        }
+        if (!is.null(emph)) {
+            emph_sm <- emph$data %>%
+                dplyr::left_join(sm_data, by = tsibble::key_vars(x))
+            emph_sm_spec <- within(smoother_spec, rm(alpha, data))
+            p <- expr(p + geom_line(data = emph_sm, !!!emph_sm_spec)) %>%
+                rlang::new_quosure() %>%
+                rlang::eval_tidy()
         }
     }
 

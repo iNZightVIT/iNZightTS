@@ -17,6 +17,8 @@
   smoother = TRUE,
   sm_model = "stl",
   mult_fit = FALSE,
+  emphasise = NULL,
+  non_emph_opacity = 0.2,
   ...
 )
 }
@@ -47,6 +49,15 @@ it will be about \code{aspect} times wider than it is high}
 \item{mult_fit}{If \code{TRUE}, a multiplicative model is used, otherwise
 an additive model is used by default.}
 
+\item{emphasise}{integer vector to specify the key level(s) to focus in the
+plot. The integer maps to the specific key level(s) corresponding to
+the ith row of \code{tsibble::key_data(x)}.}
+
+\item{non_emph_opacity}{numeric. If \code{(0, 1]}, this argument determines
+the opacity of the series other than the focused one(s) (to highlight
+the focused series). If \code{non_emph_opacity = 0}, the plot draws
+the focused series in its own scales.}
+
 \item{...}{additional arguments (ignored)}
 }
 \value{
@@ -63,5 +74,8 @@ plot(t, var = names(t)[-1])
 plot(t, var = "Japan")
 plot(t, mult_fit = TRUE)
 
+}
+\seealso{
+\code{\link[tsibble]{key_data}}
 }
 \keyword{timeseries}

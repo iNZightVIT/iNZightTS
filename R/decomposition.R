@@ -100,7 +100,7 @@ decomp_key <- function(x, var, sm_model, mult_fit) {
         )) %>%
         tsibble::as_tsibble(
             index = !!tsibble::index(x),
-            key = !!key_vars[key_vars %in% names(.)]
+            key = c(!!key_vars[key_vars %in% names(.)], .model)
         ) %>%
         structure(seasons = {
             n <- names(.)[grep("season_", names(.))]
@@ -127,7 +127,7 @@ use_decomp_method <- function(method) {
     } else {
         s.window <- "periodic"
     }
-    if (any(data[[var]] <= 0) & mult_fit) {
+    if (any(data[[var]] <= 0, na.rm = TRUE) & mult_fit) {
         mult_fit <- !mult_fit
         rlang::warn("Non-positive obs detected, setting `mult_fit = FALSE`")
     }

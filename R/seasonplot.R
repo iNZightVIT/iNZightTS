@@ -123,6 +123,10 @@ seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE,
             rlang::eval_tidy() +
             patchwork::plot_layout(ncol = 1)
     }
+    if (tsibble::n_keys(x) > 1) {
+        p <- p + patchwork::plot_layout(guides = "collect") &
+            ggplot2::theme(legend.position = "bottom")
+    }
 
     if (plot) print(p)
 
@@ -131,6 +135,14 @@ seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE,
 
 
 season_effect <- function(x, var, mult_fit = FALSE) {
+    if (tsibble::n_keys(x) > 1) {
+        x <- x %>%
+            dplyr::mutate(dplyr::across(
+                !!tsibble::key_vars(.), function(x) {
+                    factor(x, levels = sort(unique(x)))
+                }
+            ))
+    }
     lapply(as.character(var), function(v) {
         if (tsibble::n_keys(x) > 1) {
             x_dcmp <- decomp_key(x, v, "stl", mult_fit)
@@ -158,8 +170,10 @@ plot.seas_ts <- function(x, ylim = NULL, title = NULL, ...) {
         x = !!tsibble::index(x),
         y = !!sym(names(attributes(x)$seasons)),
         col = !!(if (tsibble::n_keys(x) > 1) {
-            key_vars <- tsibble::key_vars(x)
-            sym(key_vars[key_vars != ".model"])
+            rlang::eval_tidy(rlang::new_quosure(expr(interaction(!!!({
+                key_vars <- tsibble::key_vars(x)
+                lapply(key_vars[key_vars != ".model"], function(i) x[[i]])
+            }), sep = "/"))))
         } else {
             NULL
         })
@@ -178,7 +192,7 @@ plot.seas_ts <- function(x, ylim = NULL, title = NULL, ...) {
         ggplot2::labs(title = title, x = "", y = tsibble::measured_vars(x)[1])
 
     if (tsibble::n_keys(x) > 1) {
-        p <- suppressMessages(p + scale_colour_discrete()) +
+        p <- suppressMessages(p + scale_colour_discrete(drop = FALSE)) +
             facet_wrap(NULL) +
             ggplot2::theme(
                 strip.background = element_blank(),

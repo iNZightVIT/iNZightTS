@@ -71,6 +71,9 @@ test_that("Check raw-plot configuration", {
     expect_is(guess_plot_var(t, NULL), "name")
     expect_is(plot(y), "ggplot")
     expect_is(plot(y, compare = FALSE), "ggplot")
+    expect_is(plot(y, emphasise = 2), "ggplot")
+    expect_is(plot(y, emphasise = 2, non_emph_opacity = 1e-6), "ggplot")
+    expect_is(plot(y, emphasise = 2, non_emph_opacity = 0), "ggplot")
 })
 
 test_that("Check decomposition plot configuration", {
@@ -83,7 +86,8 @@ test_that("Check decomposition plot configuration", {
     expect_true(fabletools::is_dable(
         .decomp(
             iNZightTS:::use_decomp_method("stl"),
-            t, "Australia", mult_fit = TRUE
+            t, "Australia",
+            mult_fit = TRUE
         )
     ))
     t_gap <- t
