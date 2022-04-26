@@ -9,7 +9,7 @@
   var = NULL,
   h = "2 years",
   mult_fit = FALSE,
-  pred_model = fable::ARIMA,
+  pred_model = ARIMA_lite,
   confint_width = 0.95,
   t_range = NULL,
   model_range = NULL,

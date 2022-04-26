@@ -26,6 +26,12 @@ log_if <- fabletools::new_transformation(
 )
 
 
+ARIMA_lite <- function(formula,
+                       order_constraint = p + q + P + Q <= 3 & (constant + d + D <= 2)) {
+    fable::ARIMA(!!enquo(formula), order_constraint = !!enquo(order_constraint))
+}
+
+
 #' Produce future predictions of the time series from an inzightts object.
 #'
 #' The output object includes the predicted mean and prediction intervals,
@@ -60,7 +66,7 @@ log_if <- fabletools::new_transformation(
 #'
 #' @export
 predict.inz_ts <- function(object, var = NULL, h = "2 years", mult_fit = FALSE,
-                           pred_model = fable::ARIMA, confint_width = .95,
+                           pred_model = ARIMA_lite, confint_width = .95,
                            t_range = NULL, model_range = NULL, ...) {
     var <- guess_plot_var(object, !!enquo(var), use = "Predict")
 

@@ -13,6 +13,7 @@
 #' @seealso \code{\link[iNZightTS]{inzightts}}
 #'
 #' @import grid grDevices graphics stats utils
+#'
 #' @importFrom magrittr '%>%'
 #' @importFrom rlang .data
 #' @importFrom rlang ':='
@@ -20,7 +21,9 @@
 #' @name iNZightTS-package
 NULL
 
+
 utils::globalVariables(c(
-    "trend", "remainder", "seasonal", "residual", "Date", "value", "Prediction",
-    "index", ".var", ".model", ".mean", ".lower", ".upper", ".fitted", "."
+    "trend", "remainder", "seasonal", "residual", "Date", "value",
+    "Prediction", "index", ".var", ".model", ".mean", ".lower", ".upper",
+    ".fitted", ".", "P", "Q", "constant", "d", "p"
 ))
