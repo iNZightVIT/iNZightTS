@@ -19,7 +19,7 @@
 \item{x}{a \code{summary_inz_frct} object}
 
 \item{show_details}{logical, if \code{TRUE} the model details will be shown,
-only if \code{pred_model = fable::ARIMA} in the \code{predict} call.}
+only if \code{pred_model} is an \code{ARIMA} model.}
 }
 \value{
 a \code{summary_inz_frct} object, which consists of the first few

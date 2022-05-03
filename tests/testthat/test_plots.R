@@ -86,8 +86,7 @@ test_that("Check decomposition plot configuration", {
     expect_true(fabletools::is_dable(
         .decomp(
             iNZightTS:::use_decomp_method("stl"),
-            t, "Australia",
-            mult_fit = TRUE
+            t, "Australia", mult_fit = TRUE
         )
     ))
     t_gap <- t
@@ -123,6 +122,12 @@ test_that("Check forecasting configuration", {
     expect_warning(summary(pred_arima, c("Australia", "Japan")))
     expect_output(print(summary(pred_arima, "Australia"), show_details = TRUE))
     expect_output(print(summary(pred_arima, "Australia")))
+    y2 <- visitorsM2 %>%
+        pivot_longer(!Time, names_to = "Country", values_to = "Visitors") %>%
+        inzightts(key = "Country")
+    expect_is(plot(predict(y2, pred_model = fable::ARIMA)), "ggplot")
+    expect_is(plot(predict(y2, pred_model = "arima")), "ggplot")
+    expect_is(plot(predict(y2, h = "2 years")), "ggplot")
 })
 
 ## clean up

@@ -98,7 +98,7 @@ seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE,
             p1$facet$params$cols <- cols
         }
         p2 <- x_dcmp_ls[[1]] %>%
-            plot(ylim = eff_y_lim[[1]], title = "Additive seasonal effects")
+            plot(ylim = eff_y_lim[[1]], title = "Seasonal effects")
         p <- patchwork::wrap_plots(p1, p2, nrow = 1)
     } else {
         p_ls <- lapply(seq_along(var), function(i) {
@@ -124,7 +124,7 @@ seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE,
             patchwork::plot_layout(ncol = 1)
     }
     if (tsibble::n_keys(x) > 1) {
-        p <- p + patchwork::plot_layout(guides = "collect") &
+        p <- p + patchwork::plot_layout(guides = "collect", widths = c(1.6, 1)) &
             ggplot2::theme(legend.position = "bottom")
     }
 
@@ -169,17 +169,26 @@ plot.seas_ts <- function(x, ylim = NULL, title = NULL, ...) {
     seas_aes <- aes(
         x = !!tsibble::index(x),
         y = !!sym(names(attributes(x)$seasons)),
-        col = !!(if (tsibble::n_keys(x) > 1) {
-            rlang::eval_tidy(rlang::new_quosure(expr(interaction(!!!({
-                key_vars <- tsibble::key_vars(x)
-                lapply(key_vars[key_vars != ".model"], function(i) x[[i]])
-            }), sep = "/"))))
-        } else {
-            NULL
-        })
+        col = !!(if (tsibble::n_keys(x) > 1) sym(".key") else NULL),
+        group = !!(if (tsibble::n_keys(x) > 1) sym(".key") else NULL)
     )
+    if (tsibble::n_keys(x) > 1) {
+        x <- x %>%
+            dplyr::mutate(
+                .key = rlang::eval_tidy(rlang::new_quosure(expr(interaction(!!!({
+                    key_vars <- tsibble::key_vars(.)
+                    lapply(key_vars[key_vars != ".model"], function(i) .[[i]])
+                }), sep = "/"))))
+            ) %>%
+            tsibble::update_tsibble(key = .key)
+    }
+
     p <- feasts::gg_season(x, season_effect, ...)
 
+    if (tsibble::n_keys(x) > 1) {
+        p$layers[[1]] <- NULL
+        p <- p + geom_line(aes(index, season_effect, group = interaction(id, .key)))
+    }
     p$mapping$colour <- NULL
 
     p <- p + geom_hline(
@@ -198,6 +207,7 @@ plot.seas_ts <- function(x, ylim = NULL, title = NULL, ...) {
                 strip.background = element_blank(),
                 strip.text = element_blank()
             )
+        p$mapping$colour <- p$layers[[3]]$mapping$colour
     }
     p$layers[[1]]$aes_params$alpha <- .2
 

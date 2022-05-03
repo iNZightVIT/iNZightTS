@@ -26,6 +26,23 @@ log_if <- fabletools::new_transformation(
 )
 
 
+get_model <- function(x) {
+    UseMethod("get_model")
+}
+
+
+get_model.function <- function(x) x
+
+
+get_model.character <- function(x) {
+    if (tolower(x) == "auto") {
+        ARIMA_lite
+    } else {
+        getFromNamespace(toupper(x), "fable")
+    }
+}
+
+
 ARIMA_lite <- function(formula,
                        order_constraint = p + q + P + Q <= 3 & (constant + d + D <= 2)) {
     fable::ARIMA(!!enquo(formula), order_constraint = !!enquo(order_constraint))
@@ -44,7 +61,7 @@ ARIMA_lite <- function(formula,
 #' @param h The forecast horison
 #' @param mult_fit If \code{TRUE}, a multiplicative model is used, otherwise
 #'        an additive model is used by default.
-#' @param pred_model a \code{fable} model function
+#' @param pred_model a \code{fable} model function name or \code{"auto"}
 #' @param confint_width a decimal, the width of the prediction interval
 #' @param t_range range of data to be plotted, specified as dates or years
 #' @param model_range range of data to be fitted for forecasts, specified as
@@ -65,17 +82,15 @@ ARIMA_lite <- function(formula,
 #' plot(pred)
 #'
 #' @export
-predict.inz_ts <- function(object, var = NULL, h = "2 years", mult_fit = FALSE,
-                           pred_model = ARIMA_lite, confint_width = .95,
+predict.inz_ts <- function(object, var = NULL, h = 8, mult_fit = FALSE,
+                           pred_model = "auto", confint_width = .95,
                            t_range = NULL, model_range = NULL, ...) {
     var <- guess_plot_var(object, !!enquo(var), use = "Predict")
+    pred_model <- get_model(pred_model)
 
     if (all(is.na(t_range))) t_range <- NULL
     if (all(is.na(model_range))) model_range <- NULL
 
-    if (length(tsibble::key(object)) > 0) {
-        rlang::abort("prediction for inz_ts objects with key is not supported.")
-    }
     y_obs <- unlist(lapply(ifelse(
         length(as.character(var)) > 2,
         c("", as.character(var)[-1]),
@@ -141,21 +156,42 @@ predict.inz_ts <- function(object, var = NULL, h = "2 years", mult_fit = FALSE,
     } else {
         var <- as.character(var)[-1]
     }
+    if (tsibble::n_keys(x) > 1) {
+        key_data <- tsibble::key_data(x)
+        key_vars <- tsibble::key_vars(x)
+        max_t <- max(x[[tsibble::index(x)]])
+        valid_key <- na.omit(unlist(lapply(seq_len(nrow(key_data)), function(i) {
+            x_k <- dplyr::left_join(key_data[i, ], x, by = key_vars)
+            diff_t <- max_t - max(x_k[[tsibble::index(x)]])
+            ifelse(diff_t <= tsibble::guess_frequency(x[[tsibble::index(x)]]), i, NA)
+        })))
+        min_t <- min(do.call("c", lapply(valid_key, function(i) {
+            max(dplyr::left_join(key_data[i, ], x, by = key_vars)$index)
+        })))
+        interval <- getFromNamespace("interval_to_period", "feasts")(tsibble::interval(x))
+        if (is.character(h)) {
+            o_h <- as.integer(round(lubridate::as.period(h) / interval))
+            h <- interval * as.integer(max_t - min_t) + lubridate::as.period(h)
+        } else {
+            o_h <- as.integer(round(h))
+            h <- as.integer(max_t - min_t) + h
+        }
+    }
 
     inzightts_forecast_ls <- lapply(var, function(y_var) {
         predict_inzightts_var(x, sym(y_var), h, mult_fit, pred_model, confint_width)
     })
 
-    object %>%
-        dplyr::select(index, !!!var) %>%
-        tidyr::pivot_longer(!index, names_to = ".var", values_to = ".mean") %>%
+    pred <- object %>%
+        dplyr::select(index, !!!var, !!tsibble::key_vars(.)) %>%
+        tidyr::pivot_longer(!c(index, !!tsibble::key_vars(.)), names_to = ".var", values_to = ".mean") %>%
         dplyr::mutate(.model = "Raw data") %>%
         tibble::as_tibble() %>%
         dplyr::bind_rows(!!!inzightts_forecast_ls) %>%
         dplyr::filter(
-            !tsibble::are_duplicated(., index = index, key = c(.var, .model))
+            !tsibble::are_duplicated(., index = index, key = c(.var, .model, !!tsibble::key_vars(x)))
         ) %>%
-        tsibble::as_tsibble(index = index, key = c(.var, .model)) %>%
+        tsibble::as_tsibble(index = index, key = c(.var, .model, !!tsibble::key_vars(x))) %>%
         structure(
             class = c("inz_frct", class(.)),
             fit = lapply(inzightts_forecast_ls, function(x) {
@@ -165,6 +201,26 @@ predict.inz_ts <- function(object, var = NULL, h = "2 years", mult_fit = FALSE,
                 )
             })
         )
+
+    if (tsibble::n_keys(x) > 1) {
+        pred <- pred %>%
+            dplyr::filter(.model != "Prediction") %>%
+            dplyr::bind_rows(pred %>%
+                dplyr::filter(.model == "Prediction" & index > max_t & index <= max_t + o_h) %>%
+                dplyr::right_join(key_data[valid_key, ], by = key_vars) %>%
+                tsibble::as_tsibble(index = index, key = !!tsibble::key_vars(pred)) %>%
+                dplyr::select(!.rows))
+    }
+
+    pred %>% structure(
+        class = c("inz_frct", class(.)),
+        fit = lapply(inzightts_forecast_ls, function(x) {
+            dplyr::rename(
+                attributes(x)$fit,
+                !!unique(x$.var) := Prediction
+            )
+        })
+    )
 }
 
 
@@ -189,7 +245,7 @@ predict_inzightts_var <- function(x, var, h, mult_fit, pred_model, confint_width
         )) %>%
         dplyr::mutate(.var = !!as.character(var)) %>%
         dplyr::select(.var, .model, index, .mean, .lower, .upper) %>%
-        tsibble::update_tsibble(key = c(.var, .model)) %>%
+        tsibble::update_tsibble(key = c(.var, .model, !!tsibble::key_vars(x))) %>%
         structure(fit = fit)
 }
 
@@ -251,45 +307,100 @@ plot.inz_frct <- function(x, xlab = NULL, ylab = NULL, title = NULL, plot = TRUE
 
 plot_forecast_var <- function(x, var, xlab, ylab, title) {
     x <- dplyr::filter(x, .var == as.character(var))
+    n_keys <- tsibble::n_keys(x)
 
     pred_data <- x %>%
         dplyr::filter(.model == "Fitted") %>%
-        dplyr::filter(dplyr::row_number() == dplyr::n()) %>%
+        dplyr::filter(dplyr::row_number() %in% do.call(
+            "c", lapply(tsibble::key_data(.)$.rows, dplyr::last)
+        )) %>%
         dplyr::bind_rows(dplyr::filter(x, .model == "Prediction")) %>%
-        dplyr::mutate(
-            .lower = tidyr::replace_na(.lower, .$.mean[1]),
-            .upper = tidyr::replace_na(.upper, .$.mean[1]),
-            .model = "Prediction"
-        )
+        dplyr::mutate(.model = "Prediction")
 
-    l_spec <- aes(!!sym(xlab), .mean)
+    ik <- which(is.na(pred_data)) %% nrow(pred_data)
+    pred_data$.lower[ik] <- pred_data$.mean[ik]
+    pred_data$.upper[ik] <- pred_data$.mean[ik]
 
-    index_obs <- pred_data[[as.character(xlab)]]
-    if (lubridate::is.Date(index_obs) | inherits(index_obs, "vctrs_vctr")) {
-        vline_xintercept <- as.Date(index_obs)[1]
+    if (n_keys > 3) {
+        key_vars <- tsibble::key_vars(x)
+        x <- x %>%
+            dplyr::mutate(
+                .key = rlang::eval_tidy(rlang::new_quosure(expr(interaction(!!!({
+                    key_vars <- tsibble::key_vars(.)
+                    lapply(key_vars[!key_vars %in% c(".var", ".model")], function(i) .[[i]])
+                }), sep = "/"))))
+            ) %>%
+            tsibble::update_tsibble(key = c(.var, .model, .key))
+        pred_data <- pred_data %>%
+            dplyr::mutate(
+                .key = rlang::eval_tidy(rlang::new_quosure(expr(interaction(!!!({
+                    key_vars <- tsibble::key_vars(.)
+                    lapply(key_vars[!key_vars %in% c(".var", ".model")], function(i) .[[i]])
+                }), sep = "/"))))
+            ) %>%
+            tsibble::update_tsibble(key = c(.var, .model, .key))
+    }
+    r_spec <- list(
+        mapping = aes(
+            x = !!sym(xlab), ymin = .lower, ymax = .upper,
+            group = !!(if (n_keys > 3) sym(".key") else NULL),
+            col = !!(if (n_keys > 3) sym(".key") else NULL),
+            fill = !!(if (n_keys > 3) sym(".key") else NULL)
+        ),
+        data = pred_data,
+        lwd = ifelse(n_keys > 3, 0, .5)
+    )
+    if (n_keys == 3) {
+        r_spec <- c(r_spec, fill = "#ffdbdb", col = NA)
     } else {
-        vline_xintercept <- as.numeric(index_obs)[1]
+        r_spec <- c(r_spec, alpha = .4)
+    }
+    l_spec <- list(x = sym(xlab), y = sym(".mean"))
+    if (n_keys > 3) {
+        l_spec <- c(l_spec, group = sym(".key"), col = sym(".key"))
+    }
+    l_spec <- rlang::eval_tidy(rlang::new_quosure(expr(aes(!!!l_spec))))
+
+    index_obs <- dplyr::filter(x, .model == "Raw data")[[as.character(xlab)]]
+    if (lubridate::is.Date(index_obs) | inherits(index_obs, "vctrs_vctr")) {
+        xi <- max(as.Date(index_obs))
+    } else {
+        xi <- max(as.numeric(index_obs))
     }
 
     p <- x %>%
         dplyr::select(-.var) %>%
         dplyr::filter(.model != "Raw data") %>%
-        fabletools::autoplot(.mean) +
-        geom_ribbon(
-            mapping = aes(!!sym(xlab), ymin = .lower, ymax = .upper),
-            data = pred_data, fill = "#ffdbdb", col = NA
-        ) +
+        fabletools::autoplot(.mean, linetype = ifelse(n_keys > 3, "dashed", "solid"))
+
+    if (n_keys > 3) {
+        p$mapping$group <- p$mapping$colour
+        p$mapping$colour <- NULL
+        p$layers[[1]] <- NULL
+    }
+    p <- expr(p + geom_ribbon(!!!r_spec, show.legend = FALSE)) %>%
+        rlang::new_quosure() %>%
+        rlang::eval_tidy() +
         geom_line(l_spec, dplyr::filter(x, .model == "Raw data"), size = 1) +
-        geom_line(l_spec, pred_data) +
-        geom_line(aes(!!sym(xlab), .lower), pred_data, linetype = "dashed") +
-        geom_line(aes(!!sym(xlab), .upper), pred_data, linetype = "dashed") +
-        geom_vline(xintercept = vline_xintercept, linetype = "dashed", alpha = .8) +
-        scale_colour_manual(values = c("#0e8c07", "#b50000", "black")) +
+        geom_line(l_spec, pred_data, linetype = ifelse(n_keys > 3, 2, 1)) +
+        geom_vline(xintercept = xi, linetype = "dashed", alpha = .4, lwd = .4) +
         ggplot2::labs(title = title, y = ylab) +
         ggplot2::theme(
             legend.position = "bottom",
             legend.title = element_blank()
         )
+
+    if (n_keys == 3) {
+        p + geom_line(aes(!!sym(xlab), .lower), pred_data, linetype = "dashed") +
+            geom_line(aes(!!sym(xlab), .upper), pred_data, linetype = "dashed") +
+            scale_colour_manual(values = c("#0e8c07", "#b50000", "black"))
+    } else {
+        p + geom_line(
+            mapping = aes(col = .key),
+            data = dplyr::filter(x, .model == "Fitted"),
+            linetype = "dashed"
+        )
+    }
 }
 
 
@@ -356,7 +467,7 @@ summary.inz_frct <- function(object, var = NULL, ...) {
 
 #' @param x a \code{summary_inz_frct} object
 #' @param show_details logical, if \code{TRUE} the model details will be shown,
-#'        only if \code{pred_model = fable::ARIMA} in the \code{predict} call.
+#'        only if \code{pred_model} is an \code{ARIMA} model.
 #' @param ... additional arguments (ignored)
 #'
 #' @rdname forecastsummary

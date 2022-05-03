@@ -7,9 +7,9 @@
 \method{predict}{inz_ts}(
   object,
   var = NULL,
-  h = "2 years",
+  h = 8,
   mult_fit = FALSE,
-  pred_model = ARIMA_lite,
+  pred_model = "auto",
   confint_width = 0.95,
   t_range = NULL,
   model_range = NULL,
@@ -26,7 +26,7 @@
 \item{mult_fit}{If \code{TRUE}, a multiplicative model is used, otherwise
 an additive model is used by default.}
 
-\item{pred_model}{a \code{fable} model function}
+\item{pred_model}{a \code{fable} model function name or \code{"auto"}}
 
 \item{confint_width}{a decimal, the width of the prediction interval}
 

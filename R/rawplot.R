@@ -190,7 +190,7 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph,
     p <- fabletools::autoplot(x, !!var, size = 1, alpha = op) +
         ggplot2::labs(y = ylab, title = title) +
         ggplot2::theme(
-            legend.position = dplyr::case_when(compare ~ "right", TRUE ~ "none"),
+            legend.position = dplyr::case_when(compare ~ "bottom", TRUE ~ "none"),
             legend.title = element_blank()
         )
 
