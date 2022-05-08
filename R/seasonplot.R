@@ -115,7 +115,7 @@ seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE,
                 p1$facet$params$cols <- cols
             }
             p2 <- x_dcmp_ls[[i]] %>%
-                plot(ylim = eff_y_lim[[i]], title = "Additive seasonal effects")
+                plot(ylim = eff_y_lim[[i]], title = "Seasonal effects")
             patchwork::wrap_plots(p1, p2, nrow = 1)
         })
         p <- expr(patchwork::wrap_plots(!!!p_ls)) %>%
@@ -166,6 +166,7 @@ season_effect <- function(x, var, mult_fit = FALSE) {
 
 #' @export
 plot.seas_ts <- function(x, ylim = NULL, title = NULL, ...) {
+    mult_fit <- attributes(x)$mult_fit
     seas_aes <- aes(
         x = !!tsibble::index(x),
         y = !!sym(names(attributes(x)$seasons)),
@@ -183,7 +184,11 @@ plot.seas_ts <- function(x, ylim = NULL, title = NULL, ...) {
             tsibble::update_tsibble(key = .key)
     }
 
-    p <- feasts::gg_season(x, season_effect, ...)
+    p <- feasts::gg_season(x, season_effect, ...) +
+        ggplot2::labs(y = dplyr::case_when(
+            mult_fit ~ "Multiplicative effect",
+            TRUE ~ "Additive effect"
+        ))
 
     if (tsibble::n_keys(x) > 1) {
         p$layers[[1]] <- NULL
@@ -198,7 +203,7 @@ plot.seas_ts <- function(x, ylim = NULL, title = NULL, ...) {
         geom_line(seas_aes) +
         geom_point(seas_aes, pch = 21, fill = "white", stroke = 1.5) +
         scale_y_continuous(limits = ylim) +
-        ggplot2::labs(title = title, x = "", y = tsibble::measured_vars(x)[1])
+        ggplot2::labs(title = title, x = "")
 
     if (tsibble::n_keys(x) > 1) {
         p <- suppressMessages(p + scale_colour_discrete(drop = FALSE)) +
