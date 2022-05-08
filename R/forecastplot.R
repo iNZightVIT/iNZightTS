@@ -445,23 +445,32 @@ summary.inz_frct <- function(object, var = NULL, ...) {
         ))
     }
     fit <- attributes(object)$fit
-    i <- which(unlist(lapply(fit, names)) == var)
-    mod_spec <- fabletools::model_sum(fit[[i]][[1]][[1]])
+    i <- which(unlist(lapply(fit, function(x) dplyr::last(names(x)))) == var)
+    mod_spec <- fit[[i]]
     pred <- object %>%
-        tibble::as_tibble() %>%
         dplyr::filter(.var == !!var, .model == "Prediction") %>%
         dplyr::select(-c(.var, .model)) %>%
-        head()
-
-    with(fit[[i]][[1]][[1]], list(
-        head_pred = pred,
-        spec = mod_spec,
-        model = fit$model
-    )) %>%
-        structure(
-            class = "summary_inz_frct",
-            model = class(fit[[i]][[1]][[1]]$fit)
+        dplyr::select(
+            !!tsibble::key_vars(.),
+            !!tsibble::index(.),
+            !!tsibble::measured_vars(.)
         )
+    if (tsibble::n_keys(object) > 3 * length(unique(object$.var))) {
+        model <- lapply(fit[[i]][[ncol(fit[[i]])]], function(x) {
+            x$fit$model
+        })
+        names(model) <- unique(rlang::eval_tidy(rlang::new_quosure(expr(interaction(!!!({
+            key_vars <- tsibble::key_vars(object)
+            lapply(key_vars[!key_vars %in% c(".var", ".model")], function(i) object[[i]])
+        }), sep = "/")))))
+    } else {
+        model <- fit[[i]][[ncol(fit[[i]])]][[1]]$fit$model
+    }
+
+    list(pred = pred, spec = mod_spec, model = model) %>% structure(
+        class = "summary_inz_frct",
+        model = class(fit[[i]][[ncol(fit[[i]])]][[1]]$fit)
+    )
 }
 
 
@@ -474,10 +483,10 @@ summary.inz_frct <- function(object, var = NULL, ...) {
 #'
 #' @export
 print.summary_inz_frct <- function(x, show_details = FALSE, ...) {
-    cat("\nThe first few forecasted observations:\n")
-    print(as.data.frame(x$head_pred), row.names = FALSE)
+    cat("\nForecasted observations:\n")
+    print(x$pred, n = Inf)
     cat("\nModel:\n")
-    cat(x$spec)
+    print(x$spec)
     cat("\n")
     if (show_details & attributes(x)$model == "ARIMA") {
         print(x$model)
