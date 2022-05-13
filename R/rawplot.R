@@ -44,8 +44,8 @@ guess_plot_var <- function(x, var, tidy = FALSE, use = "Plot") {
 #'        the focused series). If \code{non_emph_opacity = 0}, the plot draws
 #'        the focused series in its own scales.
 #' @param ... additional arguments (ignored)
-#' @return a time series plot (constructed with ggplot2) is returned invisibly,
-#'         which can be added to if desired.
+#' @return a time series plot (constructed with ggplot2) is returned, which
+#'         can be added to if desired.
 #'
 #' @seealso \code{\link[tsibble]{key_data}}
 #'
@@ -64,7 +64,7 @@ guess_plot_var <- function(x, var, tidy = FALSE, use = "Plot") {
 #'
 #' @export
 plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
-                        plot = TRUE, xlim = NULL, aspect = NULL, compare = TRUE,
+                        xlim = NULL, aspect = NULL, compare = TRUE,
                         smoother = TRUE, sm_model = "stl", mult_fit = FALSE,
                         emphasise = NULL, non_emph_opacity = .2, ...) {
     var <- guess_plot_var(x, !!enquo(var))
@@ -124,7 +124,7 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
     }
     if (is.null(title)) {
         title <- dplyr::case_when(
-            tsibble::n_keys(x) > 1 | length(var) > 2 ~ "",
+            length(var) > 2 ~ "",
             TRUE ~ dplyr::last(as.character(var))
         )
     }
@@ -149,7 +149,7 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
     if (length(var) < 3) {
         if (!compare & tsibble::n_keys(x) > 1) aspect <- NULL
         var <- sym(dplyr::last(as.character(var)))
-        p <- plot_inzightts_var(
+        plot_inzightts_var(
             x, var, xlab, ylab, title, aspect, emph,
             compare, smoother, sm_model, mult_fit
         )
@@ -161,16 +161,13 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
                 emph, compare, smoother, sm_model, mult_fit
             )
         })
-        p <- expr(patchwork::wrap_plots(!!!p_ls)) %>%
+        expr(patchwork::wrap_plots(!!!p_ls)) %>%
             rlang::new_quosure() %>%
             rlang::eval_tidy() +
             patchwork::plot_layout(ncol = 1, guides = "collect") +
-            patchwork::plot_annotation(title = title)
+            patchwork::plot_annotation(title = title) &
+            ggplot2::theme(legend.position = "bottom")
     }
-
-    if (plot) print(p)
-
-    invisible(p)
 }
 
 

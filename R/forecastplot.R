@@ -257,12 +257,12 @@ predict_inzightts_var <- function(x, var, h, mult_fit, pred_model, confint_width
 #' @param plot logical, if \code{FALSE}, the graph isn't drawn
 #' @param ... additional arguments (ignored)
 #'
-#' @rdname decomposition
+#' @rdname forecastplot
 #'
 #' @import patchwork
 #'
 #' @export
-plot.inz_frct <- function(x, xlab = NULL, ylab = NULL, title = NULL, plot = TRUE, ...) {
+plot.inz_frct <- function(x, xlab = NULL, ylab = NULL, title = NULL, ...) {
     if (is.null(xlab)) {
         xlab <- dplyr::case_when(
             is.numeric(x$index) ~ "Year",
@@ -285,23 +285,19 @@ plot.inz_frct <- function(x, xlab = NULL, ylab = NULL, title = NULL, plot = TRUE
     }
 
     if (length(unique(x$.var)) == 1) {
-        p <- plot_forecast_var(x, sym(unique(x$.var)), xlab, ylab, title)
+        plot_forecast_var(x, sym(unique(x$.var)), xlab, ylab, title)
     } else {
         p_ls <- lapply(seq_along(unique(x$.var)), function(i) {
             y_var <- unique(x$.var)[i]
             plot_forecast_var(x, sym(y_var), xlab, ylab[i], "")
         })
-        p <- expr(patchwork::wrap_plots(!!!p_ls)) %>%
+        expr(patchwork::wrap_plots(!!!p_ls)) %>%
             rlang::new_quosure() %>%
             rlang::eval_tidy() +
             patchwork::plot_layout(ncol = 1, guides = "collect") +
             patchwork::plot_annotation(title = title) &
             ggplot2::theme(legend.position = "bottom")
     }
-
-    if (plot) print(p)
-
-    invisible(p)
 }
 
 

@@ -27,7 +27,7 @@ seasonplot <- function(x, ...) {
 
 #' @export
 seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE,
-                              model_range = NULL, plot = TRUE, ...) {
+                              model_range = NULL, ...) {
     var <- guess_plot_var(x, !!enquo(var))
     spec <- list(...)
 
@@ -128,9 +128,7 @@ seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE,
             ggplot2::theme(legend.position = "bottom")
     }
 
-    if (plot) print(p)
-
-    invisible(p)
+    p
 }
 
 

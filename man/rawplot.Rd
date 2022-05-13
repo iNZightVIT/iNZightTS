@@ -10,7 +10,6 @@
   xlab = NULL,
   ylab = NULL,
   title = NULL,
-  plot = TRUE,
   xlim = NULL,
   aspect = NULL,
   compare = TRUE,
@@ -32,8 +31,6 @@
 \item{ylab}{a title for the y axis}
 
 \item{title}{a title for the graph}
-
-\item{plot}{logical, if \code{FALSE}, the graph isn't drawn}
 
 \item{xlim}{axis limits, specified as dates or years}
 
@@ -59,10 +56,12 @@ the focused series). If \code{non_emph_opacity = 0}, the plot draws
 the focused series in its own scales.}
 
 \item{...}{additional arguments (ignored)}
+
+\item{plot}{logical, if \code{FALSE}, the graph isn't drawn}
 }
 \value{
-a time series plot (constructed with ggplot2) is returned invisibly,
-        which can be added to if desired.
+a time series plot (constructed with ggplot2) is returned, which
+        can be added to if desired.
 }
 \description{
 Draws a plot of a given inzightts (\code{inz_ts}) object with the trend superimposed.

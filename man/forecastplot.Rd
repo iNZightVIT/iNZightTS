@@ -2,6 +2,7 @@
 % Please edit documentation in R/forecastplot.R
 \name{predict.inz_ts}
 \alias{predict.inz_ts}
+\alias{plot.inz_frct}
 \title{Produce forecasts for inzightts objects}
 \usage{
 \method{predict}{inz_ts}(
@@ -15,6 +16,8 @@
   model_range = NULL,
   ...
 )
+
+\method{plot}{inz_frct}(x, xlab = NULL, ylab = NULL, title = NULL, ...)
 }
 \arguments{
 \item{object}{an inzightts (\code{inz_ts}) object}
@@ -37,6 +40,16 @@ dates or years, if part of \code{model_range} specified is outside
 the range of \code{t_range}, the exceeding proportion is ignored.}
 
 \item{...}{additional arguments (ignored)}
+
+\item{x}{an \code{inz_frct} object}
+
+\item{xlab}{a title for the x axis}
+
+\item{ylab}{a title for the y axis}
+
+\item{title}{a title for the graph}
+
+\item{plot}{logical, if \code{FALSE}, the graph isn't drawn}
 }
 \value{
 an \code{inz_frct} object
