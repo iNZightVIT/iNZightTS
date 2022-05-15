@@ -214,6 +214,7 @@ predict.inz_ts <- function(object, var = NULL, h = 8, mult_fit = FALSE,
 
     pred %>% structure(
         class = c("inz_frct", class(.)),
+        confint_width = confint_width,
         fit = lapply(inzightts_forecast_ls, function(x) {
             dplyr::rename(
                 attributes(x)$fit,
@@ -465,7 +466,8 @@ summary.inz_frct <- function(object, var = NULL, ...) {
 
     list(pred = pred, spec = mod_spec, model = model) %>% structure(
         class = "summary_inz_frct",
-        model = class(fit[[i]][[ncol(fit[[i]])]][[1]]$fit)
+        model = class(fit[[i]][[ncol(fit[[i]])]][[1]]$fit),
+        ci = attributes(object)$confint_width * 100
     )
 }
 
@@ -479,8 +481,10 @@ summary.inz_frct <- function(object, var = NULL, ...) {
 #'
 #' @export
 print.summary_inz_frct <- function(x, show_details = FALSE, ...) {
-    cat("\nForecasted observations:\n")
-    print(x$pred, n = Inf)
+    cat(sprintf("\n%0.f%% Prediction Interval\n", attributes(x)$ci))
+    print(dplyr::rename(x$pred,
+        Time = index, Fitted = .mean, Lower = .lower, Upper = .upper
+    ), n = Inf)
     cat("\nModel:\n")
     print(x$spec)
     cat("\n")
