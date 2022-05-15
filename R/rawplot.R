@@ -69,6 +69,10 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
                         emphasise = NULL, non_emph_opacity = .2, ...) {
     var <- guess_plot_var(x, !!enquo(var))
     if (all(is.na(xlim))) xlim <- NULL
+    var_has_num <- any(unlist(lapply(var, function(v) is.numeric(x[[v]]))))
+    var_has_cat <- any(unlist(lapply(var, function(v) {
+        is.factor(x[[v]]) | is.character(x[[v]])
+    })))
 
     if (tsibble::n_keys(x) > 1) {
         x <- x %>%
@@ -78,16 +82,35 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
                 }
             ))
     }
-    y_obs <- unlist(lapply(ifelse(
-        length(as.character(var)) > 2,
-        c("", as.character(var)[-1]),
-        dplyr::last(as.character(var))
-    ), function(i) x[[i]]))
-    if (any(y_obs <= 0, na.rm = TRUE) & mult_fit) {
-        mult_fit <- !mult_fit
-        rlang::warn("Non-positive obs detected, setting `mult_fit = FALSE`")
+    if (var_has_cat) {
+        if (var_has_num) {
+            rlang::abort("Please pass only numeric or character/factor to `var`.")
+        }
+        if (length(var) > 2) {
+            var <- c("", dplyr::first(var[var != ""]))
+            rlang::warn("Please specify one character/factor at a time.")
+        }
+        x <- x %>% dplyr::mutate(
+            !!dplyr::last(var) := rlang::eval_tidy(rlang::new_quosure(expr(interaction(!!!({
+                c(lapply(tsibble::key_vars(.), function(i) .[[i]]), list(.[[dplyr::last(var)]]))
+            }), sep = "/"))))
+        )
+        if (tsibble::n_keys(x) > 1 & is.null(emphasise)) {
+            emphasise <- 1L
+            rlang::warn("Key detected when plotting category, setting `emphasise = 1L`")
+        }
+    } else {
+        y_obs <- unlist(lapply(ifelse(
+            length(as.character(var)) > 2,
+            c("", as.character(var)[-1]),
+            dplyr::last(as.character(var))
+        ), function(i) x[[i]]))
+        if (any(y_obs <= 0, na.rm = TRUE) & mult_fit) {
+            mult_fit <- !mult_fit
+            rlang::warn("Non-positive obs detected, setting `mult_fit = FALSE`")
+        }
     }
-    if (!is.null(xlim)) {
+    if (!is.null(xlim) & !var_has_cat) {
         if (!all(length(xlim) == 2, any(is.numeric(xlim), methods::is(xlim, "Date")))) {
             rlang::abort("xlim must be a numeric or Date vector of length 2.")
         }
