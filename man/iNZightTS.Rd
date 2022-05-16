@@ -28,7 +28,7 @@ inzightts(x, ...)
 \method{inzightts}{tbl_ts}(x, ...)
 }
 \arguments{
-\item{x}{a \code{data.frame}, \code{ts} or path}
+\item{x}{a \code{data.frame}, \code{ts}, tsibble, or path}
 
 \item{...}{additional arguments to be passed to or from methods}
 
