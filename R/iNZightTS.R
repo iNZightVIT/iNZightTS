@@ -84,7 +84,7 @@ format_index <- function(x) {
 #'
 #' @title Coerce to an inzightts (Time-Series) Objects
 #'
-#' @param x a \code{data.frame}, \code{ts} or path
+#' @param x a \code{data.frame}, \code{ts}, tsibble, or path
 #' @param ... additional arguments to be passed to or from methods
 #'
 #' @return an inzightts (\code{inz_ts}) object, a sub-class of tsibble

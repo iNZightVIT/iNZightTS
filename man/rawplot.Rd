@@ -56,8 +56,6 @@ the focused series). If \code{non_emph_opacity = 0}, the plot draws
 the focused series in its own scales.}
 
 \item{...}{additional arguments (ignored)}
-
-\item{plot}{logical, if \code{FALSE}, the graph isn't drawn}
 }
 \value{
 a time series plot (constructed with ggplot2) is returned, which

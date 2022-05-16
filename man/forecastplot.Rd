@@ -48,8 +48,6 @@ the range of \code{t_range}, the exceeding proportion is ignored.}
 \item{ylab}{a title for the y axis}
 
 \item{title}{a title for the graph}
-
-\item{plot}{logical, if \code{FALSE}, the graph isn't drawn}
 }
 \value{
 an \code{inz_frct} object

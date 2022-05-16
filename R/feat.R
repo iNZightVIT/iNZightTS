@@ -1,3 +1,24 @@
+#' A time series plot faceted by seasonal period.
+#'
+#' @title Seasonal subseries plots for inzightts
+#'
+#' @param x an inzightts (\code{inz_ts}) or tsibble (\code{tbl_ts}) object
+#' @param var a character vector of the variable(s) to be plotted, or \code{NULL}
+#' @param show_mean logical, if \code{FALSE}, the mean line isn't drawn
+#' @param xlab a title for the x axis
+#' @param ylab a title for the y axis
+#' @param title a title for the graph
+#' @return a \code{numeric}
+#'
+#' @rdname subseries
+#'
+#' @seealso \code{\link[feasts]{gg_subseries}}
+#'
+#' @examples
+#' t <- inzightts(visitorsQ)
+#' subseries(t)
+#'
+#' @export
 subseries <- function(x, var = NULL, show_mean = TRUE, xlab = NULL,
                       ylab = NULL, title = NULL) {
     var <- guess_plot_var(x, !!enquo(var))
@@ -5,9 +26,9 @@ subseries <- function(x, var = NULL, show_mean = TRUE, xlab = NULL,
     if (tsibble::n_keys(x) > 1) {
         x <- x %>%
             dplyr::mutate(
-                .key = rlang::eval_tidy(rlang::new_quosure(expr(interaction(!!!({
+                .key = rlang::eval_tidy(rlang::new_quosure(expr(interaction(!!!(
                     lapply(tsibble::key_vars(.), function(i) .[[i]])
-                }), sep = "/"))))
+                ), sep = "/"))))
             ) %>%
             tsibble::update_tsibble(key = .key)
     }

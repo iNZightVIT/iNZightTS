@@ -255,7 +255,6 @@ predict_inzightts_var <- function(x, var, h, mult_fit, pred_model, confint_width
 #' @param xlab a title for the x axis
 #' @param ylab a title for the y axis
 #' @param title a title for the graph
-#' @param plot logical, if \code{FALSE}, the graph isn't drawn
 #' @param ... additional arguments (ignored)
 #'
 #' @rdname forecastplot

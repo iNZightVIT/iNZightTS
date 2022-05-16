@@ -13,6 +13,8 @@ guess_plot_var <- function(x, var, tidy = FALSE, use = "Plot") {
     } else if (tidy) {
         rlang::get_expr(enexpr(var))
     } else {
+        ## !IMPORTANT! A dummy empty string `""` is added before `var` if
+        ## it is passed to the `var` argument from a character vector
         c("", as.character(rlang::eval_tidy(enexpr(var))))
     }
 }
@@ -27,7 +29,6 @@ guess_plot_var <- function(x, var, tidy = FALSE, use = "Plot") {
 #' @param xlab a title for the x axis
 #' @param ylab a title for the y axis
 #' @param title a title for the graph
-#' @param plot logical, if \code{FALSE}, the graph isn't drawn
 #' @param xlim axis limits, specified as dates or years
 #' @param aspect the aspect ratio of the plot;
 #'        it will be about \code{aspect} times wider than it is high
