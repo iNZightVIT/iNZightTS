@@ -14,7 +14,7 @@
 #'
 #' @import grid grDevices graphics stats utils
 #'
-#' @importFrom magrittr '%>%'
+#' @importFrom dplyr '%>%'
 #' @importFrom rlang .data
 #' @importFrom rlang ':='
 #'
@@ -23,7 +23,7 @@ NULL
 
 
 utils::globalVariables(c(
-    "trend", "remainder", "seasonal", "residual", "Date", "value", ".yint",
-    "Prediction", "index", ".var", ".model", ".mean", ".lower", ".upper",
-    ".fitted", ".", "P", "Q", "constant", "d", "p", ".rows", ".key", "id"
+    "trend", "remainder", "seasonal", "residual", "Date", "value", "id", ".x",
+    "Prediction", "index", ".var", ".model", ".mean", ".lower", ".upper", ".y",
+    ".fitted", ".", "P", "Q", "constant", "d", "p", ".rows", ".key", ".yint"
 ))

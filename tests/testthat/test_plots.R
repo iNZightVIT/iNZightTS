@@ -74,6 +74,18 @@ test_that("Check raw-plot configuration", {
     expect_is(plot(y, emphasise = 2), "ggplot")
     expect_is(plot(y, emphasise = 2, non_emph_opacity = 1e-6), "ggplot")
     expect_is(plot(y, emphasise = 2, non_emph_opacity = 0), "ggplot")
+    x <- visitorsM2 %>%
+        dplyr::mutate(y = ggplot2::cut_number(Japan, 4)) %>%
+        inzightts()
+    y <- visitorsA2 %>%
+        tidyr::pivot_longer(!Time, names_to = "Country", values_to = "Visitors") %>%
+        dplyr::mutate(y = ggplot2::cut_number(Visitors, 4)) %>%
+        inzightts(key = "Country")
+    expect_is(plot(x, "y"), "ggplot")
+    expect_is(plot(y, "y"), "ggplot")
+    expect_error(plot(y, c("y", "Visitors")))
+    expect_warning(plot(y, c("y", "y")))
+    expect_warning(plot(x, "y", aspect = 1))
 })
 
 test_that("Check decomposition plot configuration", {

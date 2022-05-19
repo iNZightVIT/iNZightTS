@@ -20,6 +20,45 @@ guess_plot_var <- function(x, var, tidy = FALSE, use = "Plot") {
 }
 
 
+cat_x_axis <- function(x) {
+    idx <- x[[tsibble::index(x)]]
+    if (!any(inherits(idx, "vctrs_vctr"), is.numeric(idx))) {
+        rlang::abort("Unsupported index format for categorical plot.")
+    }
+    if (is.numeric(idx)) {
+        fun <- function(x) x
+    } else {
+        fun <- function(x) lubridate::year(x)
+    }
+    list(fun = fun, name = "Year")
+}
+
+
+cat_y_axis <- function(x) {
+    idx <- x[[tsibble::index(x)]]
+    if (!any(inherits(idx, "vctrs_vctr"), is.numeric(idx))) {
+        rlang::abort("Unsupported index format for categorical plot.")
+    }
+    if (is.numeric(idx)) {
+        fun <- function(x) rep("", length(x))
+        name <- ""
+    } else {
+        if (inherits(idx, "yearquarter")) {
+            fun <- function(x) lubridate::quarter(x)
+        } else if (inherits(idx, "yearmonth")) {
+            fun <- function(x) lubridate::month(x, label = TRUE)
+        } else if (inherits(idx, "yearweek")) {
+            fun <- function(x) lubridate::week(x)
+        }
+        name <- is.numeric(idx) %>%
+            ifelse("", substring(class(idx)[1], 5)) %>%
+            stringr::str_to_title() %>%
+            paste("of Year")
+    }
+    list(fun = fun, name = name)
+}
+
+
 #' Draws a plot of a given inzightts (\code{inz_ts}) object with the trend superimposed.
 #'
 #' @title Draw a simple time series plot
@@ -100,6 +139,7 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
             emphasise <- 1L
             rlang::warn("Key detected when plotting category, setting `emphasise = 1L`")
         }
+        non_emph_opacity <- 0
     } else {
         y_obs <- unlist(lapply(ifelse(
             length(as.character(var)) > 2,
@@ -169,6 +209,9 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
             rlang::warn("Aspect ratio is automatic for multi-series plot.")
         }
     }
+    if (!is.null(aspect) & var_has_cat) {
+        rlang::warn("Aspect ratio is automatic for categorical plot.")
+    }
 
     if (length(var) < 3) {
         if (!compare & tsibble::n_keys(x) > 1) aspect <- NULL
@@ -207,6 +250,10 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph,
         if (emph$opacity == 0) x <- emph_data
     }
     op <- ifelse(!is.null(emph), emph$opacity, 1)
+
+    if (is.factor(x[[var]]) | is.character(x[[var]])) {
+        return(plot_cat_var(x, var, title))
+    }
 
     p <- fabletools::autoplot(x, !!var, size = 1, alpha = op) +
         ggplot2::labs(y = ylab, title = title) +
@@ -266,4 +313,47 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph,
     }
 
     p
+}
+
+
+plot_cat_var <- function(x, var, title) {
+    ini_row <- dplyr::select(x[1, ], !!var)
+    idx <- tsibble::index(x)
+    if (!is.numeric(x[[idx]])) {
+        floor_idx <- suppressWarnings(ini_row[[idx]] %>%
+            lubridate::year() %>%
+            as.character() %>%
+            getFromNamespace(class(x[[idx]])[1], "tsibble")())
+        if (ini_row[[idx]] != floor_idx) {
+            ini_row[[idx]] <- floor_idx
+            ini_row[[var]] <- NA
+            x <- x %>%
+                tsibble::update_tsibble(key = NULL) %>%
+                dplyr::bind_rows(ini_row) %>%
+                tsibble::fill_gaps()
+        }
+    }
+    x %>%
+        dplyr::mutate(
+            .x = forcats::fct_inorder(as.character(
+                cat_x_axis(.)$fun(!!tsibble::index(x))
+            )),
+            .y = forcats::fct_inorder(as.character(
+                cat_y_axis(.)$fun(!!tsibble::index(x))
+            )) %>% forcats::fct_rev()
+        ) %>%
+        dplyr::filter(!is.na(!!var)) %>%
+        ggplot(aes(.x, .y, col = !!var)) +
+        geom_tile(aes(fill = after_scale(col))) +
+        ggplot2::theme(
+            panel.grid = element_blank(),
+            legend.title = element_blank(),
+            legend.position = "bottom",
+            axis.ticks = element_blank()
+        ) +
+        ggplot2::labs(
+            x = cat_x_axis(x)$name,
+            y = cat_y_axis(x)$name,
+            title = title
+        )
 }
