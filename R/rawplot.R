@@ -152,7 +152,7 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
         }
     }
     if (!is.null(xlim) & !var_has_cat) {
-        if (!all(length(xlim) == 2, any(is.numeric(xlim), methods::is(xlim, "Date")))) {
+        if (!all(length(xlim) == 2, any(is.numeric(xlim), inherits(xlim, "Date")))) {
             rlang::abort("xlim must be a numeric or Date vector of length 2.")
         }
         na_i <- which(is.na(xlim))[1]
@@ -163,7 +163,7 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
             ))
             xlim <- lubridate::ymd(paste0(xlim, c("0101", "1231")))
             x <- dplyr::filter(x, dplyr::between(lubridate::as_date(index), xlim[1], xlim[2]))
-        } else if (is.numeric(x[[tsibble::index_var(x)]]) & methods::is(xlim, "Date")) {
+        } else if (is.numeric(x[[tsibble::index_var(x)]]) & inherits(xlim, "Date")) {
             xlim[na_i] <- lubridate::ymd(paste0(ifelse(na_i - 1, dplyr::last(x$index), x$index[1]), "0101"))
             x <- dplyr::filter(x, dplyr::between(index, lubridate::year(xlim[1]), lubridate::year(xlim[2])))
         } else {
@@ -356,4 +356,9 @@ plot_cat_var <- function(x, var, title) {
             y = cat_y_axis(x)$name,
             title = title
         )
+}
+
+
+ggplotable <- function(x) {
+    p <- try(plotly::ggplotly(s))
 }

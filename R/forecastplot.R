@@ -104,7 +104,7 @@ predict.inz_ts <- function(object, var = NULL, h = 8, mult_fit = FALSE,
         if (!is.null(model_range) & class(model_range)[1] != class(t_range)[1]) {
             rlang::abort("model_range and t_range must have the same primary class.")
         }
-        if (!all(length(t_range) == 2, any(is.numeric(t_range), methods::is(t_range, "Date")))) {
+        if (!all(length(t_range) == 2, any(is.numeric(t_range), inherits(t_range, "Date")))) {
             rlang::abort("t_range must be a numeric or Date vector of length 2.")
         }
         na_i <- which(is.na(t_range))[1]
@@ -115,7 +115,7 @@ predict.inz_ts <- function(object, var = NULL, h = 8, mult_fit = FALSE,
             ))
             t_range <- lubridate::ymd(paste0(t_range, c("0101", "1231")))
             object <- dplyr::filter(object, dplyr::between(lubridate::as_date(index), t_range[1], t_range[2]))
-        } else if (is.numeric(object[[tsibble::index_var(object)]]) & methods::is(t_range, "Date")) {
+        } else if (is.numeric(object[[tsibble::index_var(object)]]) & inherits(t_range, "Date")) {
             t_range[na_i] <- lubridate::ymd(paste0(ifelse(na_i - 1, dplyr::last(object$index), object$index[1]), "0101"))
             object <- dplyr::filter(object, dplyr::between(index, lubridate::year(t_range[1]), lubridate::year(t_range[2])))
         } else {
@@ -127,7 +127,7 @@ predict.inz_ts <- function(object, var = NULL, h = 8, mult_fit = FALSE,
         }
     }
     if (!is.null(model_range)) {
-        if (!all(length(model_range) == 2, any(is.numeric(model_range), methods::is(model_range, "Date")))) {
+        if (!all(length(model_range) == 2, any(is.numeric(model_range), inherits(model_range, "Date")))) {
             rlang::abort("model_range must be a numeric or Date vector of length 2.")
         }
         na_i <- which(is.na(model_range))[1]
@@ -138,7 +138,7 @@ predict.inz_ts <- function(object, var = NULL, h = 8, mult_fit = FALSE,
             ))
             model_range <- lubridate::ymd(paste0(model_range, c("0101", "1231")))
             x <- dplyr::filter(object, dplyr::between(lubridate::as_date(index), model_range[1], model_range[2]))
-        } else if (is.numeric(object[[tsibble::index_var(object)]]) & methods::is(model_range, "Date")) {
+        } else if (is.numeric(object[[tsibble::index_var(object)]]) & inherits(model_range, "Date")) {
             model_range[na_i] <- lubridate::ymd(paste0(ifelse(na_i - 1, dplyr::last(object$index), object$index[1]), "0101"))
             x <- dplyr::filter(object, dplyr::between(index, lubridate::year(model_range[1]), lubridate::year(model_range[2])))
         } else {

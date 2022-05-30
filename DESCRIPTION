@@ -24,7 +24,6 @@ Imports:
     grDevices,
     grid,
     gridExtra,
-    methods,
     patchwork,
     rlang,
     stats,
@@ -38,7 +37,8 @@ Imports:
     lubridate,
     stringr,
     tibble,
-    urca
+    urca,
+    plotly
 Suggests:
     covr,
     testthat
