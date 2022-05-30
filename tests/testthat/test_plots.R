@@ -7,6 +7,7 @@ t <- inzightts(visitorsQ)
 test_that("Basic ts graph works", {
     expect_is(plot(t), "ggplot")
     expect_is(plot(t, mult_fit = TRUE), "ggplot")
+    expect_true(ggplotable(plot(t)))
 })
 
 test_that("Smoother can be disabled", {
@@ -20,6 +21,8 @@ test_that("Decomposition and recomposition plots work", {
     expect_is(plot(d, recompose.progress = c(1, 20)), "inz_dcmp")
     expect_is(plot(decomp(t, mult_fit = TRUE)), "inz_dcmp")
     plot(d, recompose = TRUE)
+    expect_false(ggplotable(plot(d, recompose = TRUE)))
+    expect_false(ggplotable(plot(d)))
 })
 
 test_that("Season plot is OK", {
@@ -29,12 +32,14 @@ test_that("Season plot is OK", {
         seasonplot(inzightts(visitorsM2, var = 4), mult_fit = TRUE),
         "patchwork"
     )
+    expect_false(ggplotable(seasonplot(t)))
 })
 
 test_that("Forecast is fine", {
     expect_is(plot(predict(t, h = 8)), "ggplot")
     expect_is(plot(predict(t, h = "2 years")), "ggplot")
     expect_is(plot(predict(t, h = 8, mult_fit = TRUE)), "ggplot")
+    expect_false(ggplotable(plot(predict(t))))
 })
 
 tm <- inzightts(visitorsQ, var = 2:5)
@@ -43,6 +48,7 @@ test_that("Multi series graph works", {
     expect_is(plot(tm, var_name), "patchwork")
     expect_is(plot(tm, var_name, mult_fit = TRUE), "patchwork")
     expect_is(plot(tm, var_name, smoother = FALSE), "patchwork")
+    expect_false(ggplotable(plot(predict(t))))
 })
 
 test_that("Annual data forecast is fine", {
