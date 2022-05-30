@@ -39,7 +39,7 @@ test_that("Forecast is fine", {
     expect_is(plot(predict(t, h = 8)), "ggplot")
     expect_is(plot(predict(t, h = "2 years")), "ggplot")
     expect_is(plot(predict(t, h = 8, mult_fit = TRUE)), "ggplot")
-    expect_false(ggplotable(plot(predict(t))))
+    expect_true(ggplotable(plot(predict(t))))
 })
 
 tm <- inzightts(visitorsQ, var = 2:5)
@@ -48,7 +48,7 @@ test_that("Multi series graph works", {
     expect_is(plot(tm, var_name), "patchwork")
     expect_is(plot(tm, var_name, mult_fit = TRUE), "patchwork")
     expect_is(plot(tm, var_name, smoother = FALSE), "patchwork")
-    expect_false(ggplotable(plot(predict(t))))
+    expect_false(ggplotable(plot(tm, var_name)))
 })
 
 test_that("Annual data forecast is fine", {
