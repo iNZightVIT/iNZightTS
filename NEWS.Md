@@ -1,3 +1,7 @@
+## iNZightTS 2.0
+- rebuild package with features from **tidyverts**
+- added readme with example usage (#56)
+
 ## iNZightTS 1.5.8
 - change arguments to avoid deprecation arguments with next ggplot2 release (#62)
 

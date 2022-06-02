@@ -1,0 +1,107 @@
+---
+output: github_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+    message = FALSE,
+    warning = FALSE,
+    echo = TRUE,
+    collapse = TRUE,
+    comment = "#>",
+    fig.path = "man/figures",
+    out.width = "100%"
+)
+options(width = 100)
+```
+
+# iNZightTS: Time Series Visualisation and Forecasting
+
+[![R-CMD-check](https://github.com/iNZightVIT/iNZightTS/workflows/R-CMD-check/badge.svg)](https://github.com/iNZightVIT/iNZightTS/actions?workflow=R-CMD-check)
+[![Codecov test coverage](https://codecov.io/gh/iNZightVIT/iNZightTS/branch/master/graph/badge.svg)](https://codecov.io/gh/iNZightVIT/iNZightTS?branch=master)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
+[![CRAN](https://www.r-pkg.org/badges/version/iNZightTS)](https://CRAN.R-project.org/package=iNZightTS)
+
+## Overview
+
+The iNZightTS package provides some simple analysis tools for exploring time series data, which is used by [iNZight](https://github.com/iNZightVIT/iNZight). The package uses [tidyverts](https://tidyverts.org/) to store and process time series data and [ggplot2](https://github.com/tidyverse/ggplot2) to produce customisable graphics.
+
+## Installation
+
+The *stable* version can be installed from [CRAN](https://cran.r-project.org/web/packages/iNZightTS/index.html):
+
+```{r cran, eval = FALSE}
+install.packages("iNZightTS")
+```
+
+Or install the *development* version from [GitHub](https://github.com/iNZightVIT/iNZightTS):
+
+```{r github, eval = FALSE}
+remotes::install_github("iNZightVIT/iNZightTS")
+```
+
+## Usage
+
+```{r pkgs}
+library(iNZightTS)
+library(dplyr)
+library(tidyr)
+```
+
+### Getting started
+
+Use the `inzightts` function to create a temporal data set to be used by the functions of the package. The data is stored as a [tsibble](https://github.com/tidyverts/tsibble).
+
+```{r data}
+data <- visitorsQ %>%
+    pivot_longer(!Date, names_to = "Country", values_to = "Visitors") %>%
+    inzightts(key = "Country")
+data
+```
+
+### Graphics
+
+Exploratory analysis of time series data starts from a smoothed line plot.
+
+```{r raw-plot}
+plot(data)
+```
+
+### Decompositions
+
+Time series data often exhibit features such as trend, season and cycle. A decomposition plot breaks the data into visual components which simplies the analysis.
+
+```{r decomp}
+dcmp <- data %>%
+    filter(Country == "Australia") %>%
+    inzightts() %>%
+    decomp()
+dcmp
+```
+
+```{r decomp-plot}
+plot(dcmp, title = "Visitors to Australia")
+```
+
+### Visualising seasonal effects
+
+Plots are helpful in revealing the underlying seasonal pattern of time series data.
+
+```{r season-plot}
+seasonplot(data)
+```
+
+```{r subseries-plot}
+subseries(data)
+```
+
+### Forecasting
+
+```{r forecast}
+pred <- predict(data)
+summary(pred)
+```
+
+```{r forecast-plot}
+plot(pred)
+```
