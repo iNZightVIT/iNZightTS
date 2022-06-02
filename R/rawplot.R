@@ -72,6 +72,9 @@ cat_y_axis <- function(x) {
 #' @param aspect the aspect ratio of the plot;
 #'        it will be about \code{aspect} times wider than it is high
 #' @param compare logical, whether to plot the key levels in a single plot
+#' @param pal (only if a categorical variable is passed to \code{var}): the
+#'        colour palette for the categorical plot, the palette vector should
+#'        be in the same order per the rows of \code{tsibble::key_data(x)}.
 #' @param smoother logical, if \code{TRUE} the smoother will be drawn
 #' @param sm_model the smoothing method to be used
 #' @param mult_fit If \code{TRUE}, a multiplicative model is used, otherwise
@@ -104,7 +107,7 @@ cat_y_axis <- function(x) {
 #'
 #' @export
 plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
-                        xlim = NULL, aspect = NULL, compare = TRUE,
+                        xlim = NULL, aspect = NULL, compare = TRUE, pal = NULL,
                         smoother = TRUE, sm_model = "stl", mult_fit = FALSE,
                         emphasise = NULL, non_emph_opacity = .2, ...) {
     var <- guess_plot_var(x, !!enquo(var))
@@ -217,15 +220,15 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
         if (!compare & tsibble::n_keys(x) > 1) aspect <- NULL
         var <- sym(dplyr::last(as.character(var)))
         plot_inzightts_var(
-            x, var, xlab, ylab, title, aspect, emph,
+            x, var, xlab, ylab, title, aspect, emph, pal,
             compare, smoother, sm_model, mult_fit
         )
     } else {
         p_ls <- lapply(seq_len(length(var) - 1), function(i) {
             y_var <- as.character(var)[i + 1]
             plot_inzightts_var(
-                x, sym(y_var), xlab, ylab[i], "", NULL,
-                emph, compare, smoother, sm_model, mult_fit
+                x, sym(y_var), xlab, ylab[i], "", NULL, emph,
+                pal, compare, smoother, sm_model, mult_fit
             )
         })
         expr(patchwork::wrap_plots(!!!p_ls)) %>%
@@ -238,7 +241,7 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
 }
 
 
-plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph,
+plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph, pal,
                                compare, smoother, sm_model, mult_fit) {
     if (!is.null(emph)) {
         emph_data <- emph$data %>%
@@ -252,7 +255,7 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph,
     op <- ifelse(!is.null(emph), emph$opacity, 1)
 
     if (is.factor(x[[var]]) | is.character(x[[var]])) {
-        return(plot_cat_var(x, var, title))
+        return(plot_cat_var(x, var, title, pal))
     }
 
     p <- fabletools::autoplot(x, !!var, size = 1, alpha = op) +
@@ -316,7 +319,7 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph,
 }
 
 
-plot_cat_var <- function(x, var, title) {
+plot_cat_var <- function(x, var, title, pal) {
     ini_row <- dplyr::select(x[1, ], !!var)
     idx <- tsibble::index(x)
     if (!is.numeric(x[[idx]])) {
@@ -333,7 +336,7 @@ plot_cat_var <- function(x, var, title) {
                 tsibble::fill_gaps()
         }
     }
-    x %>%
+    p <- x %>%
         dplyr::mutate(
             .x = forcats::fct_inorder(as.character(
                 cat_x_axis(.)$fun(!!tsibble::index(x))
@@ -356,6 +359,10 @@ plot_cat_var <- function(x, var, title) {
             y = cat_y_axis(x)$name,
             title = title
         )
+    if (!is.null(pal)) {
+        p <- p + scale_colour_manual(values = pal)
+    }
+    p
 }
 
 

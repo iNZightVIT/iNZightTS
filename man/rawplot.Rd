@@ -13,6 +13,7 @@
   xlim = NULL,
   aspect = NULL,
   compare = TRUE,
+  pal = NULL,
   smoother = TRUE,
   sm_model = "stl",
   mult_fit = FALSE,
@@ -38,6 +39,10 @@
 it will be about \code{aspect} times wider than it is high}
 
 \item{compare}{logical, whether to plot the key levels in a single plot}
+
+\item{pal}{(only if a categorical variable is passed to \code{var}): the
+colour palette for the categorical plot, the palette vector should
+be in the same order per the rows of \code{tsibble::key_data(x)}.}
 
 \item{smoother}{logical, if \code{TRUE} the smoother will be drawn}
 
