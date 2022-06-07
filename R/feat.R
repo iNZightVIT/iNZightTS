@@ -56,7 +56,7 @@ subseries <- function(x, var = NULL, show_mean = TRUE, xlab = NULL,
         }
     }
 
-    if (length(var) < 3) {
+    (if (length(var) < 3) {
         var <- sym(dplyr::last(as.character(var)))
         plot_subseries(x, var, show_mean, ylab, title)
     } else {
@@ -70,7 +70,7 @@ subseries <- function(x, var = NULL, show_mean = TRUE, xlab = NULL,
             patchwork::plot_layout(ncol = 1, guides = "collect") +
             patchwork::plot_annotation(title = title) &
             ggplot2::theme(legend.position = "bottom")
-    }
+    }) %>% structure(use.plotly = ggplotable(.))
 }
 
 

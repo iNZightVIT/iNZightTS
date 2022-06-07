@@ -284,7 +284,7 @@ plot.inz_frct <- function(x, xlab = NULL, ylab = NULL, title = NULL, ...) {
         )
     }
 
-    if (length(unique(x$.var)) == 1) {
+    (if (length(unique(x$.var)) == 1) {
         plot_forecast_var(x, sym(unique(x$.var)), xlab, ylab, title)
     } else {
         p_ls <- lapply(seq_along(unique(x$.var)), function(i) {
@@ -297,7 +297,7 @@ plot.inz_frct <- function(x, xlab = NULL, ylab = NULL, title = NULL, ...) {
             patchwork::plot_layout(ncol = 1, guides = "collect") +
             patchwork::plot_annotation(title = title) &
             ggplot2::theme(legend.position = "bottom")
-    }
+    }) %>% structure(use.plotly = ggplotable(.))
 }
 
 

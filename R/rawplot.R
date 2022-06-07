@@ -216,7 +216,7 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
         rlang::warn("Aspect ratio is automatic for categorical plot.")
     }
 
-    if (length(var) < 3) {
+    (if (length(var) < 3) {
         if (!compare & tsibble::n_keys(x) > 1) aspect <- NULL
         var <- sym(dplyr::last(as.character(var)))
         plot_inzightts_var(
@@ -237,7 +237,7 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
             patchwork::plot_layout(ncol = 1, guides = "collect") +
             patchwork::plot_annotation(title = title) &
             ggplot2::theme(legend.position = "bottom")
-    }
+    }) %>% structure(use.plotly = ggplotable(.))
 }
 
 
