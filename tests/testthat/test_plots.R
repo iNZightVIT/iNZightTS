@@ -95,6 +95,8 @@ test_that("Check raw-plot configuration", {
     expect_error(plot(y, c("y", "Visitors")))
     expect_warning(plot(y, c("y", "y")))
     expect_warning(plot(x, "y", aspect = 1))
+    x$Australia[c(23, 25)] <- NA
+    expect_is(plot(x), "ggplot")
 })
 
 test_that("Check decomposition plot configuration", {

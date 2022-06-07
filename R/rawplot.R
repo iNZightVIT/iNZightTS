@@ -86,6 +86,10 @@ cat_y_axis <- function(x) {
 #'        the opacity of the series other than the focused one(s) (to highlight
 #'        the focused series). If \code{non_emph_opacity = 0}, the plot draws
 #'        the focused series in its own scales.
+#' @param show_iso_obs logical, whether to plot isolated observations between
+#'        time series gaps or not, if there is any
+#' @param iso_obs_size numeric, scaling the size of isolated observations, if
+#'        \code{show_iso_obs = TRUE} and they exists
 #' @param ... additional arguments (ignored)
 #' @return a time series plot (constructed with ggplot2) is returned, which
 #'         can be added to if desired.
@@ -109,13 +113,15 @@ cat_y_axis <- function(x) {
 plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
                         xlim = NULL, aspect = NULL, compare = TRUE, pal = NULL,
                         smoother = TRUE, sm_model = "stl", mult_fit = FALSE,
-                        emphasise = NULL, non_emph_opacity = .2, ...) {
+                        emphasise = NULL, non_emph_opacity = .2,
+                        show_iso_obs = TRUE, iso_obs_size = 1, ...) {
     var <- guess_plot_var(x, !!enquo(var))
     if (all(is.na(xlim))) xlim <- NULL
     var_has_num <- any(unlist(lapply(var, function(v) is.numeric(x[[v]]))))
     var_has_cat <- any(unlist(lapply(var, function(v) {
         is.factor(x[[v]]) | is.character(x[[v]])
     })))
+    if (!show_iso_obs) iso_obs_size <- -1
 
     if (tsibble::n_keys(x) > 1) {
         x <- x %>%
@@ -221,14 +227,14 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
         var <- sym(dplyr::last(as.character(var)))
         plot_inzightts_var(
             x, var, xlab, ylab, title, aspect, emph, pal,
-            compare, smoother, sm_model, mult_fit
+            compare, smoother, sm_model, mult_fit, iso_obs_size
         )
     } else {
         p_ls <- lapply(seq_len(length(var) - 1), function(i) {
             y_var <- as.character(var)[i + 1]
             plot_inzightts_var(
-                x, sym(y_var), xlab, ylab[i], "", NULL, emph,
-                pal, compare, smoother, sm_model, mult_fit
+                x, sym(y_var), xlab, ylab[i], "", NULL, emph, pal,
+                compare, smoother, sm_model, mult_fit, iso_obs_size
             )
         })
         expr(patchwork::wrap_plots(!!!p_ls)) %>%
@@ -242,7 +248,7 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
 
 
 plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph, pal,
-                               compare, smoother, sm_model, mult_fit) {
+                               compare, smoother, sm_model, mult_fit, iso) {
     if (!is.null(emph)) {
         emph_data <- emph$data %>%
             dplyr::left_join(x, by = tsibble::key_vars(x)) %>%
@@ -313,6 +319,12 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph, pal,
                 rlang::new_quosure() %>%
                 rlang::eval_tidy()
         }
+    }
+
+    iso_i <- which(diff(diff(is.na(c(NA, x[[var]])))) == 2)
+    if (iso != -1 & length(iso_i) > 0) {
+        p <- p + geom_point(data = x[iso_i, ], size = iso / 2) +
+            ggplot2::labs(caption = "Isolated observations are plotted as dots")
     }
 
     p

@@ -19,6 +19,8 @@
   mult_fit = FALSE,
   emphasise = NULL,
   non_emph_opacity = 0.2,
+  show_iso_obs = TRUE,
+  iso_obs_size = 1,
   ...
 )
 }
@@ -59,6 +61,12 @@ the ith row of \code{tsibble::key_data(x)}.}
 the opacity of the series other than the focused one(s) (to highlight
 the focused series). If \code{non_emph_opacity = 0}, the plot draws
 the focused series in its own scales.}
+
+\item{show_iso_obs}{logical, whether to plot isolated observations between
+time series gaps or not, if there is any}
+
+\item{iso_obs_size}{numeric, scaling the size of isolated observations, if
+\code{show_iso_obs = TRUE} and they exists}
 
 \item{...}{additional arguments (ignored)}
 }
