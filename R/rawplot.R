@@ -360,6 +360,9 @@ plot_cat_var <- function(x, var, title, pal) {
             title = title
         )
     if (!is.null(pal)) {
+        if (is.function(pal)) {
+            pal <- pal(length(unique(x[[var]])))
+        }
         p <- p + scale_colour_manual(values = pal)
     }
     p
