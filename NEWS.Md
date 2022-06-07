@@ -1,5 +1,8 @@
 ## iNZightTS 2.0
 - rebuild package with features from **tidyverts**
+- new: sub-series plot
+- enhanced: introduce key for multiple time series
+- enhanced: changed the default behaviour of multiple variables in time series plots
 - added readme with example usage (#56)
 
 ## iNZightTS 1.5.8
