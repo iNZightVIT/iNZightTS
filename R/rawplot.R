@@ -399,6 +399,5 @@ plot_cat_var <- function(x, var, title, pal) {
 #'
 #' @export
 ggplotable <- function(x) {
-    p <- try(plotly::ggplotly(x), silent = TRUE)
-    !any(inherits(p, "try-error"), inherits(x, "patchwork"))
+    !inherits(x, "patchwork")
 }

@@ -37,8 +37,7 @@ Imports:
     lubridate,
     stringr,
     tibble,
-    urca,
-    plotly
+    urca
 Suggests:
     covr,
     testthat
