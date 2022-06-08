@@ -21,8 +21,6 @@ test_that("Decomposition and recomposition plots work", {
     expect_is(plot(d, recompose.progress = c(1, 20)), "inz_dcmp")
     expect_is(plot(decomp(t, mult_fit = TRUE)), "inz_dcmp")
     plot(d, recompose = TRUE)
-    expect_false(ggplotable(plot(d, recompose = TRUE)))
-    expect_false(ggplotable(plot(d)))
 })
 
 test_that("Season plot is OK", {
