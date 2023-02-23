@@ -1,9 +1,9 @@
 
 # iNZightTS: Time Series Visualisation and Forecasting
 
-[![R-CMD-check](https://github.com/iNZightVIT/iNZightTS/workflows/R-CMD-check/badge.svg)](https://github.com/iNZightVIT/iNZightTS/actions?workflow=R-CMD-check)
+[![R-CMD-check](https://github.com/iNZightVIT/iNZightTS2/workflows/R-CMD-check/badge.svg)](https://github.com/iNZightVIT/iNZightTS2/actions?workflow=R-CMD-check)
 [![Codecov test
-coverage](https://codecov.io/gh/iNZightVIT/iNZightTS/branch/master/graph/badge.svg)](https://codecov.io/gh/iNZightVIT/iNZightTS?branch=master)
+coverage](https://codecov.io/gh/iNZightVIT/iNZightTS2/branch/dev/graph/badge.svg)](https://codecov.io/gh/iNZightVIT/iNZightTS2?branch=dev)
 [![License: GPL
 v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
 [![CRAN](https://www.r-pkg.org/badges/version/iNZightTS)](https://CRAN.R-project.org/package=iNZightTS)
