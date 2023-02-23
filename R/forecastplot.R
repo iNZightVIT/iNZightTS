@@ -224,6 +224,9 @@ predict.inz_ts <- function(object, var = NULL, h = 8, mult_fit = FALSE,
     )
 }
 
+use_urca <- function() {
+    urca::plot
+}
 
 predict_inzightts_var <- function(x, var, h, mult_fit, pred_model, confint_width) {
     fit <- fabletools::model(x, Prediction = pred_model(log_if(!!var, !!mult_fit)))

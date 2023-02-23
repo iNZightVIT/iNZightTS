@@ -23,7 +23,6 @@ Imports:
     graphics,
     grDevices,
     grid,
-    gridExtra,
     patchwork,
     rlang,
     stats,
