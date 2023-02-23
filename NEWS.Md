@@ -1,4 +1,4 @@
-## iNZightTS 2.0
+## iNZightTS 2.0.0
 
 - rebuild package with features from **tidyverts**
 - new: sub-series plot
