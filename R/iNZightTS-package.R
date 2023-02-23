@@ -10,11 +10,20 @@
 #'
 #' @keywords iNZight
 #'
-#' @seealso \code{iNZight}
+#' @seealso \code{\link[iNZightTS]{inzightts}}
 #'
 #' @import grid grDevices graphics stats utils
-#' @importFrom magrittr '%>%'
+#'
+#' @importFrom dplyr '%>%'
 #' @importFrom rlang .data
+#' @importFrom rlang ':='
 #'
 #' @name iNZightTS-package
 NULL
+
+
+utils::globalVariables(c(
+    "trend", "remainder", "seasonal", "residual", "Date", "value", "id", ".x",
+    "Prediction", "index", ".var", ".model", ".mean", ".lower", ".upper", ".y",
+    ".fitted", ".", "P", "Q", "constant", "d", "p", ".rows", ".key", ".yint"
+))

@@ -4,15 +4,16 @@
 \alias{seasonplot}
 \title{Plot Seasonal Subseries from a Time Series}
 \usage{
-seasonplot(obj, ...)
+seasonplot(x, ...)
 }
 \arguments{
-\item{obj}{an \code{iNZightTS} object}
+\item{x}{an inzightts (\code{inz_ts}) object}
 
-\item{...}{Further arguments to be passed onto specific methods.}
+\item{...}{further arguments to be passed onto specific methods
+and the \code{gg_season} function}
 }
 \value{
-No return value, called for the side effect of drawing a plot.
+A \code{patchwork} object of seasonal plots
 }
 \description{
 This function plots the seasonal components of a time series together
@@ -24,10 +25,9 @@ seasonal subseries of the time series is plotted. On the right will be
 the average seasonal effect of the series.
 }
 \examples{
-ts <- iNZightTS(visitorsQ)
-seasonplot(ts)
+seasonplot(inzightts(visitorsQ))
 
 }
 \seealso{
-\code{\link{iNZightTS}}
+\code{\link[feasts]{gg_season}}
 }

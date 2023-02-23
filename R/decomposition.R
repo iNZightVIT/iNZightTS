@@ -1,137 +1,210 @@
+#' @export
+.decomp <- function(use_method, ...) {
+    UseMethod(".decomp")
+}
+
+
 #' Decompose a time series object
 #'
-#' @param obj an iNZightTS object
-#' @param multiplicative fit a multiplicative time series model?
-#' @param t the smoothing parameter
-#' @param model.lim limits for the time series model
-#' @param data.name the name of the data
-#' @param ... other, ignored, arguments
-#' @return an \code{inzdecomp} object (this is the original
-#'         object with an additional \code{decompVars} component)
+#' @param x an inzightts (\code{inz_ts}) object
+#' @param var a character vector of length one, or \code{NULL}
+#' @param sm_model the smoothing method to be used
+#' @param mult_fit If \code{TRUE}, a multiplicative model is used, otherwise
+#'        an additive model is used by default.
+#' @param model_range range of data to be decomposed by the model, specified as
+#'        dates or years, if part of \code{model_range} specified is outside
+#'        the range of the data, the exceeding proportion is ignored.
+#' @param ... additional arguments (ignored)
+#' @return a decomp (\code{inz_dcmp}) object, a sub-class of dable
+#'
+#' @rdname decomposition
+#'
+#' @seealso \code{\link[fabletools]{dable}}
 #'
 #' @examples
-#' t <- iNZightTS(visitorsQ)
-#' decomp.ts <- decompose(t, data.name = "Visitors")
-#' plot(decomp.ts)
+#' library(dplyr)
+#' d <- visitorsQ %>%
+#'     inzightts() %>%
+#'     decomp() %>%
+#'     plot()
 #'
-#' @export
 #' @references
 #' R. B. Cleveland, W. S. Cleveland, J.E. McRae, and I. Terpenning (1990)
 #' STL: A Seasonal-Trend Decomposition Procedure Based on Loess.
 #' Journal of Official Statistics, 6, 3iV73.
-decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
-                      data.name = NULL, ...) {
-     if (!is.null(model.lim)) {
-        model.lim <- ifelse(is.na(model.lim),
-            range(time(obj$tsObj)), model.lim)
-        ts.sub <- try({
-            window(obj$tsObj, model.lim[1], model.lim[2])
-        }, TRUE)
-        if (inherits(ts.sub, "try-error")) {
-            warning("Invalid modelling window - ignoring.")
+#' @export
+decomp <- function(x, var = NULL, sm_model = c("stl"),
+                   mult_fit = FALSE, model_range = NULL, ...) {
+    var <- dplyr::last(as.character(guess_plot_var(x, !!enquo(var), use = "Decomp")))
+
+    if (all(is.na(model_range))) model_range <- NULL
+
+    if (!is.null(model_range)) {
+        if (!all(length(model_range) == 2, any(is.numeric(model_range), inherits(model_range, "Date")))) {
+            rlang::abort("model_range must be a numeric or Date vector of length 2.")
+        }
+        na_i <- which(is.na(model_range))[1]
+        if (!is.numeric(x[[tsibble::index_var(x)]]) & is.numeric(model_range)) {
+            model_range[na_i] <- lubridate::year(dplyr::case_when(
+                as.logical(na_i - 1) ~ dplyr::last(x$index),
+                TRUE ~ x$index[1]
+            ))
+            model_range <- lubridate::ymd(paste0(model_range, c("0101", "1231")))
+            x <- dplyr::filter(x, dplyr::between(lubridate::as_date(index), model_range[1], model_range[2]))
+        } else if (is.numeric(x[[tsibble::index_var(x)]]) & inherits(model_range, "Date")) {
+            model_range[na_i] <- lubridate::ymd(paste0(ifelse(na_i - 1, dplyr::last(x$index), x$index[1]), "0101"))
+            x <- dplyr::filter(x, dplyr::between(index, lubridate::year(model_range[1]), lubridate::year(model_range[2])))
         } else {
-            obj$tsObj <- ts.sub
+            model_range[na_i] <- dplyr::case_when(
+                as.logical(na_i - 1) ~ dplyr::last(x$index),
+                TRUE ~ x$index[1]
+            )
+            x <- dplyr::filter(x, dplyr::between(index, model_range[1], model_range[2]))
         }
     }
-
-    multiplicative <- is_multiplicative(obj$tsObj, multiplicative)
-    xlist <- get.x(obj$tsObj)
-    x <- xlist$x
-    x.units <- xlist$x.units
-
-    n <- length(obj$data)
-
-    if (multiplicative)
-        tsObj <- log(obj$tsObj)
-    else
-        tsObj <- obj$tsObj
-
-    if (obj$freq > 1) {
-        ### t.window is the smallest odd integer ranges from about 1.5*frequceny to 2*frequency
-        ### the actual minimum value is  1.5 * frequency/(1 - 1.5/s.window)
-        ### where s.window = 10* number of observation +1 by putting 'periodic'
-        ### t is set to be proportion of 0.5 *frequency
-        ### when t =0, the t.window takes the default value/ minimum value -the least smoothness
-        ### when t = 1. the t.window takes the maximum value - the most smoothnuess
-        decomp <- stl(tsObj,
-            "periodic",
-            t.window =
-                nextodd(
-                    ceiling(
-                        1.5 * frequency(data) / (1 - 1.5 / (10*n + 1)) +
-                            0.5 * frequency(data) * t
-                    )
-                )
-            )
-    } else {
-        ## freq == 1, non seasonal fitted.
-        if (multiplicative)  {
-            ### according to internet, the span value varies from about 0.1 to 2
-            ### 0.1 gives nearly no smoothness, while 2 gives nearly maximum smoothness
-            ### therefore here, the span ranges from 0.1 to 2
-            ### the default is 0.75
-            trend.comp <-
-                loess(
-                    log(obj$data[1:length(obj$tsObj), obj$currVar]) ~ x,
-                    span = 0.1 + 1.9*t
-                )$fitted + obj$tsObj * 0
-
-            residuals.comp <- log(obj$tsObj) - trend.comp
-            seasons.comp <- obj$tsObj * 0
-            decomp <- list()
-            decomp$time.series <- as.ts(
-                data.frame(
-                    seasonal = seasons.comp,
-                    trend = trend.comp,
-                    remainder = residuals.comp,
-                    stringsAsFactors = TRUE
-                )
-            )
-        } else {
-            trend.comp <-
-                loess(
-                    obj$data[1:length(obj$tsObj), obj$currVar] ~ x
-                )$fitted + obj$tsObj * 0
-
-            residuals.comp <- obj$tsObj - trend.comp
-            seasons.comp <- obj$tsObj * 0
-            decomp <- list()
-            decomp$time.series <- as.ts(
-                data.frame(
-                    seasonal = seasons.comp,
-                    trend = trend.comp,
-                    remainder = residuals.comp,
-                    stringsAsFactors = TRUE
-                )
-            )
-        }
-        tsp(decomp$time.series) <- c(obj$start[1], obj$end[1], obj$freq)
-    }
-
-    decompData <- decomp$time.series    # returns matrix
-    if (multiplicative) {
-        Y <- log(as.numeric(as.matrix(tsObj)))
-        trend_log <- as.numeric(decompData[, "trend"])
-        trend <- exp(trend_log)
-        seasonal_log <- as.numeric(decompData[, "seasonal"])
-        seasonal <- exp(trend_log + seasonal_log) - trend
-        residual <- exp(Y - (trend_log + seasonal_log))
-        decompData[, "trend"] <- trend
-        decompData[, "seasonal"] <- exp(seasonal_log)
-        decompData[, "remainder"] <- residual
-    }
-
-    obj$decompVars <- list(
-        data.name = data.name,
-        raw = obj$tsObj@.Data,
-        components = decompData,
-        multiplicative = multiplicative
+    mismatch_err <- gsub(
+        "'arg'", "`sm_model`",
+        evaluate::try_capture_stack(match.arg(sm_model))$message
     )
-    class(obj) <- c("inzdecomp", class(obj))
-    obj
+    if (inherits(try(match.arg(sm_model), silent = TRUE), "try-error")) {
+        rlang::abort(mismatch_err)
+    }
+    decomp_spec <- list(...)
+
+    expr(.decomp(use_decomp_method(sm_model), x, var, mult_fit, !!!decomp_spec)) %>%
+        rlang::new_quosure() %>%
+        rlang::eval_tidy() %>%
+        structure(class = c("inz_dcmp", class(.)), mult_fit = mult_fit)
 }
 
-#' @param x an inzdecomp object (from decompose(ts))
+
+decomp_key <- function(x, var, sm_model, mult_fit) {
+    key_data <- tsibble::key_data(x)
+    key_vars <- tsibble::key_vars(x)
+    dplyr::bind_rows(!!!lapply(
+        seq_len(nrow(key_data)),
+        function(i) {
+            key_data[i, ] %>%
+                dplyr::left_join(x, by = key_vars) %>%
+                tsibble::as_tsibble(
+                    index = !!tsibble::index(x),
+                    key = !!key_vars
+                ) %>%
+                decomp(as.character(var), sm_model, mult_fit) %>%
+                tibble::as_tibble()
+        }
+    )) %>%
+        dplyr::filter(dplyr::if_all(
+            !!key_vars[key_vars %in% names(.)],
+            ~ !is.na(.x)
+        )) %>%
+        tsibble::as_tsibble(
+            index = !!tsibble::index(x),
+            key = c(!!key_vars[key_vars %in% names(.)], .model)
+        ) %>%
+        structure(seasons = {
+            n <- names(.)[grep("season_", names(.))]
+            n <- n[n != "season_adjust"]
+            n <- ifelse(length(n) > 1, n[n != "season_null"], n)
+            as.list(tibble::tibble(!!n := 1))
+        })
+}
+
+
+use_decomp_method <- function(method) {
+    structure(method, class = sprintf("use_%s", method))
+}
+
+
+#' @export
+.decomp.use_stl <- function(use_method, data, var, mult_fit, ...) {
+    if (is.character(var)) var <- sym(var)
+
+    stl_spec <- list(...)
+    if (!is.null(stl_spec$s.window)) {
+        s.window <- stl_spec$s.window
+        stl_spec <- within(stl_spec, rm(s.window))
+    } else {
+        s.window <- "periodic"
+    }
+    if (any(data[[var]] <= 0, na.rm = TRUE) & mult_fit) {
+        mult_fit <- !mult_fit
+        rlang::warn("Non-positive obs detected, setting `mult_fit = FALSE`")
+    }
+    if (mult_fit) data <- dplyr::mutate(data, !!var := log(!!var))
+
+    if (any(is.na(data[[var]]))) {
+        rlang::warn("Time gaps detected, STL returning NULL model.")
+        return(data %>%
+            dplyr::select(!!tsibble::index(data), !!var) %>%
+            dplyr::mutate(
+                trend = NA_real_,
+                season_null = NA_real_,
+                remainder = NA_real_
+            ) %>%
+            structure(null_mdl = 1, seasons = list(season_null = 1)))
+    }
+
+    expr(fabletools::model(data, feasts::STL(
+        !!var ~ trend() + season(window = s.window),
+        !!!stl_spec
+    ))) %>%
+        rlang::new_quosure() %>%
+        rlang::eval_tidy() %>%
+        fabletools::components() %>%
+        dplyr::mutate(dplyr::across(
+            !!var | trend | remainder | dplyr::contains("season"), function(x) {
+                dplyr::case_when(mult_fit ~ exp(x), TRUE ~ as.numeric(x))
+            }
+        ))
+}
+
+
+as_year <- function(x) {
+    UseMethod("as_year")
+}
+
+
+as_year.vctrs_vctr <- function(x) {
+    1970 + as.numeric(x) / dplyr::case_when(
+        inherits(x, "yearmonth") ~ 12,
+        inherits(x, "yearquarter") ~ 4,
+        inherits(x, "yearweek") ~ 365.25 / 7,
+        TRUE ~ NA_real_
+    )
+}
+
+
+as_year.Date <- function(x) {
+    1970 + as.numeric(x) / 365.25
+}
+
+
+as_year.numeric <- function(x) x
+
+
+as_year.character <- function(x) as.numeric(x)
+
+
+back_transform <- function(x, var, mult_fit) {
+    is_annual <- tsibble::guess_frequency(x[[tsibble::index_var(x)]]) == 1
+    if (is_annual) {
+        attributes(x)$seasons$season_null <- 1
+        x <- dplyr::mutate(x, season_null = as.numeric(mult_fit))
+    }
+    if (mult_fit) {
+        season <- sym(names(attributes(x)$seasons))
+        x %>% dplyr::mutate(
+            !!season := (!!season - 1) * trend,
+            remainder = !!var - trend - !!season
+        )
+    } else {
+        x
+    }
+}
+
+
+#' @param x a decomp (\code{inz_dcmp}) object
 #' @param recompose.progress if recompose is \code{TRUE}, this shows how
 #'        much to show (for animation!). Length 2 numeric: the first
 #'        is 0 for seasonal, and 1 for residual; second component is
@@ -143,53 +216,52 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
 #' @param xlim the x axis limits
 #' @param colour vector of three colours for trend, seasonal, and residuals, respectively
 #' @param ... additional arguments (ignored)
-#' @return Invisibly returns the original decomposition object. Mainly called
-#'         to plot the decomposition.
 #'
-#' @describeIn decompose Plot a time series decomposition
-#' @export
+#' @rdname decomposition
+#'
 #' @import patchwork
-plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
-                           recompose = any(recompose.progress > 0),
-                           ylab = x$currVar, xlab = "Date",
-                           title = NULL, xlim = c(NA, NA),
-                           colour = c("#1B9E46", "#45a8ff", "orangered"),
-                           ...) {
-    ## Convert to a dataframe
-    xlim <- ifelse(is.na(xlim), range(time(x$tsObj)), xlim)
-    td <- data.frame(
-        Date = as.matrix(time(x$tsObj)),
-        value = as.matrix(x$tsObj),
-        trend = as.numeric(x$decompVars$components[, "trend"]),
-        seasonal = as.numeric(x$decompVars$components[, "seasonal"]),
-        residual = as.numeric(x$decompVars$components[, "remainder"]),
-        stringsAsFactors = TRUE
-    )
-    if (x$decompVars$multiplicative) {
-        td <- dplyr::mutate(td,
-            residual = as.numeric(x$tsObj) -
-                exp(log(.data$trend) + log(.data$seasonal)),
-            seasonal = exp(log(.data$trend) + log(.data$seasonal)) -
-                .data$trend
-        )
-    }
-    td <- dplyr::filter(td, dplyr::between(td$Date, xlim[1], xlim[2]))
+#' 
+#' @export
+plot.inz_dcmp <- function(x, recompose.progress = c(0, 0),
+                          recompose = any(recompose.progress > 0),
+                          ylab = NULL, xlab = "Date",
+                          title = NULL, xlim = c(NA, NA),
+                          colour = c("#1B9E46", "#45a8ff", "orangered"),
+                          ...) {
+    var <- suppressMessages(guess_plot_var(x, NULL))
+    if (is.null(xlim)) xlim <- as_year(range(x[[tsibble::index_var(x)]]))
+    if (is.null(ylab)) ylab <- as.character(var)
 
+    if (!is.null(attributes(x)$null_mdl)) {
+        return(suppressWarnings(plot.inz_ts(x, tsibble::measured_vars(x)[1])))
+    }
+
+    td <- x %>%
+        back_transform(var, attributes(x)$mult_fit) %>%
+        dplyr::mutate(
+            Date = as_year(!!tsibble::index(x)),
+            value = !!var,
+            seasonal = !!sym(names(attributes(.)$seasons)),
+            residual = remainder
+        ) %>%
+        tibble::as_tibble(x) %>%
+        dplyr::select(Date, value, trend, seasonal, residual)
+
+    ## FIXME: CODE BELOW NEEDS TO BE OPTIMISED
     if (recompose && all(recompose.progress == 0)) {
         recompose.progress <- c(1, nrow(td))
     }
-
-
+    
     ## Create ONE SINGLE plot
     ## but transform the SEASONAL and RESIDUAL components below the main data
-
+    
     yrange <- range(td$value)
     ydiff <- diff(yrange)
     srange <- range(td$seasonal)
     sdiff <- diff(srange)
     rrange <- range(td$residual)
     rdiff <- diff(rrange)
-
+    
     # ratios
     total <- ydiff + sdiff + rdiff
     rr <- 1
@@ -199,14 +271,14 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
         total <- ydiff + sdiff + rdiff
     }
     ratios <- c(ydiff, sdiff, rdiff) / total
-
+    
     datarange <- with(td,
-        c(
-            max(trend, trend + seasonal, value),
-            min(trend, trend + seasonal, value)
-        )
+                      c(
+                          max(trend, trend + seasonal, value),
+                          min(trend, trend + seasonal, value)
+                      )
     )
-
+    
     p <- ggplot(td, aes_(~Date))
     p0 <- p +
         theme(
@@ -214,15 +286,9 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
             axis.text.x = element_blank(),
             axis.ticks.x = element_blank()
         )
-
-    if (is.null(title)) {
-        title <- sprintf("Decomposition%s: %s",
-            ifelse(is.null(x$decompVars$data.name),
-                "", paste(" of", x$decompVars$data.name)),
-            x$currVar
-        )
-    }
-
+    
+    if (is.null(title)) title <- sprintf("Decomposition: %s", as.character(var))
+    
     lcolour <- colorspace::lighten(colour, 0.5)
     FINAL <- all(recompose.progress == c(1L, nrow(td)))
     pdata <- p0 +
@@ -239,40 +305,40 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
             subtitle = sprintf(
                 "%s = %s + %s + %s",
                 ifelse(FINAL,
-                    "<span style='color:black'>Observed data</span>",
-                    "<span style='color:gray'>Observed data</span>"
+                       "<span style='color:black'>Observed data</span>",
+                       "<span style='color:gray'>Observed data</span>"
                 ),
                 ifelse(sum(recompose.progress) == 0,
-                    glue::glue("<span style='color:{colour[1]}'>**Trend**</span>"),
-                    glue::glue("<span style='color:{colour[1]}'>Trend</span>")
+                       glue::glue("<span style='color:{colour[1]}'>**Trend**</span>"),
+                       glue::glue("<span style='color:{colour[1]}'>Trend</span>")
                 ),
                 ifelse(sum(recompose.progress) == 0,
-                    glue::glue("<span style='color:{lcolour[2]}'>seasonal swing</span>"),
-                    ifelse(recompose.progress[1] == 0,
-                        glue::glue("<span style='color:{colour[2]}'>**seasonal swing**</span>"),
-                        glue::glue("<span style='color:{colour[2]}'>seasonal swing</span>")
-                    )
+                       glue::glue("<span style='color:{lcolour[2]}'>seasonal swing</span>"),
+                       ifelse(recompose.progress[1] == 0,
+                              glue::glue("<span style='color:{colour[2]}'>**seasonal swing**</span>"),
+                              glue::glue("<span style='color:{colour[2]}'>seasonal swing</span>")
+                       )
                 ),
                 ifelse(recompose.progress[1] == 0,
-                    glue::glue("<span style='color:{lcolour[3]}'>residuals</span>"),
-                    ifelse(!FINAL,
-                        glue::glue("<span style='color:{colour[3]}'>**residuals**</span>"),
-                        glue::glue("<span style='color:{colour[3]}'>residuals</span>")
-                    )
+                       glue::glue("<span style='color:{lcolour[3]}'>residuals</span>"),
+                       ifelse(!FINAL,
+                              glue::glue("<span style='color:{colour[3]}'>**residuals**</span>"),
+                              glue::glue("<span style='color:{colour[3]}'>residuals</span>")
+                       )
                 )
             )
         ) +
         ylim(extendrange(datarange, f = 0.05))
     if (recompose && any(recompose.progress > 0)) {
         ri <- ifelse(recompose.progress[1] == 0,
-            recompose.progress[2],
-            nrow(td)
+                     recompose.progress[2],
+                     nrow(td)
         )
         rtd <- td %>%
             dplyr::mutate(
                 z = ifelse(1:nrow(td) < ri,
-                    .data$trend + .data$seasonal,
-                    td$trend[ri] + .data$seasonal
+                           .data$trend + .data$seasonal,
+                           td$trend[ri] + .data$seasonal
                 )
             )
         pdata <- pdata +
@@ -287,19 +353,19 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
             rtd <- td %>%
                 dplyr::mutate(
                     z = ifelse(1:nrow(td) < ri,
-                        .data$value,
-                        .data$trend[ri] + .data$seasonal[ri] +
-                            .data$residual
+                               .data$value,
+                               .data$trend[ri] + .data$seasonal[ri] +
+                                   .data$residual
                     )
                 )
             if (!FINAL)
                 pdata <- pdata +
-                    geom_path(
-                        aes_(y = ~z),
-                        data = rtd[-(1:(ri-1)),],
-                        colour = colour[3]
-                    )
-
+                geom_path(
+                    aes_(y = ~z),
+                    data = rtd[-(1:(ri-1)),],
+                    colour = colour[3]
+                )
+            
             pdata <- pdata +
                 geom_path(
                     aes_(y = ~value),
@@ -308,13 +374,13 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
                 )
         }
     }
-
+    
     pdata <- pdata +
         theme(
             plot.title.position = "plot",
             plot.subtitle = ggtext::element_markdown()
         )
-
+    
     pseason <- p0 +
         geom_path(aes_(y = ~seasonal), colour = colour[2]) +
         labs(subtitle = "Seasonal Swing", y = "") +
@@ -322,7 +388,7 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
             # panel.grid.major.y = element_blank(),
             panel.grid.minor.y = element_blank()
         )
-
+    
     presid <- p +
         geom_path(aes_(y = ~residual), colour = colour[3]) +
         # geom_segment(
@@ -335,42 +401,13 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
             # panel.grid.major.y = element_blank(),
             panel.grid.minor.y = element_blank()
         )
-
+    
     pfinal <- pdata + pseason + presid +
         plot_layout(ncol = 1, heights = ratios)
-
+    
     dev.hold()
     on.exit(dev.flush())
     print(pfinal)
-
+    
     invisible(x)
-}
-
-
-#' Decomposes a time series into trend, seasonal and residual components
-#' using \code{loess}.
-#'
-#' If the frequency is greater than 1, the components are found using the
-#' \code{\link{stl}} function with \code{s.window} set to \code{TRUE}
-#' (effectively replacing smoothing by taking the mean).
-#' If the frequency is 1, the trend component is found directly by using
-#' \code{\link{loess}} and the residuals are the difference between trend
-#' and actual values.
-#' The trend, seasonal and residual components are plotted on the same
-#' scale allowing for easy visual analysis.
-#'
-#' @title Plot a Time Series Decomposition
-#'
-#' @param ... additional arguments, ignored
-#'
-#' @return The original \code{iNZightTS} object with an item \code{decompVars}
-#' appended, containing results from the decomposition.
-#'
-#' @references R. B. Cleveland, W. S. Cleveland, J.E. McRae, and I. Terpenning (1990) STL: A Seasonal-Trend Decomposition Procedure Based on Loess. Journal of Official Statistics, 6, 3iV73.
-#'
-#' @seealso \code{\link{stl}}, \code{\link{loess}}, \code{\link{iNZightTS}}
-#'
-#' @export
-decompositionplot <- function(...) {
-    warning("Deprecated: please use `plot(decompose(obj))`")
 }
