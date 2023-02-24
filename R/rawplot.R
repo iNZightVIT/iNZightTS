@@ -276,7 +276,7 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph, pal,
 
     if (!is.null(emph)) {
         p <- suppressMessages(p + scale_colour_discrete(drop = FALSE)) +
-            geom_line(data = emph_data, size = 1)
+            geom_line(data = emph_data, linewidth = 1)
     }
 
     if (!compare & tsibble::n_keys(x) > 1) {
@@ -301,7 +301,7 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph, pal,
             mapping = aes(!!tsibble::index(x), trend),
             data = sm_data,
             linetype = ifelse(compare & tsibble::n_keys(x) > 1, "dashed", "solid"),
-            size = .5,
+            linewidth = .5,
             alpha = op
         )
         if (tsibble::n_keys(x) == 1) {

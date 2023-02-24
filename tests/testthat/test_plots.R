@@ -66,6 +66,7 @@ test_that("Check raw-plot configuration", {
     expect_is(plot(t, xlim = c(NA, NA)), "ggplot")
     expect_warning(plot(t_neg, mult_fit = TRUE))
     expect_is(plot(t, xlim = c(2005, 2010)), "ggplot")
+    # TODO: not giving a warning
     expect_warning(plot(t, xlim = lubridate::ymd(c(20050101, 20101231))))
     x <- inzightts(visitorsQ, var = 2:5)
     expect_error(plot(x, c("Australia", "Japan"), ylab = "AUS"))
@@ -86,14 +87,21 @@ test_that("Check raw-plot configuration", {
         dplyr::mutate(y = ggplot2::cut_number(Visitors, 4)) %>%
         inzightts(key = "Country")
     expect_is(plot(x, "y"), "ggplot")
+    # TODO: spitting out a warning
+    #   Key detected when plotting category, setting `emphasise = 1L`
+    expect_is(plot(y, "y"), "ggplot")
     expect_is(plot(y, "y"), "ggplot")
     expect_is(plot(x, "y", pal = 1:4), "ggplot")
     expect_is(plot(x, "y", pal = 1:5), "ggplot")
+    # TODO: spitting out a warning (same as above)
     expect_is(plot(y, "y", pal = 1:5), "ggplot")
     expect_error(plot(y, c("y", "Visitors")))
     expect_warning(plot(y, c("y", "y")))
     expect_warning(plot(x, "y", aspect = 1))
     x$Australia[c(23, 25)] <- NA
+    # TODO: spitting out warnings
+    #   1: Time gaps detected, STL returning NULL model.
+    #   2: Time gaps in all (key) levels, turning off smoothers.
     expect_is(plot(x), "ggplot")
 })
 
@@ -107,7 +115,8 @@ test_that("Check decomposition plot configuration", {
     expect_true(fabletools::is_dable(
         .decomp(
             iNZightTS2:::use_decomp_method("stl"),
-            t, "Australia", mult_fit = TRUE
+            t, "Australia",
+            mult_fit = TRUE
         )
     ))
     t_gap <- t
@@ -118,11 +127,21 @@ test_that("Check decomposition plot configuration", {
 test_that("Check season plot configuration", {
     expect_is(seasonplot(t, labels = "none"), "patchwork")
     expect_error(seasonplot(t, model_range = 2001))
+    # TODO: does not produce a warning
     expect_warning(seasonplot(t, model_range = lubridate::ymd(c(20050101, 20101231))))
     expect_is(seasonplot(tm, names(tm)[-1]), "patchwork")
     t_key_gap <- y
     t_key_gap$Australia[3] <- NA
+    # TODO: gives ERROR instead of WARNING
     expect_warning(seasonplot(t_key_gap, "Australia"))
+    # TODO: gives ERROR
+    #   Error in `dplyr::mutate()`:
+    #   ℹ In argument: `season_effect = dplyr::case_when(mult_fit ~ `NA` * remainder, TRUE ~ `NA` +
+    #     remainder)`.
+    #   Caused by error in `dplyr::case_when()`:
+    #   ! Failed to evaluate the right-hand side of formula 1.
+    #   Caused by error:
+    #   ! object 'NA' not found
     expect_is(suppressWarnings(seasonplot(t_key_gap)), "patchwork")
 })
 
@@ -132,6 +151,7 @@ test_that("Check forecasting configuration", {
     expect_error(predict(t, t_range = 2001))
     expect_error(predict(t, model_range = 2001))
     expect_is(predict(t, t_range = c(NA, 2008), model_range = c(2002, NA)), "inz_frct")
+    # TODO: does not produce warning
     expect_warning(predict(t,
         t_range = lubridate::ymd(c(20010101, 20101231)),
         model_range = lubridate::ymd(c(20010101, 20051231))
