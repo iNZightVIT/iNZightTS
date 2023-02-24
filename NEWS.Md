@@ -1,10 +1,16 @@
-# iNZightTS 2.0.0
+# iNZightTS2 2.0.0
+
+This is a new package based off the original [iNZightTS](github.com/iNZightVIT/iNZightTS) package. Versioning will continue, as the long-term plan is to merge these changes into the original package once it is fully deprecated.
 
 - rebuild package with features from **tidyverts**
 - new: sub-series plot
 - enhanced: introduce key for multiple time series
 - enhanced: changed the default behaviour of multiple variables in time series plots
 - added readme with example usage (#56)
+
+---
+
+**Previous versions of the original `iNZightTS` package are listed here.**
 
 # iNZightTS 1.5.9
 

@@ -99,14 +99,14 @@ test_that("Check raw-plot configuration", {
 
 test_that("Check decomposition plot configuration", {
     expect_error(decomp(t, sm_model = "null_model"))
-    expect_is(iNZightTS:::use_decomp_method("stl"), "use_stl")
-    expect_is(iNZightTS:::use_decomp_method("test"), "use_test")
-    expect_equal(iNZightTS:::as_year.character("2010"), 2010)
-    expect_equal(iNZightTS:::as_year.vctrs_vctr(tsibble::yearquarter("2010Q1")), 2010)
-    expect_equal(iNZightTS:::as_year.numeric(2010), 2010)
+    expect_is(iNZightTS2:::use_decomp_method("stl"), "use_stl")
+    expect_is(iNZightTS2:::use_decomp_method("test"), "use_test")
+    expect_equal(iNZightTS2:::as_year.character("2010"), 2010)
+    expect_equal(iNZightTS2:::as_year.vctrs_vctr(tsibble::yearquarter("2010Q1")), 2010)
+    expect_equal(iNZightTS2:::as_year.numeric(2010), 2010)
     expect_true(fabletools::is_dable(
         .decomp(
-            iNZightTS:::use_decomp_method("stl"),
+            iNZightTS2:::use_decomp_method("stl"),
             t, "Australia", mult_fit = TRUE
         )
     ))

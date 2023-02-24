@@ -16,7 +16,9 @@
 #'
 #' @examples
 #' t <- inzightts(visitorsQ)
+#' \dontrun{
 #' subseries(t)
+#' }
 #'
 #' @export
 subseries <- function(x, var = NULL, show_mean = TRUE, xlab = NULL,

@@ -79,10 +79,13 @@ Draws a plot of a given inzightts (\code{inz_ts}) object with the trend superimp
 }
 \examples{
 t <- inzightts(visitorsQ, var = c(2, 4))
+
+\dontrun{
 plot(t)
 plot(t, var = names(t)[-1])
 plot(t, var = "Japan")
 plot(t, mult_fit = TRUE)
+}
 
 }
 \seealso{

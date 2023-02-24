@@ -66,11 +66,12 @@ a decomp (\code{inz_dcmp}) object, a sub-class of dable
 Decompose a time series object
 }
 \examples{
-library(dplyr)
-d <- visitorsQ \%>\%
-    inzightts() \%>\%
-    decomp() \%>\%
-    plot()
+ts <- inzightts(visitorsQ)
+d <- decomp(ts)
+
+\dontrun{
+plot(d)
+}
 
 }
 \references{

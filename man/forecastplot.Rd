@@ -64,7 +64,10 @@ t <- inzightts(visitorsQ, var = c(2, 4))
 ## The following two examples are equivalent
 pred <- predict(t, names(t)[-1], h = "2 years")
 pred <- predict(t, names(t)[-1], h = 8)
+
+\dontrun{
 plot(pred)
+}
 
 }
 \seealso{

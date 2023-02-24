@@ -105,7 +105,9 @@ time-series.
 \examples{
 # create from a ts object
 z <- inzightts(UKgas)
+\dontrun{
 plot(z)
+}
 
 # create from a data.frame
 x <- inzightts(
@@ -123,7 +125,9 @@ y <- inzightts(
     data.frame(Return = rnorm(100)),
     start = c(1990, 1), end = c(1993, 5), freq = 12, var = 1
 )
+\dontrun{
 plot(y)
+}
 
 }
 \seealso{

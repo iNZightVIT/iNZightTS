@@ -34,7 +34,9 @@ A time series plot faceted by seasonal period.
 }
 \examples{
 t <- inzightts(visitorsQ)
+\dontrun{
 subseries(t)
+}
 
 }
 \seealso{

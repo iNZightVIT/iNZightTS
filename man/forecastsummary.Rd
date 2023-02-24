@@ -30,15 +30,13 @@ a \code{summary_inz_frct} object, which consists of the first few
 \code{summary} method for objects of class \code{inz_frct}.
 }
 \examples{
-library(dplyr)
-s <- visitorsQ \%>\%
-    inzightts(var = 2:5) \%>\%
-    predict("Japan") \%>\%
-    summary("Japan")
+ts <- inzightts(visitorsQ, var = 2:5)
+p <- predict(ts, "Japan")
+s <- summary(p, "Japan")
 s
 print(s, show_details = TRUE)
 
 }
 \seealso{
-\code{\link[iNZightTS]{predict.inz_ts}}
+\code{\link[iNZightTS2]{predict.inz_ts}}
 }

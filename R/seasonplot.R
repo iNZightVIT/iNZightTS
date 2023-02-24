@@ -17,7 +17,9 @@
 #' @seealso \code{\link[feasts]{gg_season}}
 #'
 #' @examples
+#' \dontrun{
 #' seasonplot(inzightts(visitorsQ))
+#' }
 #'
 #' @export
 seasonplot <- function(x, ...) {
