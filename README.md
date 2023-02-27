@@ -6,6 +6,7 @@
 coverage](https://codecov.io/gh/iNZightVIT/iNZightTS2/branch/dev/graph/badge.svg)](https://codecov.io/gh/iNZightVIT/iNZightTS2?branch=dev)
 [![License: GPL
 v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
+[![CRAN](https://www.r-pkg.org/badges/version/iNZightTS)](https://CRAN.R-project.org/package=iNZightTS)
 
 <!-- [![CRAN](https://www.r-pkg.org/badges/version/iNZightTS2)](https://CRAN.R-project.org/package=iNZightTS2) -->
 
@@ -80,7 +81,7 @@ plot.
 plot(data)
 ```
 
-<img src="man/figuresraw-plot-1.png" width="100%" />
+<img src="man/figures/raw-plot-1.png" width="100%" />
 
 ### Decompositions
 
@@ -117,7 +118,7 @@ dcmp
 plot(dcmp, title = "Visitors to Australia")
 ```
 
-<img src="man/figuresdecomp-plot-1.png" width="100%" />
+<img src="man/figures/decomp-plot-1.png" width="100%" />
 
 ### Visualising seasonal effects
 
@@ -128,13 +129,13 @@ series data.
 seasonplot(data)
 ```
 
-<img src="man/figuresseason-plot-1.png" width="100%" />
+<img src="man/figures/season-plot-1.png" width="100%" />
 
 ``` r
 subseries(data)
 ```
 
-<img src="man/figuressubseries-plot-1.png" width="100%" />
+<img src="man/figures/subseries-plot-1.png" width="100%" />
 
 ### Forecasting
 
@@ -195,4 +196,4 @@ summary(pred)
 plot(pred)
 ```
 
-<img src="man/figuresforecast-plot-1.png" width="100%" />
+<img src="man/figures/forecast-plot-1.png" width="100%" />
