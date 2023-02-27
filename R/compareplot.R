@@ -28,7 +28,6 @@ plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE,
                             ylab = "Value", xlab = "Date", title = "%var",
                             t = 10, smoother = TRUE, aspect = 2,
                             xlim = c(NA, NA), model.lim = NULL, ...) {
-
     multiplicative <- is_multiplicative(x$tsObj, multiplicative)
 
     dev.hold()
@@ -52,14 +51,13 @@ plot.iNZightMTS <- function(x, compare = TRUE, multiplicative = FALSE,
             )
 
             yratio <- attr(p2, "yratio")
-            if (multiplicative || is.null(yratio)) yratio <- 4/6
+            if (multiplicative || is.null(yratio)) yratio <- 4 / 6
 
             p <- p1 / (p2 + patchwork::guide_area() + patchwork::plot_layout(guides = "collect")) +
                 patchwork::plot_layout(
                     heights = c(1, yratio),
                     width = c(6, 4)
                 )
-
         } else {
             ## don't show the seasonal effects (because there aren't any!)
             p <- p1 + theme(legend.position = "bottom")
@@ -260,7 +258,7 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0,
                     ),
                     stringsAsFactors = TRUE
                 )
-          }
+        }
     }
     seasonData <- as.data.frame(seasonData, stringsAsFactors = TRUE)
     seasonData$group <- factor(seasonData$group,
@@ -292,23 +290,24 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0,
         xlab <- "Day"
     }
 
-    p <- ggplot(seasonData,
-        aes_(
-            x = ~season,
-            y = ~value,
-            group = ~group,
-            color = ~group,
-            shape = ~group
+    p <- ggplot(
+        seasonData,
+        aes(
+            x = season,
+            y = value,
+            group = group,
+            color = group,
+            shape = group
         )
     )
 
     if (compare) {
         p <- p +
             geom_path(
-                aes_(
-                    x = ~season,
-                    y = ~value,
-                    group = ~cycle,
+                aes(
+                    x = season,
+                    y = value,
+                    group = cycle,
                     colour = NULL,
                     shape = NULL
                 ),
@@ -352,8 +351,8 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0,
 compareplot <- function(x, ...) {
     warning("Depreciated: use `plot()` instead.\n")
     if (!any(grepl("^iNZightMTS$", class(x)))) {
-          stop("x is not an iNZightMTS object")
-      }
+        stop("x is not an iNZightMTS object")
+    }
     if (x$freq > 1) {
         plot(x, ...)
     } else {

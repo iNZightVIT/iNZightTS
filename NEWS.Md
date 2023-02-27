@@ -1,3 +1,8 @@
+## iNZightTS 1.5.10
+
+- fix a bug when rounding was resulting in slightly different subsets of original and smoothed data, casuing forecast plots to fail
+- replace `aes_` with `aes` as per new ggplot2 changes
+
 ## iNZightTS 1.5.9
 
 - fix bug that occurs if data passed to `iNZightTS()` is a tibble
