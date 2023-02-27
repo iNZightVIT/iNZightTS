@@ -21,12 +21,16 @@
 #' Journal of Official Statistics, 6, 3iV73.
 decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
                       data.name = NULL, ...) {
-     if (!is.null(model.lim)) {
+    if (!is.null(model.lim)) {
         model.lim <- ifelse(is.na(model.lim),
-            range(time(obj$tsObj)), model.lim)
-        ts.sub <- try({
-            window(obj$tsObj, model.lim[1], model.lim[2])
-        }, TRUE)
+            range(time(obj$tsObj)), model.lim
+        )
+        ts.sub <- try(
+            {
+                window(obj$tsObj, model.lim[1], model.lim[2])
+            },
+            TRUE
+        )
         if (inherits(ts.sub, "try-error")) {
             warning("Invalid modelling window - ignoring.")
         } else {
@@ -41,10 +45,11 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
 
     n <- length(obj$data)
 
-    if (multiplicative)
+    if (multiplicative) {
         tsObj <- log(obj$tsObj)
-    else
+    } else {
         tsObj <- obj$tsObj
+    }
 
     if (obj$freq > 1) {
         ### t.window is the smallest odd integer ranges from about 1.5*frequceny to 2*frequency
@@ -58,14 +63,14 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
             t.window =
                 nextodd(
                     ceiling(
-                        1.5 * frequency(data) / (1 - 1.5 / (10*n + 1)) +
+                        1.5 * frequency(data) / (1 - 1.5 / (10 * n + 1)) +
                             0.5 * frequency(data) * t
                     )
                 )
-            )
+        )
     } else {
         ## freq == 1, non seasonal fitted.
-        if (multiplicative)  {
+        if (multiplicative) {
             ### according to internet, the span value varies from about 0.1 to 2
             ### 0.1 gives nearly no smoothness, while 2 gives nearly maximum smoothness
             ### therefore here, the span ranges from 0.1 to 2
@@ -73,7 +78,7 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
             trend.comp <-
                 loess(
                     log(obj$data[1:length(obj$tsObj), obj$currVar]) ~ x,
-                    span = 0.1 + 1.9*t
+                    span = 0.1 + 1.9 * t
                 )$fitted + obj$tsObj * 0
 
             residuals.comp <- log(obj$tsObj) - trend.comp
@@ -108,7 +113,7 @@ decompose <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
         tsp(decomp$time.series) <- c(obj$start[1], obj$end[1], obj$freq)
     }
 
-    decompData <- decomp$time.series    # returns matrix
+    decompData <- decomp$time.series # returns matrix
     if (multiplicative) {
         Y <- log(as.numeric(as.matrix(tsObj)))
         trend_log <- as.numeric(decompData[, "trend"])
@@ -200,14 +205,15 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
     }
     ratios <- c(ydiff, sdiff, rdiff) / total
 
-    datarange <- with(td,
+    datarange <- with(
+        td,
         c(
             max(trend, trend + seasonal, value),
             min(trend, trend + seasonal, value)
         )
     )
 
-    p <- ggplot(td, aes_(~Date))
+    p <- ggplot(td, aes(Date))
     p0 <- p +
         theme(
             axis.title.x = element_blank(),
@@ -216,9 +222,11 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
         )
 
     if (is.null(title)) {
-        title <- sprintf("Decomposition%s: %s",
+        title <- sprintf(
+            "Decomposition%s: %s",
             ifelse(is.null(x$decompVars$data.name),
-                "", paste(" of", x$decompVars$data.name)),
+                "", paste(" of", x$decompVars$data.name)
+            ),
             x$currVar
         )
     }
@@ -226,9 +234,9 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
     lcolour <- colorspace::lighten(colour, 0.5)
     FINAL <- all(recompose.progress == c(1L, nrow(td)))
     pdata <- p0 +
-        geom_path(aes_(y = ~value), colour = "gray") +
+        geom_path(aes(y = value), colour = "gray") +
         geom_path(
-            aes_(y = ~trend),
+            aes(y = trend),
             colour = colour[1],
             alpha = ifelse(FINAL, 0.5, 1)
         ) +
@@ -277,7 +285,7 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
             )
         pdata <- pdata +
             geom_path(
-                aes_(y = ~z),
+                aes(y = z),
                 data = rtd,
                 colour = colour[2],
                 alpha = ifelse(FINAL, 0.5, 1)
@@ -292,18 +300,19 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
                             .data$residual
                     )
                 )
-            if (!FINAL)
+            if (!FINAL) {
                 pdata <- pdata +
                     geom_path(
-                        aes_(y = ~z),
-                        data = rtd[-(1:(ri-1)),],
+                        aes(y = z),
+                        data = rtd[-(1:(ri - 1)), ],
                         colour = colour[3]
                     )
+            }
 
             pdata <- pdata +
                 geom_path(
-                    aes_(y = ~value),
-                    data = rtd[1:ri,],
+                    aes(y = value),
+                    data = rtd[1:ri, ],
                     colour = if (FINAL) "black" else colour[3]
                 )
         }
@@ -316,7 +325,7 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
         )
 
     pseason <- p0 +
-        geom_path(aes_(y = ~seasonal), colour = colour[2]) +
+        geom_path(aes(y = seasonal), colour = colour[2]) +
         labs(subtitle = "Seasonal Swing", y = "") +
         theme(
             # panel.grid.major.y = element_blank(),
@@ -324,13 +333,13 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
         )
 
     presid <- p +
-        geom_path(aes_(y = ~residual), colour = colour[3]) +
+        geom_path(aes(y = residual), colour = colour[3]) +
         # geom_segment(
-        #     aes_(y = ~residual, yend = 0, xend = ~Date),
+        #     aes(y = residual, yend = 0, xend = Date),
         #     colour = colour[3]
         # ) +
         labs(subtitle = "Residuals", y = "") +
-        ylim(extendrange(rrange, f = rr/2)) +
+        ylim(extendrange(rrange, f = rr / 2)) +
         theme(
             # panel.grid.major.y = element_blank(),
             panel.grid.minor.y = element_blank()

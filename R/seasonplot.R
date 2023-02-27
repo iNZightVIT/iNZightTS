@@ -18,16 +18,17 @@
 #' seasonplot(ts)
 #'
 #' @export
-seasonplot <- function(obj, ...)
+seasonplot <- function(obj, ...) {
     UseMethod("seasonplot")
+}
 
 #' @export
 seasonplot.iNZightTS <- function(obj, multiplicative = FALSE, t = 10, model.lim = NULL,
                                  ylab = obj$currVar, ...) {
-
     # if there is no season component to the ts, can't create season plot
-    if (length(obj$start) == 1)
+    if (length(obj$start) == 1) {
         return("Time Series does not have a seasonal component")
+    }
 
     multiplicative <- is_multiplicative(obj$tsObj, multiplicative)
 
@@ -45,14 +46,15 @@ seasonplot.iNZightTS <- function(obj, multiplicative = FALSE, t = 10, model.lim 
         labs <- paste0("Q", 1:4)
         xlab <- "Quarter"
     } else if (freq == 7) {
-        labs <- c("Sun","Mon","Tue","Wed","Thu","Fri","Sat")
+        labs <- c("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
         xlab <- "Day"
     } else {
         labs <- 1:freq
         xlab <- "Season"
     }
 
-    obj <- decompose(obj, ylab = ylab,
+    obj <- decompose(obj,
+        ylab = ylab,
         multiplicative = multiplicative,
         t = t,
         model.lim = model.lim
@@ -67,16 +69,16 @@ seasonplot.iNZightTS <- function(obj, multiplicative = FALSE, t = 10, model.lim 
         stringsAsFactors = TRUE
     )
     td <- dplyr::mutate(td,
-            effect = if (multiplicative) {
-                .data$value / .data$trend
-            } else {
-                .data$value - .data$trend
-            },
-            a = floor(.data$Date) - obj$start[1] + 1,
-            b = .data$Date %% 1 * freq + 1
-        )
+        effect = if (multiplicative) {
+            .data$value / .data$trend
+        } else {
+            .data$value - .data$trend
+        },
+        a = floor(.data$Date) - obj$start[1] + 1,
+        b = .data$Date %% 1 * freq + 1
+    )
 
-    p1 <- ggplot(td, aes_(~b, ~value, colour = ~a, group = ~a)) +
+    p1 <- ggplot(td, aes(b, value, colour = a, group = a)) +
         geom_point() +
         geom_path() +
         scale_colour_gradient(
@@ -93,12 +95,12 @@ seasonplot.iNZightTS <- function(obj, multiplicative = FALSE, t = 10, model.lim 
             labels = labs
         ) +
         geom_text(
-            aes_(label = ~floor(Date)),
+            aes(label = floor(Date)),
             data = td %>% dplyr::filter(.data$b == 1),
             nudge_x = -0.25
         ) +
         geom_text(
-            aes_(label = ~floor(Date)),
+            aes(label = floor(Date)),
             data = td %>% dplyr::filter(.data$b == freq),
             nudge_x = 0.25
         )
@@ -110,22 +112,28 @@ seasonplot.iNZightTS <- function(obj, multiplicative = FALSE, t = 10, model.lim 
         s <- (tt[1] - floor(tt[1])) * freq + 1
     }
     season <-
-        if (s > 1) td$season[-(1:(freq + 1 - s))][1:freq]
-        else td$season[1:freq]
+        if (s > 1) {
+            td$season[-(1:(freq + 1 - s))][1:freq]
+        } else {
+            td$season[1:freq]
+        }
     season <- data.frame(b = 1:freq, effect = season, a = 1, stringsAsFactors = TRUE)
 
-    p2 <- ggplot(td, aes_(
-            ~b,
-            ~effect - as.integer(multiplicative),
-            group = ~a
-        )) +
+    p2 <- ggplot(td, aes(
+        b,
+        effect - as.integer(multiplicative),
+        group = a
+    )) +
         geom_path(colour = "gray") +
         geom_path(data = season) +
-        geom_point(data = season, pch = 21, fill = "white",
-            stroke = 1.5, size = 1.5) +
+        geom_point(
+            data = season, pch = 21, fill = "white",
+            stroke = 1.5, size = 1.5
+        ) +
         geom_hline(yintercept = 0, colour = "gray", linetype = 2) +
         labs(
-            title = sprintf("%s seasonal effects",
+            title = sprintf(
+                "%s seasonal effects",
                 ifelse(multiplicative, "Multiplicative", "Additive")
             ),
             x = xlab,
@@ -136,10 +144,11 @@ seasonplot.iNZightTS <- function(obj, multiplicative = FALSE, t = 10, model.lim 
             minor_breaks = NULL,
             labels = labs
         )
-    if (multiplicative)
+    if (multiplicative) {
         p2 <- p2 + scale_y_continuous(
             labels = function(y) y + 1
         )
+    }
 
     dev.hold()
     on.exit(dev.flush())

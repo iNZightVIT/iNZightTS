@@ -16,7 +16,7 @@ Imports:
     colorspace,
     dplyr,
     forcats,
-    ggplot2,
+    ggplot2 (>= 3.4.0),
     ggtext,
     glue,
     graphics,

@@ -66,14 +66,13 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
                            seasonal.trend = FALSE,
                            forecast = 0,
                            ...) {
-
     ### x and y coordinates of the time series tsObj
     obj <- x
     freq <- x$freq
     tsObj <- obj$tsObj
     xlist <- get.x(tsObj)
     x <- xlist$x
-    x.units = xlist$x.units
+    x.units <- xlist$x.units
     y <- tsObj@.Data
     y.units <- unit(y, "native")
     multiplicative <- is_multiplicative(tsObj, multiplicative)
@@ -112,11 +111,13 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
             if (!is.null(model.lim)) {
                 AtsObj <- window(AtsObj, model.lim[1], model.lim[2])
             }
-            if (multiplicative)
+            if (multiplicative) {
                 AtsObj <- log(AtsObj)
+            }
             hw.fit <- try(HoltWinters(AtsObj), TRUE)
-            if (inherits(hw.fit, "try-error"))
+            if (inherits(hw.fit, "try-error")) {
                 stop("Holt-Winters could not converge.")
+            }
             smooth <- hw.fit$fitted[, 1]
             if (multiplicative) smooth <- exp(smooth)
             smooth <- data.frame(
@@ -129,11 +130,13 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
                 ylab = "",
                 multiplicative = multiplicative,
                 t = t,
-                model.lim = model.lim)$decompVars
-            if (multiplicative)
-              smooth <- exp(log(decomp$components[,"trend"]))
-            else
-              smooth <- decomp$components[,"trend"]
+                model.lim = model.lim
+            )$decompVars
+            if (multiplicative) {
+                smooth <- exp(log(decomp$components[, "trend"]))
+            } else {
+                smooth <- decomp$components[, "trend"]
+            }
             smooth <- as.matrix(smooth)[, 1]
 
             dt <- time(decomp$components)
@@ -159,13 +162,15 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
                 ylab = "",
                 multiplicative = multiplicative,
                 t = t,
-                model.lim = model.lim)$decompVars
+                model.lim = model.lim
+            )$decompVars
         }
         smooth <- do.call(c, lapply(smoothList, function(s) {
-            if (multiplicative)
+            if (multiplicative) {
                 z <- exp(log(s$components[, "trend"]))
-            else
+            } else {
                 z <- s$components[, "trend"]
+            }
             dt <- time(s$components)
             z[dt - xlim[1] > -1e-12 & dt - xlim[2] < 1e-12]
         }))
@@ -175,17 +180,27 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
     ### of the trend viewport in the decomposition plot
 
     value <- obj$currVar
-    ts.df <- data.frame(Date = as.numeric(time(tsObj)),
-                        value = as.matrix(tsObj),
-                        stringsAsFactors = TRUE)
+    ts.df <- data.frame(
+        Date = as.numeric(time(tsObj)),
+        value = as.matrix(tsObj),
+        stringsAsFactors = TRUE
+    )
     ts.df <- ts.df %>%
-        tidyr::gather(key = "variable", value = "value",
-                      -.data$Date, factor_key = TRUE)
+        tidyr::gather(
+            key = "variable", value = "value",
+            -Date, factor_key = TRUE
+        )
     ts.df <-
-        dplyr::mutate(ts.df, variable =
-            forcats::lvls_revalue(ts.df$variable,
-                                  gsub("value.", "",
-                                        levels(ts.df$variable))))
+        dplyr::mutate(ts.df,
+            variable =
+                forcats::lvls_revalue(
+                    ts.df$variable,
+                    gsub(
+                        "value.", "",
+                        levels(ts.df$variable)
+                    )
+                )
+        )
     ## x-axis limits
     if (!all(is.na(xlim))) {
         # if (forecast == 0)
@@ -197,11 +212,14 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
     if (!is.null(model.lim)) {
         fit.df <-
             fit.df[fit.df$Date - model.lim[1] > -1e-12 &
-                   fit.df$Date - model.lim[2] < 1e-12, ]
+                fit.df$Date - model.lim[2] < 1e-12, ]
     }
     if (forecast > 0) {
         # remove first season from the smoother
         # fit.df <- fit.df[-(1:freq),]
+
+        fit.df$Date <- round(fit.df$Date, 4)
+        smooth$time <- round(smooth$time, 4)
         fit.df <- fit.df %>%
             dplyr::filter(
                 dplyr::between(.data$Date, min(smooth$time), max(smooth$time))
@@ -210,7 +228,7 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
             dplyr::filter(
                 dplyr::between(.data$time, min(fit.df$Date), max(fit.df$Date))
             )
-        fit.df$smooth <- smooth$smooth
+        fit.df <- dplyr::left_join(fit.df, smooth, by = c("Date" = "time"))
 
         # create prediction df
         pred <- predict(hw.fit,
@@ -221,8 +239,8 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
             pred <- exp(pred)
         }
         pred.df <- rbind(
-            fit.df[nrow(fit.df), c("Date", "variable", "value")] %>%
-                dplyr::mutate(lower = .data$value, upper = .data$value),
+            # fit.df[nrow(fit.df), c("Date", "variable", "value")] %>%
+            #     dplyr::mutate(lower = .data$value, upper = .data$value),
             data.frame(
                 Date = as.numeric(time(pred)),
                 variable = "value",
@@ -237,13 +255,18 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
         if (seasonal.trend) fit.df$season.smooth <- ssn
     }
 
-    if (grepl("%var", title))
+    if (grepl("%var", title)) {
         title <- gsub("%var", paste(obj$currVar, collapse = ", "), title)
+    }
 
 
-    tsplot <- ggplot(ts.df, aes_(x = ~Date, y = ~value,
-                                 group = ~variable, colour = ~variable)) +
-        xlab(xlab) + ylab(ylab) + ggtitle(title)
+    tsplot <- ggplot(ts.df, aes(
+        x = Date, y = value,
+        group = variable, colour = variable
+    )) +
+        xlab(xlab) +
+        ylab(ylab) +
+        ggtitle(title)
     if (!is.null(aspect)) {
         xr <- diff(range(ts.df$Date))
         yr <- diff(range(ts.df$value))
@@ -251,16 +274,17 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
         tsplot <- tsplot + coord_fixed(ratio = asp)
     }
 
-    if (!multiseries && forecast == 0)
+    if (!multiseries && forecast == 0) {
         tsplot <- tsplot +
             scale_colour_manual(
                 values = c(
                     Fitted = col,
                     "Raw data" = "black",
-                    if (seasonal.trend) "Trend + Seasonal" = "green4" else NULL
+                    if (seasonal.trend) "Trend + Seasonal" <- "green4" else NULL
                 ),
                 guide = "none"
             )
+    }
 
     if (plot && animate && !multiseries) {
         ## Do a bunch of things to animate the plot ...
@@ -287,43 +311,56 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
 
     if (forecast > 0) {
         tsplot <- tsplot +
-            geom_vline(xintercept = max(fit.df$Date),
-                col = "#555555", lty = "dashed") +
-            geom_ribbon(aes_(ymin = ~lower, ymax = ~upper),
+            geom_vline(
+                xintercept = max(fit.df$Date),
+                col = "#555555", lty = "dashed"
+            ) +
+            geom_ribbon(aes(ymin = lower, ymax = upper),
                 data = pred.df,
                 fill = "#ffdbdb",
                 col = NA
             ) +
-            geom_line(aes_(y = ~lower, col = "Prediction"), data = pred.df,
-                lty = "dashed", lwd = 0.4) +
-            geom_line(aes_(y = ~upper, col = "Prediction"), data = pred.df,
-                lty = "dashed", lwd = 0.4) +
+            geom_line(aes(y = lower, col = "Prediction"),
+                data = pred.df,
+                lty = "dashed", lwd = 0.4
+            ) +
+            geom_line(aes(y = upper, col = "Prediction"),
+                data = pred.df,
+                lty = "dashed", lwd = 0.4
+            ) +
             geom_line(data = pred.df, col = "#b50000")
     }
 
-    if (multiseries)
+    if (multiseries) {
         tsplot <- tsplot + geom_line(lwd = 1)
-    else
+    } else {
         tsplot <- tsplot + geom_line(aes(colour = "Raw data"), lwd = 1)
+    }
     if (!is.null(smooth)) {
-        if (seasonal.trend)
+        if (seasonal.trend) {
             tsplot <- tsplot +
-                geom_path(aes_(x = ~Date, y = ~season.smooth, color = "Trend + Seasonal"),
+                geom_path(aes(x = Date, y = season.smooth, color = "Trend + Seasonal"),
                     data = fit.df, na.rm = TRUE,
-                    lwd = 0.5)
+                    lwd = 0.5
+                )
+        }
 
         tsplot <-
-            if (multiseries)
-                tsplot + geom_line(aes_(x = ~Date, y = ~smooth, color = ~variable),
+            if (multiseries) {
+                tsplot + geom_line(aes(x = Date, y = smooth, color = variable),
                     data = fit.df, na.rm = TRUE,
-                    linetype = "22", lwd = 1) +
-                geom_point(aes_(x = ~Date, y = ~smooth, shape = ~variable, color = ~variable),
-                           data = fit.df[fit.df$Date == max(fit.df$Date), ],
-                           size = 2, stroke = 2) +
-                labs(color = "", shape = "")
-            else
-                tsplot + geom_line(aes_(x = ~Date, y = ~smooth, col = "Fitted"),
-                    data = fit.df)
+                    linetype = "22", lwd = 1
+                ) +
+                    geom_point(aes(x = Date, y = smooth, shape = variable, color = variable),
+                        data = fit.df[fit.df$Date == max(fit.df$Date), ],
+                        size = 2, stroke = 2
+                    ) +
+                    labs(color = "", shape = "")
+            } else {
+                tsplot + geom_line(aes(x = Date, y = smooth, col = "Fitted"),
+                    data = fit.df
+                )
+            }
     }
 
     if (forecast > 0) {
