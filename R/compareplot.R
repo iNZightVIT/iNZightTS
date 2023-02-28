@@ -293,11 +293,11 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0,
     p <- ggplot(
         seasonData,
         aes(
-            x = season,
-            y = value,
-            group = group,
-            color = group,
-            shape = group
+            x = .data$season,
+            y = .data$value,
+            group = .data$group,
+            color = .data$group,
+            shape = .data$group
         )
     )
 
@@ -305,9 +305,9 @@ compareseasons <- function(x, multiplicative = FALSE, t = 0,
         p <- p +
             geom_path(
                 aes(
-                    x = season,
-                    y = value,
-                    group = cycle,
+                    x = .data$season,
+                    y = .data$value,
+                    group = .data$cycle,
                     colour = NULL,
                     shape = NULL
                 ),

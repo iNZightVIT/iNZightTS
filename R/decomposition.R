@@ -213,7 +213,7 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
         )
     )
 
-    p <- ggplot(td, aes(Date))
+    p <- ggplot(td, aes(.data$Date))
     p0 <- p +
         theme(
             axis.title.x = element_blank(),
@@ -234,9 +234,9 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
     lcolour <- colorspace::lighten(colour, 0.5)
     FINAL <- all(recompose.progress == c(1L, nrow(td)))
     pdata <- p0 +
-        geom_path(aes(y = value), colour = "gray") +
+        geom_path(aes(y = .data$value), colour = "gray") +
         geom_path(
-            aes(y = trend),
+            aes(y = .data$trend),
             colour = colour[1],
             alpha = ifelse(FINAL, 0.5, 1)
         ) +
@@ -285,7 +285,7 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
             )
         pdata <- pdata +
             geom_path(
-                aes(y = z),
+                aes(y = .data$z),
                 data = rtd,
                 colour = colour[2],
                 alpha = ifelse(FINAL, 0.5, 1)
@@ -303,7 +303,7 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
             if (!FINAL) {
                 pdata <- pdata +
                     geom_path(
-                        aes(y = z),
+                        aes(y = .data$z),
                         data = rtd[-(1:(ri - 1)), ],
                         colour = colour[3]
                     )
@@ -311,7 +311,7 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
 
             pdata <- pdata +
                 geom_path(
-                    aes(y = value),
+                    aes(y = .data$value),
                     data = rtd[1:ri, ],
                     colour = if (FINAL) "black" else colour[3]
                 )
@@ -325,7 +325,7 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
         )
 
     pseason <- p0 +
-        geom_path(aes(y = seasonal), colour = colour[2]) +
+        geom_path(aes(y = .data$seasonal), colour = colour[2]) +
         labs(subtitle = "Seasonal Swing", y = "") +
         theme(
             # panel.grid.major.y = element_blank(),
@@ -333,7 +333,7 @@ plot.inzdecomp <- function(x, recompose.progress = c(0, 0),
         )
 
     presid <- p +
-        geom_path(aes(y = residual), colour = colour[3]) +
+        geom_path(aes(y = .data$residual), colour = colour[3]) +
         # geom_segment(
         #     aes(y = residual, yend = 0, xend = Date),
         #     colour = colour[3]

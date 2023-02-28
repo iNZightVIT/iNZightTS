@@ -68,11 +68,11 @@ Invisibly returns the original decomposition object. Mainly called
 \description{
 Decompose a time series object
 }
-\section{Methods (by generic)}{
+\section{Functions}{
 \itemize{
-\item \code{plot}: Plot a time series decomposition
-}}
+\item \code{plot(inzdecomp)}: Plot a time series decomposition
 
+}}
 \examples{
 t <- iNZightTS(visitorsQ)
 decomp.ts <- decompose(t, data.name = "Visitors")

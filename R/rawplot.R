@@ -188,7 +188,7 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
     ts.df <- ts.df %>%
         tidyr::gather(
             key = "variable", value = "value",
-            -Date, factor_key = TRUE
+            -.data$Date, factor_key = TRUE
         )
     ts.df <-
         dplyr::mutate(ts.df,
@@ -261,8 +261,8 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
 
 
     tsplot <- ggplot(ts.df, aes(
-        x = Date, y = value,
-        group = variable, colour = variable
+        x = .data$Date, y = .data$value,
+        group = .data$variable, colour = .data$variable
     )) +
         xlab(xlab) +
         ylab(ylab) +
@@ -315,16 +315,16 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
                 xintercept = max(fit.df$Date),
                 col = "#555555", lty = "dashed"
             ) +
-            geom_ribbon(aes(ymin = lower, ymax = upper),
+            geom_ribbon(aes(ymin = .data$lower, ymax = .data$upper),
                 data = pred.df,
                 fill = "#ffdbdb",
                 col = NA
             ) +
-            geom_line(aes(y = lower, col = "Prediction"),
+            geom_line(aes(y = .data$lower, col = "Prediction"),
                 data = pred.df,
                 lty = "dashed", lwd = 0.4
             ) +
-            geom_line(aes(y = upper, col = "Prediction"),
+            geom_line(aes(y = .data$upper, col = "Prediction"),
                 data = pred.df,
                 lty = "dashed", lwd = 0.4
             ) +
@@ -339,7 +339,7 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
     if (!is.null(smooth)) {
         if (seasonal.trend) {
             tsplot <- tsplot +
-                geom_path(aes(x = Date, y = season.smooth, color = "Trend + Seasonal"),
+                geom_path(aes(x = .data$Date, y = .data$season.smooth, color = "Trend + Seasonal"),
                     data = fit.df, na.rm = TRUE,
                     lwd = 0.5
                 )
@@ -347,17 +347,17 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
 
         tsplot <-
             if (multiseries) {
-                tsplot + geom_line(aes(x = Date, y = smooth, color = variable),
+                tsplot + geom_line(aes(x = .data$Date, y = .data$smooth, color = .data$variable),
                     data = fit.df, na.rm = TRUE,
                     linetype = "22", lwd = 1
                 ) +
-                    geom_point(aes(x = Date, y = smooth, shape = variable, color = variable),
+                    geom_point(aes(x = .data$Date, y = .data$smooth, shape = .data$variable, color = .data$variable),
                         data = fit.df[fit.df$Date == max(fit.df$Date), ],
                         size = 2, stroke = 2
                     ) +
                     labs(color = "", shape = "")
             } else {
-                tsplot + geom_line(aes(x = Date, y = smooth, col = "Fitted"),
+                tsplot + geom_line(aes(x = .data$Date, y = .data$smooth, col = "Fitted"),
                     data = fit.df
                 )
             }

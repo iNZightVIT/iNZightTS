@@ -78,7 +78,7 @@ seasonplot.iNZightTS <- function(obj, multiplicative = FALSE, t = 10, model.lim 
         b = .data$Date %% 1 * freq + 1
     )
 
-    p1 <- ggplot(td, aes(b, value, colour = a, group = a)) +
+    p1 <- ggplot(td, aes(.data$b, .data$value, colour = .data$a, group = .data$a)) +
         geom_point() +
         geom_path() +
         scale_colour_gradient(
@@ -95,12 +95,12 @@ seasonplot.iNZightTS <- function(obj, multiplicative = FALSE, t = 10, model.lim 
             labels = labs
         ) +
         geom_text(
-            aes(label = floor(Date)),
+            aes(label = floor(.data$Date)),
             data = td %>% dplyr::filter(.data$b == 1),
             nudge_x = -0.25
         ) +
         geom_text(
-            aes(label = floor(Date)),
+            aes(label = floor(.data$Date)),
             data = td %>% dplyr::filter(.data$b == freq),
             nudge_x = 0.25
         )
@@ -120,9 +120,9 @@ seasonplot.iNZightTS <- function(obj, multiplicative = FALSE, t = 10, model.lim 
     season <- data.frame(b = 1:freq, effect = season, a = 1, stringsAsFactors = TRUE)
 
     p2 <- ggplot(td, aes(
-        b,
-        effect - as.integer(multiplicative),
-        group = a
+        .data$b,
+        .data$effect - as.integer(multiplicative),
+        group = .data$a
     )) +
         geom_path(colour = "gray") +
         geom_path(data = season) +
