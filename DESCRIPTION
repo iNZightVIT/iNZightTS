@@ -1,4 +1,4 @@
-Package: iNZightTS22
+Package: iNZightTS2
 Type: Package
 Title: Time Series for 'iNZight'
 Version: 2.0.0
@@ -7,15 +7,15 @@ Authors@R: c(
     person("Junjie", "Zeng",    role = "ctb"),
     person("Simon", "Potter",   role = "aut"),
     person("David", "Banks",    role = "aut"),
+    person("Zhaoming", "Su",    role = "aut"),
     person("Marco", "Kuper",    role = "ctb"),
-    person("Dongning", "Zhang", role = "ctb"),
-    person("Zhaoming", "Su",    role = "ctb")
+    person("Dongning", "Zhang", role = "ctb")
     )
 Depends:
     R (>= 3.2)
 Imports:
     colorspace,
-    dplyr,
+    dplyr (>= 1.1.0),
     forcats,
     ggplot2,
     ggtext,
