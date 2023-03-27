@@ -3,19 +3,19 @@ format_index <- function(x) {
 
     if (all(grepl("^[Y]?[0-9]+$", x, TRUE))) {
         x <- as.numeric(gsub("^[Y]?", "", x, TRUE))
-    } else if (all(grepl("^[Y]?[0-9]+[M][0-9]+$", x, TRUE))) {
+    } else if (all(grepl("^[Y]?[0-9]+\\s?[M][0-9]+$", x, TRUE))) {
         x <- tsibble::yearmonth(gsub("^[Y]?", "", x, TRUE))
-    } else if (all(grepl("^[Y]?[0-9]+[Q][0-9]+$", x, TRUE))) {
+    } else if (all(grepl("^[Y]?[0-9]+\\s?[Q][0-9]+$", x, TRUE))) {
         x <- gsub("^[Y]?([0-9]+[Q])[0-9]?([0-9]{1})$", "\\1\\2", x, TRUE) %>%
             tsibble::yearquarter()
-    } else if (all(grepl("^[Y]?[0-9]+[W][0-9]+$", x, TRUE))) {
+    } else if (all(grepl("^[Y]?[0-9]+\\s?[W][0-9]+$", x, TRUE))) {
         x <- tsibble::yearweek(gsub("^[Y]?", "", x, TRUE))
-    } else if (all(grepl("^[Y]?[0-9]+[D][0-9]+$", x, TRUE))) {
+    } else if (all(grepl("^[Y]?[0-9]+\\s?[D][0-9]+$", x, TRUE))) {
         y <- (gsub("^[Y]?([0-9]+)[D][0-9]+$", "\\1", x, TRUE) %>%
             paste0("0101") %>%
             as.numeric() %>%
             lubridate::ymd())
-        d <- (gsub("^[Y]?[0-9]+[D]([0-9]+)$", "\\1", x, TRUE) %>%
+        d <- (gsub("^[Y]?[0-9]+\\s?[D]([0-9]+)$", "\\1", x, TRUE) %>%
             as.numeric() - 1) %>%
             lubridate::days()
         x <- y + d
