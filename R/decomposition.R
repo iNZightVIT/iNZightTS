@@ -72,10 +72,8 @@ decomp <- function(x, var = NULL, sm_model = c("stl"),
     }
     decomp_spec <- list(...)
 
-    expr(.decomp(use_decomp_method(sm_model), x, var, mult_fit, !!!decomp_spec)) %>%
-        rlang::new_quosure() %>%
-        rlang::eval_tidy() %>%
-        structure(class = c("inz_dcmp", class(.)), mult_fit = mult_fit)
+    rlang::inject(.decomp(use_decomp_method(sm_model), x, var, mult_fit, !!!decomp_spec)) |>
+        (\(.) structure(., class = c("inz_dcmp", class(.)), mult_fit = mult_fit))()
 }
 
 
@@ -85,30 +83,30 @@ decomp_key <- function(x, var, sm_model, mult_fit) {
     dplyr::bind_rows(!!!lapply(
         seq_len(nrow(key_data)),
         function(i) {
-            key_data[i, ] %>%
-                dplyr::left_join(x, by = key_vars, multiple = "all") %>%
+            key_data[i, ] |>
+                dplyr::left_join(x, by = key_vars, multiple = "all") |>
                 tsibble::as_tsibble(
                     index = !!tsibble::index(x),
                     key = !!key_vars
-                ) %>%
-                decomp(as.character(var), sm_model, mult_fit) %>%
+                ) |>
+                decomp(as.character(var), sm_model, mult_fit) |>
                 tibble::as_tibble()
         }
-    )) %>%
-        dplyr::filter(dplyr::if_all(
+    )) |>
+        (\(.) dplyr::filter(., dplyr::if_all(
             !!key_vars[key_vars %in% names(.)],
             ~ !is.na(.x)
-        )) %>%
-        tsibble::as_tsibble(
+        )))() |>
+        (\(.) tsibble::as_tsibble(.,
             index = !!tsibble::index(x),
             key = c(!!key_vars[key_vars %in% names(.)], .model)
-        ) %>%
-        structure(seasons = {
+        ))() |>
+        (\(.) structure(., seasons = {
             n <- names(.)[grep("season_", names(.))]
             n <- n[n != "season_adjust"]
             n <- ifelse(length(n) > 1, n[n != "season_null"], n)
             as.list(tibble::tibble(!!n := 1))
-        })
+        }))()
 }
 
 
@@ -136,23 +134,21 @@ use_decomp_method <- function(method) {
 
     if (any(is.na(data[[var]]))) {
         rlang::warn("Time gaps detected, STL returning NULL model.")
-        return(data %>%
-            dplyr::select(!!tsibble::index(data), !!var) %>%
+        return(data |>
+            dplyr::select(!!tsibble::index(data), !!var) |>
             dplyr::mutate(
                 trend = NA_real_,
                 season_null = NA_real_,
                 remainder = NA_real_
-            ) %>%
+            ) |>
             structure(null_mdl = 1, seasons = list(season_null = 1)))
     }
 
-    expr(fabletools::model(data, feasts::STL(
+    rlang::inject(fabletools::model(data, feasts::STL(
         !!var ~ trend() + season(window = s.window),
         !!!stl_spec
-    ))) %>%
-        rlang::new_quosure() %>%
-        rlang::eval_tidy() %>%
-        fabletools::components() %>%
+    ))) |>
+        fabletools::components() |>
         dplyr::mutate(dplyr::across(
             !!var | trend | remainder | dplyr::contains("season"), function(x) {
                 dplyr::case_when(mult_fit ~ exp(x), TRUE ~ as.numeric(x))
@@ -195,7 +191,7 @@ back_transform <- function(x, var, mult_fit) {
     }
     if (mult_fit) {
         season <- sym(names(attributes(x)$seasons))
-        x %>% dplyr::mutate(
+        x |> dplyr::mutate(
             !!season := (!!season - 1) * trend,
             remainder = !!var - trend - !!season
         )
@@ -237,15 +233,15 @@ plot.inz_dcmp <- function(x, recompose.progress = c(0, 0),
         return(suppressWarnings(plot.inz_ts(x, tsibble::measured_vars(x)[1])))
     }
 
-    td <- x %>%
-        back_transform(var, attributes(x)$mult_fit) %>%
-        dplyr::mutate(
+    td <- x |>
+        back_transform(var, attributes(x)$mult_fit) |>
+        (\(.) dplyr::mutate(.,
             Date = as_year(!!tsibble::index(x)),
             value = !!var,
             seasonal = !!sym(names(attributes(.)$seasons)),
             residual = remainder
-        ) %>%
-        tibble::as_tibble(x) %>%
+        ))() |>
+        tibble::as_tibble(x) |>
         dplyr::select(Date, value, trend, seasonal, residual)
 
     ## FIXME: CODE BELOW NEEDS TO BE OPTIMISED
@@ -336,7 +332,7 @@ plot.inz_dcmp <- function(x, recompose.progress = c(0, 0),
             recompose.progress[2],
             nrow(td)
         )
-        rtd <- td %>%
+        rtd <- td |>
             dplyr::mutate(
                 z = ifelse(1:nrow(td) < ri,
                     .data$trend + .data$seasonal,
@@ -352,7 +348,7 @@ plot.inz_dcmp <- function(x, recompose.progress = c(0, 0),
             )
         if (recompose.progress[1] == 1 && recompose.progress[2] > 0) {
             ri <- recompose.progress[2]
-            rtd <- td %>%
+            rtd <- td |>
                 dplyr::mutate(
                     z = ifelse(1:nrow(td) < ri,
                         .data$value,
