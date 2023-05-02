@@ -254,7 +254,7 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph, pal,
                                compare, smoother, sm_model, mult_fit, iso) {
     if (!is.null(emph)) {
         emph_data <- emph$data %>%
-            dplyr::left_join(x, by = tsibble::key_vars(x)) %>%
+            dplyr::left_join(x, by = tsibble::key_vars(x), multiple = "all") %>%
             tsibble::as_tsibble(
                 index = !!tsibble::index(x),
                 key = !!tsibble::key_vars(x)
@@ -267,7 +267,7 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph, pal,
         return(plot_cat_var(x, var, title, pal))
     }
 
-    p <- fabletools::autoplot(x, !!var, size = 1, alpha = op) +
+    p <- fabletools::autoplot(x, !!var, linewidth = 1, alpha = op) +
         ggplot2::labs(y = ylab, title = title) +
         ggplot2::theme(
             legend.position = dplyr::case_when(compare ~ "bottom", TRUE ~ "none"),
@@ -316,7 +316,7 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph, pal,
         }
         if (!is.null(emph)) {
             emph_sm <- emph$data %>%
-                dplyr::left_join(sm_data, by = tsibble::key_vars(x))
+                dplyr::left_join(sm_data, by = tsibble::key_vars(x), multiple = "all")
             emph_sm_spec <- within(smoother_spec, rm(alpha, data))
             p <- expr(p + geom_line(data = emph_sm, !!!emph_sm_spec)) %>%
                 rlang::new_quosure() %>%
@@ -326,7 +326,7 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph, pal,
 
     iso_i <- which(diff(diff(is.na(c(NA, x[[var]])))) == 2)
     if (iso != -1 & length(iso_i) > 0) {
-        p <- p + geom_point(data = x[iso_i, ], size = iso / 2) +
+        p <- p + geom_point(data = x[iso_i, ], linewidth = iso / 2) +
             ggplot2::labs(caption = "Isolated observations are plotted as dots")
     }
 

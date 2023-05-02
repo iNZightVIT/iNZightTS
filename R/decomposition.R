@@ -86,7 +86,7 @@ decomp_key <- function(x, var, sm_model, mult_fit) {
         seq_len(nrow(key_data)),
         function(i) {
             key_data[i, ] %>%
-                dplyr::left_join(x, by = key_vars) %>%
+                dplyr::left_join(x, by = key_vars, multiple = "all") %>%
                 tsibble::as_tsibble(
                     index = !!tsibble::index(x),
                     key = !!key_vars
@@ -281,7 +281,7 @@ plot.inz_dcmp <- function(x, recompose.progress = c(0, 0),
         )
     )
 
-    p <- ggplot(td, aes_(~Date))
+    p <- ggplot(td, aes(Date))
     p0 <- p +
         theme(
             axis.title.x = element_blank(),
@@ -294,9 +294,9 @@ plot.inz_dcmp <- function(x, recompose.progress = c(0, 0),
     lcolour <- colorspace::lighten(colour, 0.5)
     FINAL <- all(recompose.progress == c(1L, nrow(td)))
     pdata <- p0 +
-        geom_path(aes_(y = ~value), colour = "gray") +
+        geom_path(aes(y = value), colour = "gray") +
         geom_path(
-            aes_(y = ~trend),
+            aes(y = trend),
             colour = colour[1],
             alpha = ifelse(FINAL, 0.5, 1)
         ) +
@@ -345,7 +345,7 @@ plot.inz_dcmp <- function(x, recompose.progress = c(0, 0),
             )
         pdata <- pdata +
             geom_path(
-                aes_(y = ~z),
+                aes(y = z),
                 data = rtd,
                 colour = colour[2],
                 alpha = ifelse(FINAL, 0.5, 1)
@@ -363,7 +363,7 @@ plot.inz_dcmp <- function(x, recompose.progress = c(0, 0),
             if (!FINAL) {
                 pdata <- pdata +
                     geom_path(
-                        aes_(y = ~z),
+                        aes(y = z),
                         data = rtd[-(1:(ri - 1)), ],
                         colour = colour[3]
                     )
@@ -371,7 +371,7 @@ plot.inz_dcmp <- function(x, recompose.progress = c(0, 0),
 
             pdata <- pdata +
                 geom_path(
-                    aes_(y = ~value),
+                    aes(y = value),
                     data = rtd[1:ri, ],
                     colour = if (FINAL) "black" else colour[3]
                 )
@@ -385,7 +385,7 @@ plot.inz_dcmp <- function(x, recompose.progress = c(0, 0),
         )
 
     pseason <- p0 +
-        geom_path(aes_(y = ~seasonal), colour = colour[2]) +
+        geom_path(aes(y = seasonal), colour = colour[2]) +
         labs(subtitle = "Seasonal Swing", y = "") +
         theme(
             # panel.grid.major.y = element_blank(),
@@ -393,9 +393,9 @@ plot.inz_dcmp <- function(x, recompose.progress = c(0, 0),
         )
 
     presid <- p +
-        geom_path(aes_(y = ~residual), colour = colour[3]) +
+        geom_path(aes(y = residual), colour = colour[3]) +
         # geom_segment(
-        #     aes_(y = ~residual, yend = 0, xend = ~Date),
+        #     aes(y = residual, yend = 0, xend = Date),
         #     colour = colour[3]
         # ) +
         labs(subtitle = "Residuals", y = "") +

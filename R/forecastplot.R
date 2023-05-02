@@ -164,12 +164,12 @@ predict.inz_ts <- function(object, var = NULL, h = 8, mult_fit = FALSE,
         key_vars <- tsibble::key_vars(x)
         max_t <- max(x[[tsibble::index(x)]])
         valid_key <- na.omit(unlist(lapply(seq_len(nrow(key_data)), function(i) {
-            x_k <- dplyr::left_join(key_data[i, ], x, by = key_vars)
+            x_k <- dplyr::left_join(key_data[i, ], x, by = key_vars, multiple = "all")
             diff_t <- max_t - max(x_k[[tsibble::index(x)]])
             ifelse(diff_t <= tsibble::guess_frequency(x[[tsibble::index(x)]]), i, NA)
         })))
         min_t <- min(do.call("c", lapply(valid_key, function(i) {
-            max(dplyr::left_join(key_data[i, ], x, by = key_vars)$index)
+            max(dplyr::left_join(key_data[i, ], x, by = key_vars, multiple = "all")$index)
         })))
         interval <- getFromNamespace("interval_to_period", "feasts")(tsibble::interval(x))
         if (is.character(h)) {
@@ -210,7 +210,7 @@ predict.inz_ts <- function(object, var = NULL, h = 8, mult_fit = FALSE,
             dplyr::filter(.model != "Prediction") %>%
             dplyr::bind_rows(pred %>%
                 dplyr::filter(.model == "Prediction" & index > max_t & index <= max_t + o_h) %>%
-                dplyr::right_join(key_data[valid_key, ], by = key_vars) %>%
+                dplyr::right_join(key_data[valid_key, ], by = key_vars, multiple = "all") %>%
                 tsibble::as_tsibble(index = index, key = !!tsibble::key_vars(pred)) %>%
                 dplyr::select(!.rows))
     }
@@ -383,7 +383,7 @@ plot_forecast_var <- function(x, var, xlab, ylab, title) {
     p <- expr(p + geom_ribbon(!!!r_spec, show.legend = FALSE)) %>%
         rlang::new_quosure() %>%
         rlang::eval_tidy() +
-        geom_line(l_spec, dplyr::filter(x, .model == "Raw data"), size = 1) +
+        geom_line(l_spec, dplyr::filter(x, .model == "Raw data"), linewidth = 1) +
         geom_line(l_spec, pred_data, linetype = ifelse(n_keys > 3, 2, 1)) +
         geom_vline(xintercept = xi, linetype = "dashed", alpha = .4, lwd = .4) +
         ggplot2::labs(title = title, y = ylab) +
