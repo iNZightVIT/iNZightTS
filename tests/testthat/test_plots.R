@@ -16,10 +16,10 @@ test_that("Smoother can be disabled", {
 
 test_that("Decomposition and recomposition plots work", {
     expect_silent(d <- decomp(t, var = "Australia"))
-    expect_s3_class(plot(d), "inz_dcmp")
-    expect_s3_class(plot(d, recompose.progress = c(0, 20)), "inz_dcmp")
-    expect_s3_class(plot(d, recompose.progress = c(1, 20)), "inz_dcmp")
-    expect_s3_class(plot(decomp(t, mult_fit = TRUE)), "inz_dcmp")
+    expect_s3_class(plot(d), "ggplot")
+    expect_s3_class(plot(d, recompose.progress = c(0, 20)), "ggplot")
+    expect_s3_class(plot(d, recompose.progress = c(1, 20)), "ggplot")
+    expect_s3_class(plot(decomp(t, mult_fit = TRUE)), "ggplot")
     plot(d, recompose = TRUE)
 })
 

@@ -17,16 +17,16 @@ test_that("Subset of decomposition plot can be shown", {
     d <- plot(decomp(t), xlim = c(2000, 2011))
     d1 <- plot(decomp(t), xlim = c(2000, NA))
     d2 <- plot(decomp(t), xlim = c(NA, 2005))
-    expect_s3_class(d, "inz_dcmp")
-    expect_s3_class(d1, "inz_dcmp")
-    expect_s3_class(d2, "inz_dcmp")
+    expect_s3_class(d, "ggplot")
+    expect_s3_class(d1, "ggplot")
+    expect_s3_class(d2, "ggplot")
 
     r <- plot(d, recompose.progress = c(0, 20))
     r1 <- plot(d1, recompose.progress = c(0, 20))
     r2 <- plot(d2, recompose.progress = c(0, 20))
-    expect_s3_class(r, "inz_dcmp")
-    expect_s3_class(r1, "inz_dcmp")
-    expect_s3_class(r2, "inz_dcmp")
+    expect_s3_class(r, "ggplot")
+    expect_s3_class(r1, "ggplot")
+    expect_s3_class(r2, "ggplot")
 })
 
 test_that("Subset of season plot", {

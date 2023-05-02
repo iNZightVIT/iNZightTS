@@ -9,6 +9,9 @@
 #' @param x an inzightts (\code{inz_ts}) object
 #' @param var a character vector of length one, or \code{NULL}
 #' @param sm_model the smoothing method to be used
+#' @param filter_key an integer to specify the key level to be selected in the
+#'        plot. The integer maps to the specific key level corresponding to the
+#'        ith row of \code{tsibble::key_data(x)}.
 #' @param mult_fit If \code{TRUE}, a multiplicative model is used, otherwise
 #'        an additive model is used by default.
 #' @param model_range range of data to be decomposed by the model, specified as
@@ -34,25 +37,34 @@
 #' STL: A Seasonal-Trend Decomposition Procedure Based on Loess.
 #' Journal of Official Statistics, 6, 3iV73.
 #' @export
-decomp <- function(x, var = NULL, sm_model = c("stl"),
+decomp <- function(x, var = NULL, sm_model = c("stl"), filter_key = NULL,
                    mult_fit = FALSE, model_range = NULL, ...) {
     var <- dplyr::last(as.character(guess_plot_var(x, !!enquo(var), use = "Decomp")))
-
+    if (tsibble::n_keys(x) > 1) {
+        if (is.null(filter_key) || !is.numeric(filter_key) || length(filter_key) != 1) {
+            rlang::abort("Please specify an integer `filter_key`.")
+        }
+        x <- tsibble::key_data(x)[filter_key, ] |>
+            dplyr::left_join(x, by = tsibble::key_vars(x), multiple = "all") |>
+            tsibble::as_tsibble(
+                index = !!tsibble::index(x),
+                key = !!tsibble::key_vars(x)
+            )
+    }
     if (all(is.na(model_range))) model_range <- NULL
-
     if (!is.null(model_range)) {
         if (!all(length(model_range) == 2, any(is.numeric(model_range), inherits(model_range, "Date")))) {
             rlang::abort("model_range must be a numeric or Date vector of length 2.")
         }
         na_i <- which(is.na(model_range))[1]
-        if (!is.numeric(x[[tsibble::index_var(x)]]) & is.numeric(model_range)) {
+        if (!is.numeric(x[[tsibble::index_var(x)]]) && is.numeric(model_range)) {
             model_range[na_i] <- lubridate::year(dplyr::case_when(
                 as.logical(na_i - 1) ~ dplyr::last(x$index),
                 TRUE ~ x$index[1]
             ))
             model_range <- lubridate::ymd(paste0(model_range, c("0101", "1231")))
             x <- dplyr::filter(x, dplyr::between(lubridate::as_date(index), model_range[1], model_range[2]))
-        } else if (is.numeric(x[[tsibble::index_var(x)]]) & inherits(model_range, "Date")) {
+        } else if (is.numeric(x[[tsibble::index_var(x)]]) && inherits(model_range, "Date")) {
             model_range[na_i] <- lubridate::ymd(paste0(ifelse(na_i - 1, dplyr::last(x$index), x$index[1]), "0101"))
             x <- dplyr::filter(x, dplyr::between(index, lubridate::year(model_range[1]), lubridate::year(model_range[2])))
         } else {
@@ -71,7 +83,6 @@ decomp <- function(x, var = NULL, sm_model = c("stl"),
         rlang::abort(mismatch_err)
     }
     decomp_spec <- list(...)
-
     rlang::inject(.decomp(use_decomp_method(sm_model), x, var, mult_fit, !!!decomp_spec)) |>
         (\(.) structure(., class = c("inz_dcmp", class(.)), mult_fit = mult_fit))()
 }
@@ -118,7 +129,6 @@ use_decomp_method <- function(method) {
 #' @export
 .decomp.use_stl <- function(use_method, data, var, mult_fit, ...) {
     if (is.character(var)) var <- sym(var)
-
     stl_spec <- list(...)
     if (!is.null(stl_spec$s.window)) {
         s.window <- stl_spec$s.window
@@ -126,12 +136,11 @@ use_decomp_method <- function(method) {
     } else {
         s.window <- "periodic"
     }
-    if (any(data[[var]] <= 0, na.rm = TRUE) & mult_fit) {
+    if (any(data[[var]] <= 0, na.rm = TRUE) && mult_fit) {
         mult_fit <- !mult_fit
         rlang::warn("Non-positive obs detected, setting `mult_fit = FALSE`")
     }
     if (mult_fit) data <- dplyr::mutate(data, !!var := log(!!var))
-
     if (any(is.na(data[[var]]))) {
         rlang::warn("Time gaps detected, STL returning NULL model.")
         return(data |>
@@ -143,7 +152,6 @@ use_decomp_method <- function(method) {
             ) |>
             structure(null_mdl = 1, seasons = list(season_null = 1)))
     }
-
     rlang::inject(fabletools::model(data, feasts::STL(
         !!var ~ trend() + season(window = s.window),
         !!!stl_spec
@@ -228,11 +236,9 @@ plot.inz_dcmp <- function(x, recompose.progress = c(0, 0),
     var <- suppressMessages(guess_plot_var(x, NULL))
     if (is.null(xlim)) xlim <- as_year(range(x[[tsibble::index_var(x)]]))
     if (is.null(ylab)) ylab <- as.character(var)
-
     if (!is.null(attributes(x)$null_mdl)) {
         return(suppressWarnings(plot.inz_ts(x, tsibble::measured_vars(x)[1])))
     }
-
     td <- x |>
         back_transform(var, attributes(x)$mult_fit) |>
         (\(.) dplyr::mutate(.,
@@ -244,7 +250,8 @@ plot.inz_dcmp <- function(x, recompose.progress = c(0, 0),
         tibble::as_tibble(x) |>
         dplyr::select(Date, value, trend, seasonal, residual)
 
-    ## FIXME: CODE BELOW NEEDS TO BE OPTIMISED
+    ## FIXME: ALL CODES BELOW NEEDS TO BE OPTIMISED
+
     if (recompose && all(recompose.progress == 0)) {
         recompose.progress <- c(1, nrow(td))
     }
@@ -401,12 +408,6 @@ plot.inz_dcmp <- function(x, recompose.progress = c(0, 0),
             panel.grid.minor.y = element_blank()
         )
 
-    pfinal <- pdata + pseason + presid +
+    pdata + pseason + presid +
         plot_layout(ncol = 1, heights = ratios)
-
-    dev.hold()
-    on.exit(dev.flush())
-    print(pfinal)
-
-    invisible(x)
 }
