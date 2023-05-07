@@ -24,13 +24,12 @@ customisable graphics.
 <!-- The _stable_ version can be installed from [CRAN](https://cran.r-project.org/web/packages/iNZightTS2/index.html):
 
 
-````r
+```r
 install.packages("iNZightTS2")
-``` -->
+```
+-->
 
 Install from [GitHub](https://github.com/iNZightVIT/iNZightTS2):
-
-\`\`\`\`
 
 ``` r
 remotes::install_github("iNZightVIT/iNZightTS2")
@@ -51,8 +50,8 @@ the functions of the package. The data is stored as a
 [tsibble](https://github.com/tidyverts/tsibble).
 
 ``` r
-data <- visitorsQ %>%
-    pivot_longer(!Date, names_to = "Country", values_to = "Visitors") %>%
+data <- visitorsQ |>
+    pivot_longer(!Date, names_to = "Country", values_to = "Visitors") |>
     inzightts(key = "Country")
 data
 #> # A tsibble: 216 x 3 [1Q]
@@ -90,9 +89,9 @@ A decomposition plot breaks the data into visual components which
 simplies the analysis.
 
 ``` r
-dcmp <- data %>%
-    filter(Country == "Australia") %>%
-    inzightts() %>%
+dcmp <- data |>
+    filter(Country == "Australia") |>
+    inzightts() |>
     decomp()
 dcmp
 #> # A dable: 54 x 8 [1Q]
