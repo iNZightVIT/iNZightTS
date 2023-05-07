@@ -326,7 +326,7 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph, pal,
 
     iso_i <- which(diff(diff(is.na(c(NA, x[[var]])))) == 2)
     if (iso != -1 & length(iso_i) > 0) {
-        p <- p + geom_point(data = x[iso_i, ], linewidth = iso / 2) +
+        p <- p + geom_point(data = x[iso_i, ], size = iso / 2) +
             ggplot2::labs(caption = "Isolated observations are plotted as dots")
     }
 

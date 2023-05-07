@@ -94,7 +94,7 @@ decomp_key <- function(x, var, sm_model, mult_fit) {
     dplyr::bind_rows(!!!lapply(
         seq_len(nrow(key_data)),
         function(i) {
-            key_data[i, ] |>
+            .x <- key_data[i, ] |>
                 dplyr::left_join(x, by = key_vars, multiple = "all") |>
                 tsibble::as_tsibble(
                     index = !!tsibble::index(x),
@@ -102,6 +102,11 @@ decomp_key <- function(x, var, sm_model, mult_fit) {
                 ) |>
                 decomp(as.character(var), sm_model, mult_fit) |>
                 tibble::as_tibble()
+            if (".model" %in% names(.x)) {
+                .x
+            } else {
+                dplyr::mutate(.x, .model = paste(key_data[i, ], collapse = "."))
+            }
         }
     )) |>
         (\(.) dplyr::filter(., dplyr::if_all(
