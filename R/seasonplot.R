@@ -29,12 +29,22 @@ seasonplot <- function(x, ...) {
 
 #' @export
 seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE,
-                              model_range = NULL, ...) {
+                              model_range = NULL, filter_key = NULL, ...) {
     var <- guess_plot_var(x, !!enquo(var))
+    if (tsibble::n_keys(x) > 1 && !is.null(filter_key)) {
+        if (!is.numeric(filter_key) || length(filter_key) != 1) {
+            rlang::abort("Please specify an integer `filter_key`.")
+        } else {
+            x <- tsibble::key_data(x)[filter_key, ] |>
+                dplyr::left_join(x, by = tsibble::key_vars(x), multiple = "all") |>
+                tsibble::as_tsibble(
+                    index = !!tsibble::index(x),
+                    key = !!tsibble::key_vars(x)
+                )
+        }
+    }
     spec <- list(...)
-
     if (all(is.na(model_range))) model_range <- NULL
-
     if (!is.null(spec$labels)) {
         l <- spec$labels
         spec <- within(spec, rm(labels))
@@ -47,14 +57,14 @@ seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE,
         }
         na_i <- which(is.na(model_range))[1]
         t_range <- range(x$index)
-        if (!is.numeric(x[[tsibble::index_var(x)]]) & is.numeric(model_range)) {
+        if (!is.numeric(x[[tsibble::index_var(x)]]) && is.numeric(model_range)) {
             model_range[na_i] <- lubridate::year(dplyr::case_when(
                 as.logical(na_i - 1) ~ dplyr::last(x$index),
                 TRUE ~ x$index[1]
             ))
             model_range <- lubridate::ymd(paste0(model_range, c("0101", "1231")))
             x <- dplyr::filter(x, dplyr::between(lubridate::as_date(index), model_range[1], model_range[2]))
-        } else if (is.numeric(x[[tsibble::index_var(x)]]) & inherits(model_range, "Date")) {
+        } else if (is.numeric(x[[tsibble::index_var(x)]]) && inherits(model_range, "Date")) {
             model_range[na_i] <- lubridate::ymd(paste0(ifelse(na_i - 1, dplyr::last(x$index), x$index[1]), "0101"))
             x <- dplyr::filter(x, dplyr::between(index, lubridate::year(model_range[1]), lubridate::year(model_range[2])))
         } else {
@@ -70,26 +80,22 @@ seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE,
     } else {
         var <- var[-1]
     }
-
     x_dcmp_ls <- season_effect(x, var, mult_fit)
     y_span <- unlist(lapply(seq_along(var), function(i) {
-        diff(extendrange(x_dcmp_ls[[i]][[as.character(var)[i]]])) %>%
+        diff(extendrange(x_dcmp_ls[[i]][[as.character(var)[i]]])) |>
             max(diff(extendrange(x[[as.character(var)[i]]])))
     }))
     if (mult_fit) {
-        eff_y_span <- seq_along(var) %>%
-            lapply(function(i) abs(range(x_dcmp_ls[[i]]$season_effect) - 1)) %>%
-            unlist() %>%
+        eff_y_span <- seq_along(var) |>
+            lapply(function(i) abs(range(x_dcmp_ls[[i]]$season_effect) - 1)) |>
+            unlist() |>
             max()
         eff_y_lim <- replicate(length(var), 1 + c(-1.05, 1.05) * eff_y_span, FALSE)
     } else {
         eff_y_lim <- lapply(seq_along(var), function(i) c(-.5, .5) * y_span[i])
     }
-
     if (length(var) < 2) {
-        p1 <- expr(feasts::gg_season(x, !!sym(var), labels = l, !!!spec)) %>%
-            rlang::new_quosure() %>%
-            rlang::eval_tidy() +
+        p1 <- rlang::inject(feasts::gg_season(x, !!sym(var), labels = l, !!!spec)) +
             geom_point() +
             ggplot2::ylim(mean(range(x[[var]])) + c(-.5, .5) * y_span) +
             ggplot2::labs(title = "Seasonal plot", x = "")
@@ -99,14 +105,12 @@ seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE,
             p1$facet$params$rows <- rows
             p1$facet$params$cols <- cols
         }
-        p2 <- x_dcmp_ls[[1]] %>%
+        p2 <- x_dcmp_ls[[1]] |>
             plot(ylim = eff_y_lim[[1]], title = "Seasonal effects")
         p <- patchwork::wrap_plots(p1, p2, nrow = 1)
     } else {
         p_ls <- lapply(seq_along(var), function(i) {
-            p1 <- expr(feasts::gg_season(x, !!sym(var[i]), labels = l, !!!spec)) %>%
-                rlang::new_quosure() %>%
-                rlang::eval_tidy() +
+            p1 <- rlang::inject(feasts::gg_season(x, !!sym(var[i]), labels = l, !!!spec)) +
                 geom_point() +
                 ggplot2::ylim(mean(range(x[[var[i]]])) + c(-.5, .5) * y_span[i]) +
                 ggplot2::labs(title = ifelse(i == 1L, "Seasonal plot", ""), x = "")
@@ -116,32 +120,28 @@ seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE,
                 p1$facet$params$rows <- rows
                 p1$facet$params$cols <- cols
             }
-            p2 <- x_dcmp_ls[[i]] %>%
+            p2 <- x_dcmp_ls[[i]] |>
                 plot(ylim = eff_y_lim[[i]], title = "Seasonal effects")
             patchwork::wrap_plots(p1, p2, nrow = 1)
         })
-        p <- expr(patchwork::wrap_plots(!!!p_ls)) %>%
-            rlang::new_quosure() %>%
-            rlang::eval_tidy() +
+        p <- rlang::inject(patchwork::wrap_plots(!!!p_ls)) +
             patchwork::plot_layout(ncol = 1)
     }
     if (tsibble::n_keys(x) > 1) {
         p <- p + patchwork::plot_layout(guides = "collect", widths = c(1.6, 1)) &
             ggplot2::theme(legend.position = "bottom")
     }
-
     p
 }
 
 
 season_effect <- function(x, var, mult_fit = FALSE) {
     if (tsibble::n_keys(x) > 1) {
-        x <- x %>%
-            dplyr::mutate(dplyr::across(
-                !!tsibble::key_vars(.), function(x) {
-                    factor(x, levels = sort(unique(x)))
-                }
-            ))
+        x <- dplyr::mutate(x, dplyr::across(
+            !!tsibble::key_vars(x), function(x) {
+                factor(x, levels = sort(unique(x)))
+            }
+        ))
     }
     lapply(as.character(var), function(v) {
         if (tsibble::n_keys(x) > 1) {
@@ -150,16 +150,16 @@ season_effect <- function(x, var, mult_fit = FALSE) {
             x_dcmp <- decomp(x, v, "stl", mult_fit)
         }
         season <- sym(names(attributes(x_dcmp)$seasons))
-        x_dcmp %>%
+        x_dcmp |>
             dplyr::mutate(season_effect = dplyr::case_when(
                 mult_fit ~ !!season * remainder,
                 TRUE ~ !!season + remainder
-            )) %>%
-            structure(
+            )) |>
+            (\(.) structure(.,
                 class = c("seas_ts", class(.)),
                 mult_fit = mult_fit,
                 seasons = attributes(x_dcmp)$seasons
-            )
+            ))()
     })
 }
 
@@ -174,28 +174,24 @@ plot.seas_ts <- function(x, ylim = NULL, title = NULL, ...) {
         group = !!(if (tsibble::n_keys(x) > 1) sym(".key") else NULL)
     )
     if (tsibble::n_keys(x) > 1) {
-        x <- x %>%
-            dplyr::mutate(
-                .key = rlang::eval_tidy(rlang::new_quosure(expr(interaction(!!!({
-                    key_vars <- tsibble::key_vars(.)
-                    lapply(key_vars[key_vars != ".model"], function(i) .[[i]])
-                }), sep = "/"))))
-            ) %>%
+        x <- dplyr::mutate(x,
+            .key = rlang::inject(interaction(!!!({
+                key_vars <- tsibble::key_vars(x)
+                lapply(key_vars[key_vars != ".model"], function(i) x[[i]])
+            }), sep = "/"))
+        ) |>
             tsibble::update_tsibble(key = .key)
     }
-
     p <- feasts::gg_season(x, season_effect, ...) +
         ggplot2::labs(y = dplyr::case_when(
             mult_fit ~ "Multiplicative effect",
             TRUE ~ "Additive effect"
         ))
-
     if (tsibble::n_keys(x) > 1) {
         p$layers[[1]] <- NULL
         p <- p + geom_line(aes(index, season_effect, group = interaction(id, .key)))
     }
     p$mapping$colour <- NULL
-
     p <- p + geom_hline(
         yintercept = as.numeric(attributes(x)$mult_fit),
         colour = "gray", linetype = 2
@@ -204,7 +200,6 @@ plot.seas_ts <- function(x, ylim = NULL, title = NULL, ...) {
         geom_point(seas_aes, pch = 21, fill = "white", stroke = 1.5) +
         scale_y_continuous(limits = ylim) +
         ggplot2::labs(title = title, x = "")
-
     if (tsibble::n_keys(x) > 1) {
         p <- suppressMessages(p + scale_colour_discrete(drop = FALSE)) +
             facet_wrap(NULL) +
@@ -215,6 +210,5 @@ plot.seas_ts <- function(x, ylim = NULL, title = NULL, ...) {
         p$mapping$colour <- p$layers[[3]]$mapping$colour
     }
     p$layers[[1]]$aes_params$alpha <- .2
-
     p
 }

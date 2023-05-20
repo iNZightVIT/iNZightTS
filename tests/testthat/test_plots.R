@@ -58,8 +58,8 @@ test_that("Annual data forecast is fine", {
 
 t_neg <- t
 t_neg$Australia[1] <- -1
-y <- visitorsQ %>%
-    dplyr::mutate(key = rep(c("A", "B", "C"), each = 18)) %>%
+y <- visitorsQ |>
+    dplyr::mutate(key = rep(c("A", "B", "C"), each = 18)) |>
     inzightts(key = "key")
 
 test_that("Check raw-plot configuration", {
@@ -79,12 +79,12 @@ test_that("Check raw-plot configuration", {
     expect_s3_class(plot(y, emphasise = 2), "ggplot")
     expect_s3_class(plot(y, emphasise = 2, non_emph_opacity = 1e-6), "ggplot")
     expect_s3_class(plot(y, emphasise = 2, non_emph_opacity = 0), "ggplot")
-    x <- visitorsM2 %>%
-        dplyr::mutate(y = ggplot2::cut_number(Japan, 4)) %>%
+    x <- visitorsM2 |>
+        dplyr::mutate(y = ggplot2::cut_number(Japan, 4)) |>
         inzightts()
-    y <- visitorsA2 %>%
-        tidyr::pivot_longer(!Time, names_to = "Country", values_to = "Visitors") %>%
-        dplyr::mutate(y = ggplot2::cut_number(Visitors, 4)) %>%
+    y <- visitorsA2 |>
+        tidyr::pivot_longer(!Time, names_to = "Country", values_to = "Visitors") |>
+        dplyr::mutate(y = ggplot2::cut_number(Visitors, 4)) |>
         inzightts(key = "Country")
     expect_s3_class(plot(x, "y"), "ggplot")
     expect_s3_class(suppressWarnings(plot(y, "y")), "ggplot")
@@ -156,8 +156,8 @@ test_that("Check forecasting configuration", {
     expect_message(summary(pred_arima))
     expect_warning(summary(pred_arima, c("Australia", "Japan")))
     expect_output(print(summary(pred_arima, "Australia"), show_details = TRUE))
-    y2 <- visitorsM2 %>%
-        tidyr::pivot_longer(!Time, names_to = "Country", values_to = "Visitors") %>%
+    y2 <- visitorsM2 |>
+        tidyr::pivot_longer(!Time, names_to = "Country", values_to = "Visitors") |>
         inzightts(key = "Country")
     expect_s3_class(plot(predict(y2, pred_model = fable::ARIMA)), "ggplot")
     expect_s3_class(plot(predict(y2, pred_model = "arima")), "ggplot")

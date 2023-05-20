@@ -20,7 +20,7 @@ test_that("Various data classes can be loaded", {
     expect_s3_class(inzightts(visitorsQ, start = c(1998, 4), freq = 4), "inz_ts")
     expect_s3_class(inzightts(visitorsQ, start = 1, end = nrow(visitorsQ)), "inz_ts")
     expect_s3_class(inzightts(visitorsQ, freq = 4, end = c(2012, 1)), "inz_ts")
-    data_with_key <- visitorsQ %>%
+    data_with_key <- visitorsQ |>
         dplyr::mutate(key = sample(LETTERS[1:3], nrow(visitorsQ), TRUE))
     expect_s3_class(inzightts(data_with_key, key = "key"), "inz_ts")
     expect_error(inzightts(rbind(visitorsQ, visitorsQ)))

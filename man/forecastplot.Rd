@@ -14,6 +14,7 @@
   confint_width = 0.95,
   t_range = NULL,
   model_range = NULL,
+  filter_key = NULL,
   ...
 )
 
@@ -38,6 +39,10 @@ an additive model is used by default.}
 \item{model_range}{range of data to be fitted for forecasts, specified as
 dates or years, if part of \code{model_range} specified is outside
 the range of \code{t_range}, the exceeding proportion is ignored.}
+
+\item{filter_key}{an integer to specify the key level to be predicted in the
+data. The integer maps to the specific key level corresponding to the
+ith row of \code{tsibble::key_data(x)}.}
 
 \item{...}{additional arguments (ignored)}
 

@@ -2,8 +2,8 @@ context("Auxiliary feature extraction plots and tools")
 data(visitorsQ)
 
 x <- inzightts(visitorsQ)
-y <- visitorsQ %>%
-    tidyr::pivot_longer(!Date, names_to = "Country", values_to = "Visitors") %>%
+y <- visitorsQ |>
+    tidyr::pivot_longer(!Date, names_to = "Country", values_to = "Visitors") |>
     inzightts(key = "Country")
 
 test_that("Seasonal subseries plots works for inzightts", {
