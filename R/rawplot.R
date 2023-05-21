@@ -77,6 +77,7 @@ cat_y_axis <- function(x) {
 #'        be in the same order per the rows of \code{tsibble::key_data(x)}.
 #' @param smoother logical, if \code{TRUE} the smoother will be drawn
 #' @param sm_model the smoothing method to be used
+#' @param t the smoothing parameter (between 0 and 100)
 #' @param mult_fit If \code{TRUE}, a multiplicative model is used, otherwise
 #'        an additive model is used by default.
 #' @param emphasise integer vector to specify the key level(s) to focus in the
@@ -115,7 +116,7 @@ cat_y_axis <- function(x) {
 #' @export
 plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
                         xlim = NULL, aspect = NULL, compare = TRUE, pal = NULL,
-                        smoother = TRUE, sm_model = "stl", mult_fit = FALSE,
+                        smoother = TRUE, sm_model = "stl", t = 0, mult_fit = FALSE,
                         emphasise = NULL, non_emph_opacity = .2,
                         show_iso_obs = TRUE, iso_obs_size = 1, ...) {
     var <- guess_plot_var(x, !!enquo(var))
@@ -225,14 +226,14 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
         var <- sym(dplyr::last(as.character(var)))
         plot_inzightts_var(
             x, var, xlab, ylab, title, aspect, emph, pal,
-            compare, smoother, sm_model, mult_fit, iso_obs_size
+            compare, smoother, sm_model, t, mult_fit, iso_obs_size
         )
     } else {
         p_ls <- lapply(seq_len(length(var) - 1), function(i) {
             y_var <- as.character(var)[i + 1]
             plot_inzightts_var(
                 x, sym(y_var), xlab, ylab[i], "", NULL, emph, pal,
-                compare, smoother, sm_model, mult_fit, iso_obs_size
+                compare, smoother, sm_model, t, mult_fit, iso_obs_size
             )
         })
         rlang::inject(patchwork::wrap_plots(!!!p_ls)) +
@@ -244,7 +245,7 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
 
 
 plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph, pal,
-                               compare, smoother, sm_model, mult_fit, iso) {
+                               compare, smoother, sm_model, t, mult_fit, iso) {
     if (!is.null(emph)) {
         emph_data <- emph$data |>
             dplyr::left_join(x, by = tsibble::key_vars(x), multiple = "all") |>
@@ -280,9 +281,9 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph, pal,
     }
     if (smoother) {
         if (tsibble::n_keys(x) > 1) {
-            sm_data <- decomp_key(x, as.character(var), sm_model, mult_fit)
+            sm_data <- decomp_key(x, as.character(var), sm_model, mult_fit, t = t)
         } else {
-            sm_data <- decomp(x, as.character(var), sm_model, mult_fit)
+            sm_data <- decomp(x, as.character(var), sm_model, mult_fit, t = t)
         }
         smoother_spec <- list(
             mapping = aes(!!tsibble::index(x), trend),
@@ -333,14 +334,14 @@ plot_cat_var <- function(x, var, title, pal) {
         }
     }
     p <- x |>
-        dplyr::mutate(
+        (\(.) dplyr::mutate(.,
             .x = forcats::fct_inorder(as.character(
-                cat_x_axis(x)$fun(!!tsibble::index(x))
+                cat_x_axis(.)$fun(!!tsibble::index(.))
             )),
             .y = forcats::fct_inorder(as.character(
-                cat_y_axis(x)$fun(!!tsibble::index(x))
+                cat_y_axis(.)$fun(!!tsibble::index(.))
             )) |> forcats::fct_rev()
-        ) |>
+        ))() |>
         dplyr::filter(!is.na(!!var)) |>
         ggplot(aes(.x, .y, col = !!var)) +
         geom_tile(aes(fill = after_scale(col))) +

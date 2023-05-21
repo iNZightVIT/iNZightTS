@@ -100,7 +100,7 @@ predict.inz_ts <- function(object, var = NULL, h = 8, mult_fit = FALSE,
                 dplyr::left_join(object, by = tsibble::key_vars(object), multiple = "all") |>
                 tsibble::as_tsibble(
                     index = !!tsibble::index(object),
-                    key = !!tsibble::key_vars(object)
+                    key = NULL
                 )
         }
     }
@@ -225,8 +225,9 @@ predict.inz_ts <- function(object, var = NULL, h = 8, mult_fit = FALSE,
                 tsibble::as_tsibble(index = index, key = !!tsibble::key_vars(pred)) |>
                 dplyr::select(!.rows))
     }
-    pred |> (\(.) structure(.,
-        class = c("inz_frct", class(.)),
+    structure(
+        pred,
+        class = c("inz_frct", class(pred)),
         confint_width = confint_width,
         fit = lapply(inzightts_forecast_ls, function(x) {
             dplyr::rename(
@@ -234,7 +235,7 @@ predict.inz_ts <- function(object, var = NULL, h = 8, mult_fit = FALSE,
                 !!unique(x$.var) := Prediction
             )
         })
-    ))()
+    )
 }
 
 
@@ -305,9 +306,7 @@ plot.inz_frct <- function(x, xlab = NULL, ylab = NULL, title = NULL, ...) {
             y_var <- unique(x$.var)[i]
             plot_forecast_var(x, sym(y_var), xlab, ylab[i], "")
         })
-        expr(patchwork::wrap_plots(!!!p_ls)) |>
-            rlang::new_quosure() |>
-            rlang::eval_tidy() +
+        rlang::inject(patchwork::wrap_plots(!!!p_ls)) +
             patchwork::plot_layout(ncol = 1, guides = "collect") +
             patchwork::plot_annotation(title = title) &
             ggplot2::theme(legend.position = "bottom")
@@ -331,18 +330,18 @@ plot_forecast_var <- function(x, var, xlab, ylab, title) {
     if (n_keys > 3) {
         key_vars <- tsibble::key_vars(x)
         x <- dplyr::mutate(x,
-            .key = rlang::eval_tidy(rlang::new_quosure(expr(interaction(!!!({
+            .key = rlang::inject(interaction(!!!({
                 key_vars <- tsibble::key_vars(x)
                 lapply(key_vars[!key_vars %in% c(".var", ".model")], function(i) x[[i]])
-            }), sep = "/"))))
+            }), sep = "/"))
         ) |>
             tsibble::update_tsibble(key = c(.var, .model, .key))
         pred_data <- pred_data |>
             (\(.) dplyr::mutate(.,
-                .key = rlang::eval_tidy(rlang::new_quosure(expr(interaction(!!!({
+                .key = rlang::inject(interaction(!!!({
                     key_vars <- tsibble::key_vars(.)
                     lapply(key_vars[!key_vars %in% c(".var", ".model")], function(i) .[[i]])
-                }), sep = "/"))))
+                }), sep = "/"))
             ))() |>
             tsibble::update_tsibble(key = c(.var, .model, .key))
     }
@@ -365,7 +364,7 @@ plot_forecast_var <- function(x, var, xlab, ylab, title) {
     if (n_keys > 3) {
         l_spec <- c(l_spec, group = sym(".key"), col = sym(".key"))
     }
-    l_spec <- rlang::eval_tidy(rlang::new_quosure(expr(aes(!!!l_spec))))
+    l_spec <- rlang::inject(aes(!!!l_spec))
     index_obs <- dplyr::filter(x, .model == "Raw data")[[as.character(xlab)]]
     if (lubridate::is.Date(index_obs) || inherits(index_obs, "vctrs_vctr")) {
         xi <- max(as.Date(index_obs))
@@ -381,9 +380,7 @@ plot_forecast_var <- function(x, var, xlab, ylab, title) {
         p$mapping$colour <- NULL
         p$layers[[1]] <- NULL
     }
-    p <- expr(p + geom_ribbon(!!!r_spec, show.legend = FALSE)) |>
-        rlang::new_quosure() |>
-        rlang::eval_tidy() +
+    p <- rlang::inject(p + geom_ribbon(!!!r_spec, show.legend = FALSE)) +
         geom_line(l_spec, dplyr::filter(x, .model == "Raw data"), linewidth = 1) +
         geom_line(l_spec, pred_data, linetype = ifelse(n_keys > 3, 2, 1)) +
         geom_vline(xintercept = xi, linetype = "dashed", alpha = .4, lwd = .4) +
@@ -460,10 +457,10 @@ summary.inz_frct <- function(object, var = NULL, ...) {
         model <- lapply(fit[[i]][[ncol(fit[[i]])]], function(x) {
             x$fit$model
         })
-        names(model) <- unique(rlang::eval_tidy(rlang::new_quosure(expr(interaction(!!!({
+        names(model) <- unique(rlang::inject(interaction(!!!({
             key_vars <- tsibble::key_vars(object)
             lapply(key_vars[!key_vars %in% c(".var", ".model")], function(i) object[[i]])
-        }), sep = "/")))))
+        }), sep = "/")))
     } else {
         model <- fit[[i]][[ncol(fit[[i]])]][[1]]$fit$model
     }

@@ -17,7 +17,7 @@
 #' @param model_range range of data to be decomposed by the model, specified as
 #'        dates or years, if part of \code{model_range} specified is outside
 #'        the range of the data, the exceeding proportion is ignored.
-#' @param ... additional arguments (ignored)
+#' @param ... additional arguments passed to decomposition methods (e.g. STL)
 #' @return a decomp (\code{inz_dcmp}) object, a sub-class of dable
 #'
 #' @rdname decomposition
@@ -48,7 +48,7 @@ decomp <- function(x, var = NULL, sm_model = c("stl"), filter_key = NULL,
             dplyr::left_join(x, by = tsibble::key_vars(x), multiple = "all") |>
             tsibble::as_tsibble(
                 index = !!tsibble::index(x),
-                key = !!tsibble::key_vars(x)
+                key = NULL
             )
     }
     if (all(is.na(model_range))) model_range <- NULL
@@ -88,7 +88,7 @@ decomp <- function(x, var = NULL, sm_model = c("stl"), filter_key = NULL,
 }
 
 
-decomp_key <- function(x, var, sm_model, mult_fit) {
+decomp_key <- function(x, var, sm_model, mult_fit, ...) {
     key_data <- tsibble::key_data(x)
     key_vars <- tsibble::key_vars(x)
     dplyr::bind_rows(!!!lapply(
@@ -100,7 +100,7 @@ decomp_key <- function(x, var, sm_model, mult_fit) {
                     index = !!tsibble::index(x),
                     key = !!key_vars
                 ) |>
-                decomp(as.character(var), sm_model, mult_fit) |>
+                decomp(as.character(var), sm_model, mult_fit, ...) |>
                 tibble::as_tibble()
             if (".model" %in% names(.x)) {
                 .x
@@ -132,7 +132,7 @@ use_decomp_method <- function(method) {
 
 
 #' @export
-.decomp.use_stl <- function(use_method, data, var, mult_fit, ...) {
+.decomp.use_stl <- function(use_method, data, var, mult_fit, t = 0, ...) {
     if (is.character(var)) var <- sym(var)
     stl_spec <- list(...)
     if (!is.null(stl_spec$s.window)) {
@@ -140,6 +140,19 @@ use_decomp_method <- function(method) {
         stl_spec <- within(stl_spec, rm(s.window))
     } else {
         s.window <- "periodic"
+    }
+    if (!is.null(stl_spec$t.window) && t != 0) {
+        rlang::warn("`t.window` overrides `t`.")
+    } else {
+        if (!dplyr::between(t, 0, 100)) {
+            rlang::abort("`t` must be a number between 0 and 100.")
+        }
+        stl_spec$t.window <- (1.5 * frequency(data) / (1 - 1.5 / (10 * nrow(data) + 1)) +
+            0.5 * frequency(data) * t) |>
+            ceiling() |>
+            round() |>
+            (\(x) x + (x %% 2 == 0))() |>
+            as.integer()
     }
     if (any(data[[var]] <= 0, na.rm = TRUE) && mult_fit) {
         mult_fit <- !mult_fit

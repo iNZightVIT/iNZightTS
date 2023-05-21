@@ -16,6 +16,7 @@
   pal = NULL,
   smoother = TRUE,
   sm_model = "stl",
+  t = 0,
   mult_fit = FALSE,
   emphasise = NULL,
   non_emph_opacity = 0.2,
@@ -49,6 +50,8 @@ be in the same order per the rows of \code{tsibble::key_data(x)}.}
 \item{smoother}{logical, if \code{TRUE} the smoother will be drawn}
 
 \item{sm_model}{the smoothing method to be used}
+
+\item{t}{the smoothing parameter (between 0 and 100)}
 
 \item{mult_fit}{If \code{TRUE}, a multiplicative model is used, otherwise
 an additive model is used by default.}

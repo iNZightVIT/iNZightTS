@@ -28,7 +28,7 @@ seasonplot <- function(x, ...) {
 
 
 #' @export
-seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE,
+seasonplot.inz_ts <- function(x, var = NULL, t = 0, mult_fit = FALSE,
                               model_range = NULL, filter_key = NULL, ...) {
     var <- guess_plot_var(x, !!enquo(var))
     if (tsibble::n_keys(x) > 1 && !is.null(filter_key)) {
@@ -39,7 +39,7 @@ seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE,
                 dplyr::left_join(x, by = tsibble::key_vars(x), multiple = "all") |>
                 tsibble::as_tsibble(
                     index = !!tsibble::index(x),
-                    key = !!tsibble::key_vars(x)
+                    key = NULL
                 )
         }
     }
@@ -80,7 +80,7 @@ seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE,
     } else {
         var <- var[-1]
     }
-    x_dcmp_ls <- season_effect(x, var, mult_fit)
+    x_dcmp_ls <- season_effect(x, var, t, mult_fit)
     y_span <- unlist(lapply(seq_along(var), function(i) {
         diff(extendrange(x_dcmp_ls[[i]][[as.character(var)[i]]])) |>
             max(diff(extendrange(x[[as.character(var)[i]]])))
@@ -135,7 +135,7 @@ seasonplot.inz_ts <- function(x, var = NULL, mult_fit = FALSE,
 }
 
 
-season_effect <- function(x, var, mult_fit = FALSE) {
+season_effect <- function(x, var, t, mult_fit = FALSE) {
     if (tsibble::n_keys(x) > 1) {
         x <- dplyr::mutate(x, dplyr::across(
             !!tsibble::key_vars(x), function(x) {
@@ -145,9 +145,9 @@ season_effect <- function(x, var, mult_fit = FALSE) {
     }
     lapply(as.character(var), function(v) {
         if (tsibble::n_keys(x) > 1) {
-            x_dcmp <- decomp_key(x, v, "stl", mult_fit)
+            x_dcmp <- decomp_key(x, v, "stl", mult_fit, t = t)
         } else {
-            x_dcmp <- decomp(x, v, "stl", mult_fit)
+            x_dcmp <- decomp(x, v, "stl", mult_fit, t = t)
         }
         season <- sym(names(attributes(x_dcmp)$seasons))
         x_dcmp |>

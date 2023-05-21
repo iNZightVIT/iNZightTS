@@ -26,9 +26,9 @@ subseries <- function(x, var = NULL, show_mean = TRUE, xlab = NULL,
     var <- guess_plot_var(x, !!enquo(var))
     if (tsibble::n_keys(x) > 1) {
         x <- dplyr::mutate(x,
-            .key = rlang::eval_tidy(rlang::new_quosure(expr(interaction(!!!(
+            .key = rlang::inject(interaction(!!!(
                 lapply(tsibble::key_vars(x), function(i) x[[i]])
-            ), sep = "/"))))
+            ), sep = "/"))
         ) |>
             tsibble::update_tsibble(key = .key)
     }
@@ -62,9 +62,7 @@ subseries <- function(x, var = NULL, show_mean = TRUE, xlab = NULL,
             y_var <- as.character(var)[i + 1]
             plot_subseries(x, sym(y_var), show_mean, ylab[i], title)
         })
-        expr(patchwork::wrap_plots(!!!p_ls)) |>
-            rlang::new_quosure() |>
-            rlang::eval_tidy() +
+        rlang::inject(patchwork::wrap_plots(!!!p_ls)) +
             patchwork::plot_layout(ncol = 1, guides = "collect") +
             patchwork::plot_annotation(title = title) &
             ggplot2::theme(legend.position = "bottom")
