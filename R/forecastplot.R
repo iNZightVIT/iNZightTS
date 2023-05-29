@@ -67,9 +67,6 @@ ARIMA_lite <- function(formula,
 #' @param model_range range of data to be fitted for forecasts, specified as
 #'        dates or years, if part of \code{model_range} specified is outside
 #'        the range of \code{t_range}, the exceeding proportion is ignored.
-#' @param filter_key an integer to specify the key level to be predicted in the
-#'        data. The integer maps to the specific key level corresponding to the
-#'        ith row of \code{tsibble::key_data(x)}.
 #' @param ... additional arguments (ignored)
 #' @return an \code{inz_frct} object
 #'
@@ -90,20 +87,8 @@ ARIMA_lite <- function(formula,
 #' @export
 predict.inz_ts <- function(object, var = NULL, h = 8, mult_fit = FALSE,
                            pred_model = "auto", confint_width = .95,
-                           t_range = NULL, model_range = NULL, filter_key = NULL, ...) {
+                           t_range = NULL, model_range = NULL, ...) {
     var <- guess_plot_var(object, !!enquo(var), use = "Predict")
-    if (tsibble::n_keys(object) > 1 && !is.null(filter_key)) {
-        if (!is.numeric(filter_key) || length(filter_key) != 1) {
-            rlang::abort("Please specify an integer `filter_key`.")
-        } else {
-            object <- tsibble::key_data(object)[filter_key, ] |>
-                dplyr::left_join(object, by = tsibble::key_vars(object), multiple = "all") |>
-                tsibble::as_tsibble(
-                    index = !!tsibble::index(object),
-                    key = NULL
-                )
-        }
-    }
     pred_model <- get_model(pred_model)
     if (all(is.na(t_range))) t_range <- NULL
     if (all(is.na(model_range))) model_range <- NULL

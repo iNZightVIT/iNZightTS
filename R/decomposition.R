@@ -9,9 +9,6 @@
 #' @param x an inzightts (\code{inz_ts}) object
 #' @param var a character vector of length one, or \code{NULL}
 #' @param sm_model the smoothing method to be used
-#' @param filter_key an integer to specify the key level to be selected in the
-#'        plot. The integer maps to the specific key level corresponding to the
-#'        ith row of \code{tsibble::key_data(x)}.
 #' @param mult_fit If \code{TRUE}, a multiplicative model is used, otherwise
 #'        an additive model is used by default.
 #' @param model_range range of data to be decomposed by the model, specified as
@@ -37,19 +34,11 @@
 #' STL: A Seasonal-Trend Decomposition Procedure Based on Loess.
 #' Journal of Official Statistics, 6, 3iV73.
 #' @export
-decomp <- function(x, var = NULL, sm_model = c("stl"), filter_key = NULL,
+decomp <- function(x, var = NULL, sm_model = c("stl"),
                    mult_fit = FALSE, model_range = NULL, ...) {
     var <- dplyr::last(as.character(guess_plot_var(x, !!enquo(var), use = "Decomp")))
     if (tsibble::n_keys(x) > 1) {
-        if (is.null(filter_key) || !is.numeric(filter_key) || length(filter_key) != 1) {
-            rlang::abort("Please specify an integer `filter_key`.")
-        }
-        x <- tsibble::key_data(x)[filter_key, ] |>
-            dplyr::left_join(x, by = tsibble::key_vars(x), multiple = "all") |>
-            tsibble::as_tsibble(
-                index = !!tsibble::index(x),
-                key = NULL
-            )
+        rlang::abort("Cannot decompose multiple time series.")
     }
     if (all(is.na(model_range))) model_range <- NULL
     if (!is.null(model_range)) {
@@ -234,9 +223,7 @@ back_transform <- function(x, var, mult_fit) {
 #'        how many observations have been recomposed so far
 #' @param recompose logical as to whether the recomposition is shown or not
 #' @param ylab the label for the y axis
-#' @param xlab the label for the x axis
 #' @param title the title for the plot
-#' @param xlim the x axis limits
 #' @param colour vector of three colours for trend, seasonal, and residuals, respectively
 #' @param ... additional arguments (ignored)
 #'
@@ -247,10 +234,8 @@ back_transform <- function(x, var, mult_fit) {
 #' @export
 plot.inz_dcmp <- function(x, recompose.progress = c(0, 0),
                           recompose = any(recompose.progress > 0),
-                          ylab = NULL, xlab = "Date",
-                          title = NULL, xlim = c(NA, NA),
-                          colour = c("#1B9E46", "#45a8ff", "orangered"),
-                          ...) {
+                          ylab = NULL, title = NULL,
+                          colour = c("#1B9E46", "#45a8ff", "orangered"), ...) {
     var <- suppressMessages(guess_plot_var(x, NULL))
     if (is.null(xlim)) xlim <- as_year(range(x[[tsibble::index_var(x)]]))
     if (is.null(ylab)) ylab <- as.character(var)
@@ -268,7 +253,7 @@ plot.inz_dcmp <- function(x, recompose.progress = c(0, 0),
         tibble::as_tibble(x) |>
         dplyr::select(Date, value, trend, seasonal, residual)
 
-    ## FIXME: ALL CODES BELOW NEEDS TO BE OPTIMISED
+    ## FIXME: ALL CODES BELOW NEED TO BE OPTIMISED
 
     if (recompose && all(recompose.progress == 0)) {
         recompose.progress <- c(1, nrow(td))

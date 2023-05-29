@@ -29,20 +29,8 @@ seasonplot <- function(x, ...) {
 
 #' @export
 seasonplot.inz_ts <- function(x, var = NULL, t = 0, mult_fit = FALSE,
-                              model_range = NULL, filter_key = NULL, ...) {
+                              model_range = NULL, ...) {
     var <- guess_plot_var(x, !!enquo(var))
-    if (tsibble::n_keys(x) > 1 && !is.null(filter_key)) {
-        if (!is.numeric(filter_key) || length(filter_key) != 1) {
-            rlang::abort("Please specify an integer `filter_key`.")
-        } else {
-            x <- tsibble::key_data(x)[filter_key, ] |>
-                dplyr::left_join(x, by = tsibble::key_vars(x), multiple = "all") |>
-                tsibble::as_tsibble(
-                    index = !!tsibble::index(x),
-                    key = NULL
-                )
-        }
-    }
     spec <- list(...)
     if (all(is.na(model_range))) model_range <- NULL
     if (!is.null(spec$labels)) {

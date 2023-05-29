@@ -9,7 +9,6 @@ decomp(
   x,
   var = NULL,
   sm_model = c("stl"),
-  filter_key = NULL,
   mult_fit = FALSE,
   model_range = NULL,
   ...
@@ -20,9 +19,7 @@ decomp(
   recompose.progress = c(0, 0),
   recompose = any(recompose.progress > 0),
   ylab = NULL,
-  xlab = "Date",
   title = NULL,
-  xlim = c(NA, NA),
   colour = c("#1B9E46", "#45a8ff", "orangered"),
   ...
 )
@@ -33,10 +30,6 @@ decomp(
 \item{var}{a character vector of length one, or \code{NULL}}
 
 \item{sm_model}{the smoothing method to be used}
-
-\item{filter_key}{an integer to specify the key level to be selected in the
-plot. The integer maps to the specific key level corresponding to the
-ith row of \code{tsibble::key_data(x)}.}
 
 \item{mult_fit}{If \code{TRUE}, a multiplicative model is used, otherwise
 an additive model is used by default.}
@@ -56,11 +49,7 @@ how many observations have been recomposed so far}
 
 \item{ylab}{the label for the y axis}
 
-\item{xlab}{the label for the x axis}
-
 \item{title}{the title for the plot}
-
-\item{xlim}{the x axis limits}
 
 \item{colour}{vector of three colours for trend, seasonal, and residuals, respectively}
 }
