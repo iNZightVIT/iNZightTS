@@ -141,15 +141,10 @@ test_that("Check season plot configuration", {
 
 test_that("Check forecasting configuration", {
     expect_warning(predict(t_neg, mult_fit = TRUE))
-    expect_error(predict(t, t_range = c(2001, 2002), model_range = lubridate::ymd(c(20010101, 20021231))))
-    expect_error(predict(t, t_range = 2001))
+    expect_error(plot(predict(t, model_range = c(2001, 2004)), t_range = c(NA, 2003)))
+    expect_error(plot(predict(t), t_range = 2001))
     expect_error(predict(t, model_range = 2001))
-    expect_s3_class(predict(t, t_range = c(NA, 2008), model_range = c(2002, NA)), "inz_frct")
-    # Note: the below no longer produces a warning from dplyr 1.1.0
-    # expect_warning(predict(t,
-    #     t_range = lubridate::ymd(c(20010101, 20101231)),
-    #     model_range = lubridate::ymd(c(20010101, 20051231))
-    # ))
+    expect_s3_class(predict(t, model_range = c(2002, NA)), "inz_frct")
     expect_error(plot(predict(tm, names(tm)[-1]), ylab = "A"))
     pred_arima <- predict(t)
     expect_s3_class(summary(pred_arima), "summary_inz_frct")

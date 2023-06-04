@@ -63,10 +63,8 @@ ARIMA_lite <- function(formula,
 #'        an additive model is used by default.
 #' @param pred_model a \code{fable} model function name or \code{"auto"}
 #' @param confint_width a decimal, the width of the prediction interval
-#' @param t_range range of data to be plotted, specified as dates or years
 #' @param model_range range of data to be fitted for forecasts, specified as
-#'        dates or years, if part of \code{model_range} specified is outside
-#'        the range of \code{t_range}, the exceeding proportion is ignored.
+#'        dates or years
 #' @param ... additional arguments (ignored)
 #' @return an \code{inz_frct} object
 #'
@@ -87,10 +85,9 @@ ARIMA_lite <- function(formula,
 #' @export
 predict.inz_ts <- function(object, var = NULL, h = 8, mult_fit = FALSE,
                            pred_model = "auto", confint_width = .95,
-                           t_range = NULL, model_range = NULL, ...) {
+                           model_range = NULL, ...) {
     var <- guess_plot_var(object, !!enquo(var), use = "Predict")
     pred_model <- get_model(pred_model)
-    if (all(is.na(t_range))) t_range <- NULL
     if (all(is.na(model_range))) model_range <- NULL
     y_obs <- unlist(lapply(ifelse(
         length(as.character(var)) > 2,
@@ -100,32 +97,6 @@ predict.inz_ts <- function(object, var = NULL, h = 8, mult_fit = FALSE,
     if (any(y_obs <= 0) && mult_fit) {
         mult_fit <- !mult_fit
         rlang::warn("Non-positive obs detected, setting `mult_fit = FALSE`")
-    }
-    if (!is.null(t_range)) {
-        if (!is.null(model_range) && class(model_range)[1] != class(t_range)[1]) {
-            rlang::abort("model_range and t_range must have the same primary class.")
-        }
-        if (!all(length(t_range) == 2, any(is.numeric(t_range), inherits(t_range, "Date")))) {
-            rlang::abort("t_range must be a numeric or Date vector of length 2.")
-        }
-        na_i <- which(is.na(t_range))[1]
-        if (!is.numeric(object[[tsibble::index_var(object)]]) && is.numeric(t_range)) {
-            t_range[na_i] <- lubridate::year(dplyr::case_when(
-                as.logical(na_i - 1) ~ dplyr::last(object$index),
-                TRUE ~ object$index[1]
-            ))
-            t_range <- lubridate::ymd(paste0(t_range, c("0101", "1231")))
-            object <- dplyr::filter(object, dplyr::between(lubridate::as_date(index), t_range[1], t_range[2]))
-        } else if (is.numeric(object[[tsibble::index_var(object)]]) && inherits(t_range, "Date")) {
-            t_range[na_i] <- lubridate::ymd(paste0(ifelse(na_i - 1, dplyr::last(object$index), object$index[1]), "0101"))
-            object <- dplyr::filter(object, dplyr::between(index, lubridate::year(t_range[1]), lubridate::year(t_range[2])))
-        } else {
-            t_range[na_i] <- dplyr::case_when(
-                as.logical(na_i - 1) ~ dplyr::last(object$index),
-                TRUE ~ object$index[1]
-            )
-            object <- dplyr::filter(object, dplyr::between(index, t_range[1], t_range[2]))
-        }
     }
     if (!is.null(model_range)) {
         if (!all(length(model_range) == 2, any(is.numeric(model_range), inherits(model_range, "Date")))) {
@@ -255,6 +226,7 @@ predict_inzightts_var <- function(x, var, h, mult_fit, pred_model, confint_width
 
 
 #' @param x an \code{inz_frct} object
+#' @param t_range range of data to be plotted, specified as dates or years
 #' @param xlab a title for the x axis
 #' @param ylab a title for the y axis
 #' @param title a title for the graph
@@ -265,7 +237,42 @@ predict_inzightts_var <- function(x, var, h, mult_fit, pred_model, confint_width
 #' @import patchwork
 #'
 #' @export
-plot.inz_frct <- function(x, xlab = NULL, ylab = NULL, title = NULL, ...) {
+plot.inz_frct <- function(x, t_range = NULL, xlab = NULL, ylab = NULL, title = NULL, ...) {
+    if (all(is.na(t_range))) t_range <- NULL
+    if (!is.null(t_range)) {
+        if (!all(length(t_range) == 2, any(is.numeric(t_range), inherits(t_range, "Date")))) {
+            rlang::abort("t_range must be a numeric or Date vector of length 2.")
+        }
+        na_i <- which(is.na(t_range))[1]
+        if (!is.numeric(x[[tsibble::index_var(x)]]) && is.numeric(t_range)) {
+            t_range[na_i] <- lubridate::year(dplyr::case_when(
+                as.logical(na_i - 1) ~ dplyr::last(x$index),
+                TRUE ~ x$index[1]
+            ))
+            t_range <- lubridate::ymd(paste0(t_range, c("0101", "1231")))
+            x <- x |> dplyr::filter(
+                dplyr::between(lubridate::as_date(index), t_range[1], t_range[2]) | .model != "Raw data"
+            )
+        } else if (is.numeric(x[[tsibble::index_var(x)]]) && inherits(t_range, "Date")) {
+            t_range[na_i] <- lubridate::ymd(paste0(ifelse(na_i - 1, dplyr::last(x$index), x$index[1]), "0101"))
+            x <- x |> dplyr::filter(
+                dplyr::between(index, lubridate::year(t_range[1]), lubridate::year(t_range[2])) | .model != "Raw data"
+            )
+        } else {
+            t_range[na_i] <- dplyr::case_when(
+                as.logical(na_i - 1) ~ dplyr::last(x$index),
+                TRUE ~ x$index[1]
+            )
+            x <- x |> dplyr::filter(
+                dplyr::between(index, t_range[1], t_range[2]) | .model != "Raw data"
+            )
+        }
+        idx <- unique(dplyr::filter(tsibble::fill_gaps(x), .model != "Fitted")$index)
+        test <- tsibble::tsibble(idx = idx, y = seq_along(idx), index = idx)
+        if (tsibble::has_gaps(test)$.gaps) {
+            rlang::abort("Upper bound of `model_range` exceeds `t_range`.")
+        }
+    }
     if (is.null(xlab)) {
         xlab <- dplyr::case_when(
             is.numeric(x$index) ~ "Year",
