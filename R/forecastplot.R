@@ -251,12 +251,12 @@ plot.inz_frct <- function(x, t_range = NULL, xlab = NULL, ylab = NULL, title = N
             ))
             t_range <- lubridate::ymd(paste0(t_range, c("0101", "1231")))
             x <- x |> dplyr::filter(
-                dplyr::between(lubridate::as_date(index), t_range[1], t_range[2]) | .model != "Raw data"
+                dplyr::between(lubridate::as_date(index), t_range[1], t_range[2]) | .model == "Prediction"
             )
         } else if (is.numeric(x[[tsibble::index_var(x)]]) && inherits(t_range, "Date")) {
             t_range[na_i] <- lubridate::ymd(paste0(ifelse(na_i - 1, dplyr::last(x$index), x$index[1]), "0101"))
             x <- x |> dplyr::filter(
-                dplyr::between(index, lubridate::year(t_range[1]), lubridate::year(t_range[2])) | .model != "Raw data"
+                dplyr::between(index, lubridate::year(t_range[1]), lubridate::year(t_range[2])) | .model == "Prediction"
             )
         } else {
             t_range[na_i] <- dplyr::case_when(
@@ -264,7 +264,7 @@ plot.inz_frct <- function(x, t_range = NULL, xlab = NULL, ylab = NULL, title = N
                 TRUE ~ x$index[1]
             )
             x <- x |> dplyr::filter(
-                dplyr::between(index, t_range[1], t_range[2]) | .model != "Raw data"
+                dplyr::between(index, t_range[1], t_range[2]) | .model == "Prediction"
             )
         }
         idx <- unique(dplyr::filter(tsibble::fill_gaps(x), .model != "Fitted")$index)
