@@ -16,6 +16,7 @@
   pal = NULL,
   smoother = TRUE,
   sm_model = "stl",
+  t = 0,
   mult_fit = FALSE,
   emphasise = NULL,
   non_emph_opacity = 0.2,
@@ -50,6 +51,8 @@ be in the same order per the rows of \code{tsibble::key_data(x)}.}
 
 \item{sm_model}{the smoothing method to be used}
 
+\item{t}{the smoothing parameter (between 0 and 100)}
+
 \item{mult_fit}{If \code{TRUE}, a multiplicative model is used, otherwise
 an additive model is used by default.}
 
@@ -79,10 +82,13 @@ Draws a plot of a given inzightts (\code{inz_ts}) object with the trend superimp
 }
 \examples{
 t <- inzightts(visitorsQ, var = c(2, 4))
+
+\dontrun{
 plot(t)
 plot(t, var = names(t)[-1])
 plot(t, var = "Japan")
 plot(t, mult_fit = TRUE)
+}
 
 }
 \seealso{

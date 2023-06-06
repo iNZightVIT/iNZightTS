@@ -9,41 +9,46 @@ knitr::opts_chunk$set(
     echo = TRUE,
     collapse = TRUE,
     comment = "#>",
-    fig.path = "man/figures",
+    fig.path = "man/figures/",
     out.width = "100%"
 )
 options(width = 100)
 ```
 
-# iNZightTS: Time Series Visualisation and Forecasting
+# iNZightTS2: Time Series Visualisation and Forecasting
 
-[![R-CMD-check](https://github.com/iNZightVIT/iNZightTS/workflows/R-CMD-check/badge.svg)](https://github.com/iNZightVIT/iNZightTS/actions?workflow=R-CMD-check)
-[![Codecov test coverage](https://codecov.io/gh/iNZightVIT/iNZightTS/branch/master/graph/badge.svg)](https://codecov.io/gh/iNZightVIT/iNZightTS?branch=master)
-[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
+[![R-CMD-check](https://github.com/iNZightVIT/iNZightTS2/workflows/R-CMD-check/badge.svg)](https://github.com/iNZightVIT/iNZightTS2/actions?workflow=R-CMD-check)
+[![Codecov test
+coverage](https://codecov.io/gh/iNZightVIT/iNZightTS2/branch/dev/graph/badge.svg)](https://codecov.io/gh/iNZightVIT/iNZightTS2?branch=dev)
+[![License: GPL
+v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
 [![CRAN](https://www.r-pkg.org/badges/version/iNZightTS)](https://CRAN.R-project.org/package=iNZightTS)
+
+<!-- [![CRAN](https://www.r-pkg.org/badges/version/iNZightTS2)](https://CRAN.R-project.org/package=iNZightTS2) -->
 
 ## Overview
 
-The iNZightTS package provides some simple analysis tools for exploring time series data, which is used by [iNZight](https://github.com/iNZightVIT/iNZight). The package uses [tidyverts](https://tidyverts.org/) to store and process time series data and [ggplot2](https://github.com/tidyverse/ggplot2) to produce customisable graphics.
+The iNZightTS2 package provides some simple analysis tools for exploring time series data, which is used by [iNZight](https://github.com/iNZightVIT/iNZight). The package uses [tidyverts](https://tidyverts.org/) to store and process time series data and [ggplot2](https://github.com/tidyverse/ggplot2) to produce customisable graphics.
 
 ## Installation
 
-The *stable* version can be installed from [CRAN](https://cran.r-project.org/web/packages/iNZightTS/index.html):
+<!-- The _stable_ version can be installed from [CRAN](https://cran.r-project.org/web/packages/iNZightTS2/index.html):
 
 ```{r cran, eval = FALSE}
-install.packages("iNZightTS")
-```
+install.packages("iNZightTS2")
+``` 
+-->
 
-Or install the *development* version from [GitHub](https://github.com/iNZightVIT/iNZightTS):
+Install from [GitHub](https://github.com/iNZightVIT/iNZightTS2):
 
 ```{r github, eval = FALSE}
-remotes::install_github("iNZightVIT/iNZightTS")
+remotes::install_github("iNZightVIT/iNZightTS2")
 ```
 
 ## Usage
 
 ```{r pkgs}
-library(iNZightTS)
+library(iNZightTS2)
 library(dplyr)
 library(tidyr)
 ```
@@ -53,8 +58,8 @@ library(tidyr)
 Use the `inzightts` function to create a temporal data set to be used by the functions of the package. The data is stored as a [tsibble](https://github.com/tidyverts/tsibble).
 
 ```{r data}
-data <- visitorsQ %>%
-    pivot_longer(!Date, names_to = "Country", values_to = "Visitors") %>%
+data <- visitorsQ |>
+    pivot_longer(!Date, names_to = "Country", values_to = "Visitors") |>
     inzightts(key = "Country")
 data
 ```
@@ -72,9 +77,9 @@ plot(data)
 Time series data often exhibit features such as trend, season and cycle. A decomposition plot breaks the data into visual components which simplies the analysis.
 
 ```{r decomp}
-dcmp <- data %>%
-    filter(Country == "Australia") %>%
-    inzightts() %>%
+dcmp <- data |>
+    filter(Country == "Australia") |>
+    inzightts() |>
     decomp()
 dcmp
 ```

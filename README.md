@@ -1,5 +1,5 @@
 
-# iNZightTS: Time Series Visualisation and Forecasting
+# iNZightTS2: Time Series Visualisation and Forecasting
 
 [![R-CMD-check](https://github.com/iNZightVIT/iNZightTS2/workflows/R-CMD-check/badge.svg)](https://github.com/iNZightVIT/iNZightTS2/actions?workflow=R-CMD-check)
 [![Codecov test
@@ -8,9 +8,11 @@ coverage](https://codecov.io/gh/iNZightVIT/iNZightTS2/branch/dev/graph/badge.svg
 v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
 [![CRAN](https://www.r-pkg.org/badges/version/iNZightTS)](https://CRAN.R-project.org/package=iNZightTS)
 
+<!-- [![CRAN](https://www.r-pkg.org/badges/version/iNZightTS2)](https://CRAN.R-project.org/package=iNZightTS2) -->
+
 ## Overview
 
-The iNZightTS package provides some simple analysis tools for exploring
+The iNZightTS2 package provides some simple analysis tools for exploring
 time series data, which is used by
 [iNZight](https://github.com/iNZightVIT/iNZight). The package uses
 [tidyverts](https://tidyverts.org/) to store and process time series
@@ -19,24 +21,24 @@ customisable graphics.
 
 ## Installation
 
-The *stable* version can be installed from
-[CRAN](https://cran.r-project.org/web/packages/iNZightTS/index.html):
+<!-- The _stable_ version can be installed from [CRAN](https://cran.r-project.org/web/packages/iNZightTS2/index.html):
 
-``` r
-install.packages("iNZightTS")
+
+```r
+install.packages("iNZightTS2")
 ```
+-->
 
-Or install the *development* version from
-[GitHub](https://github.com/iNZightVIT/iNZightTS):
+Install from [GitHub](https://github.com/iNZightVIT/iNZightTS2):
 
 ``` r
-remotes::install_github("iNZightVIT/iNZightTS")
+remotes::install_github("iNZightVIT/iNZightTS2")
 ```
 
 ## Usage
 
 ``` r
-library(iNZightTS)
+library(iNZightTS2)
 library(dplyr)
 library(tidyr)
 ```
@@ -48,8 +50,8 @@ the functions of the package. The data is stored as a
 [tsibble](https://github.com/tidyverts/tsibble).
 
 ``` r
-data <- visitorsQ %>%
-    pivot_longer(!Date, names_to = "Country", values_to = "Visitors") %>%
+data <- visitorsQ |>
+    pivot_longer(!Date, names_to = "Country", values_to = "Visitors") |>
     inzightts(key = "Country")
 data
 #> # A tsibble: 216 x 3 [1Q]
@@ -78,7 +80,7 @@ plot.
 plot(data)
 ```
 
-<img src="man/figuresraw-plot-1.png" width="100%" />
+<img src="man/figures/raw-plot-1.png" width="100%" />
 
 ### Decompositions
 
@@ -87,34 +89,35 @@ A decomposition plot breaks the data into visual components which
 simplies the analysis.
 
 ``` r
-dcmp <- data %>%
-    filter(Country == "Australia") %>%
-    inzightts() %>%
+dcmp <- data |>
+    filter(Country == "Australia") |>
+    inzightts() |>
     decomp()
 dcmp
 #> # A dable: 54 x 8 [1Q]
 #> # Key:     Country, .model [1]
 #> # :        Visitors = trend + season_year + remainder
-#>    Country   .model                        index Visitors  trend season_year remainder season_adjust
-#>  * <chr>     <chr>                         <qtr>    <dbl>  <dbl>       <dbl>     <dbl>         <dbl>
-#>  1 Australia feasts::STL(Visitors ~ tre… 1998 Q4    20288 16858.       2191.     1239.        18097.
-#>  2 Australia feasts::STL(Visitors ~ tre… 1999 Q1    22047 17586.       7515.    -3054.        14532.
-#>  3 Australia feasts::STL(Visitors ~ tre… 1999 Q2    14362 18173.      -5731.     1920.        20093.
-#>  4 Australia feasts::STL(Visitors ~ tre… 1999 Q3    15775 18928.      -3975.      822.        19750.
-#>  5 Australia feasts::STL(Visitors ~ tre… 1999 Q4    21209 19248.       2191.     -230.        19018.
-#>  6 Australia feasts::STL(Visitors ~ tre… 2000 Q1    25261 19601.       7515.    -1855.        17746.
-#>  7 Australia feasts::STL(Visitors ~ tre… 2000 Q2    15891 20127.      -5731.     1496.        21622.
-#>  8 Australia feasts::STL(Visitors ~ tre… 2000 Q3    17117 20652.      -3975.      439.        21092.
-#>  9 Australia feasts::STL(Visitors ~ tre… 2000 Q4    22761 20972.       2191.     -402.        20570.
-#> 10 Australia feasts::STL(Visitors ~ tre… 2001 Q1    27539 21528.       7515.    -1504.        20024.
-#> # … with 44 more rows
+#>    Country   .model                                     index Visit…¹  trend seaso…² remai…³ seaso…⁴
+#>  * <chr>     <chr>                                      <qtr>   <dbl>  <dbl>   <dbl>   <dbl>   <dbl>
+#>  1 Australia feasts::STL(Visitors ~ trend() + season… 1998 Q4   20288 16858.   2191.   1239.  18097.
+#>  2 Australia feasts::STL(Visitors ~ trend() + season… 1999 Q1   22047 17586.   7515.  -3054.  14532.
+#>  3 Australia feasts::STL(Visitors ~ trend() + season… 1999 Q2   14362 18173.  -5731.   1920.  20093.
+#>  4 Australia feasts::STL(Visitors ~ trend() + season… 1999 Q3   15775 18928.  -3975.    822.  19750.
+#>  5 Australia feasts::STL(Visitors ~ trend() + season… 1999 Q4   21209 19248.   2191.   -230.  19018.
+#>  6 Australia feasts::STL(Visitors ~ trend() + season… 2000 Q1   25261 19601.   7515.  -1855.  17746.
+#>  7 Australia feasts::STL(Visitors ~ trend() + season… 2000 Q2   15891 20127.  -5731.   1496.  21622.
+#>  8 Australia feasts::STL(Visitors ~ trend() + season… 2000 Q3   17117 20652.  -3975.    439.  21092.
+#>  9 Australia feasts::STL(Visitors ~ trend() + season… 2000 Q4   22761 20972.   2191.   -402.  20570.
+#> 10 Australia feasts::STL(Visitors ~ trend() + season… 2001 Q1   27539 21528.   7515.  -1504.  20024.
+#> # … with 44 more rows, and abbreviated variable names ¹​Visitors, ²​season_year, ³​remainder,
+#> #   ⁴​season_adjust
 ```
 
 ``` r
 plot(dcmp, title = "Visitors to Australia")
 ```
 
-<img src="man/figuresdecomp-plot-1.png" width="100%" />
+<img src="man/figures/decomp-plot-1.png" width="100%" />
 
 ### Visualising seasonal effects
 
@@ -125,13 +128,13 @@ series data.
 seasonplot(data)
 ```
 
-<img src="man/figuresseason-plot-1.png" width="100%" />
+<img src="man/figures/season-plot-1.png" width="100%" />
 
 ``` r
 subseries(data)
 ```
 
-<img src="man/figuressubseries-plot-1.png" width="100%" />
+<img src="man/figures/subseries-plot-1.png" width="100%" />
 
 ### Forecasting
 
@@ -192,4 +195,4 @@ summary(pred)
 plot(pred)
 ```
 
-<img src="man/figuresforecast-plot-1.png" width="100%" />
+<img src="man/figures/forecast-plot-1.png" width="100%" />

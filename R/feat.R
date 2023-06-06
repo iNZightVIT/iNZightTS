@@ -16,20 +16,20 @@
 #'
 #' @examples
 #' t <- inzightts(visitorsQ)
+#' \dontrun{
 #' subseries(t)
+#' }
 #'
 #' @export
 subseries <- function(x, var = NULL, show_mean = TRUE, xlab = NULL,
                       ylab = NULL, title = NULL) {
     var <- guess_plot_var(x, !!enquo(var))
-
     if (tsibble::n_keys(x) > 1) {
-        x <- x %>%
-            dplyr::mutate(
-                .key = rlang::eval_tidy(rlang::new_quosure(expr(interaction(!!!(
-                    lapply(tsibble::key_vars(.), function(i) .[[i]])
-                ), sep = "/"))))
-            ) %>%
+        x <- dplyr::mutate(x,
+            .key = rlang::inject(interaction(!!!(
+                lapply(tsibble::key_vars(x), function(i) x[[i]])
+            ), sep = "/"))
+        ) |>
             tsibble::update_tsibble(key = .key)
     }
     if (is.null(xlab)) {
@@ -39,7 +39,6 @@ subseries <- function(x, var = NULL, show_mean = TRUE, xlab = NULL,
         )
     }
     x <- dplyr::rename(x, !!dplyr::first(xlab) := index)
-
     if (is.null(ylab)) {
         ylab <- as.character(var)
         if (length(var) > 1) ylab <- ylab[-1]
@@ -55,7 +54,6 @@ subseries <- function(x, var = NULL, show_mean = TRUE, xlab = NULL,
             rlang::abort("var and ylab should have the same length.")
         }
     }
-
     (if (length(var) < 3) {
         var <- sym(dplyr::last(as.character(var)))
         plot_subseries(x, var, show_mean, ylab, title)
@@ -64,21 +62,18 @@ subseries <- function(x, var = NULL, show_mean = TRUE, xlab = NULL,
             y_var <- as.character(var)[i + 1]
             plot_subseries(x, sym(y_var), show_mean, ylab[i], title)
         })
-        expr(patchwork::wrap_plots(!!!p_ls)) %>%
-            rlang::new_quosure() %>%
-            rlang::eval_tidy() +
+        rlang::inject(patchwork::wrap_plots(!!!p_ls)) +
             patchwork::plot_layout(ncol = 1, guides = "collect") +
             patchwork::plot_annotation(title = title) &
             ggplot2::theme(legend.position = "bottom")
-    }) %>% structure(use.plotly = ggplotable(.))
+    }) |> (\(.) structure(., use.plotly = ggplotable(.)))()
 }
 
 
 plot_subseries <- function(x, var, show_mean, ylab, title) {
     p <- feasts::gg_subseries(x, !!var) +
         ggplot2::labs(y = ylab, title = title)
-
-    if (!show_mean | tsibble::n_keys(x) > 1) {
+    if (!show_mean || tsibble::n_keys(x) > 1) {
         p$layers[[2]] <- NULL
     }
     if (tsibble::n_keys(x) > 1) {
@@ -93,6 +88,5 @@ plot_subseries <- function(x, var, show_mean, ylab, title) {
             legend.title = element_blank()
         )
     }
-
     p
 }

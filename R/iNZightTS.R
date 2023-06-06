@@ -1,46 +1,45 @@
 format_index <- function(x) {
     x <- as.character(x)
-
     if (all(grepl("^[Y]?[0-9]+$", x, TRUE))) {
         x <- as.numeric(gsub("^[Y]?", "", x, TRUE))
-    } else if (all(grepl("^[Y]?[0-9]+[M][0-9]+$", x, TRUE))) {
+    } else if (all(grepl("^[Y]?[0-9]+\\s?[M][0-9]+$", x, TRUE))) {
         x <- tsibble::yearmonth(gsub("^[Y]?", "", x, TRUE))
-    } else if (all(grepl("^[Y]?[0-9]+[Q][0-9]+$", x, TRUE))) {
-        x <- gsub("^[Y]?([0-9]+[Q])[0-9]?([0-9]{1})$", "\\1\\2", x, TRUE) %>%
+    } else if (all(grepl("^[Y]?[0-9]+\\s?[Q][0-9]+$", x, TRUE))) {
+        x <- gsub("^[Y]?([0-9]+\\s?[Q])[0-9]?([0-9]{1})$", "\\1\\2", x, TRUE) |>
             tsibble::yearquarter()
-    } else if (all(grepl("^[Y]?[0-9]+[W][0-9]+$", x, TRUE))) {
+    } else if (all(grepl("^[Y]?[0-9]+\\s?[W][0-9]+$", x, TRUE))) {
         x <- tsibble::yearweek(gsub("^[Y]?", "", x, TRUE))
-    } else if (all(grepl("^[Y]?[0-9]+[D][0-9]+$", x, TRUE))) {
-        y <- (gsub("^[Y]?([0-9]+)[D][0-9]+$", "\\1", x, TRUE) %>%
-            paste0("0101") %>%
-            as.numeric() %>%
-            lubridate::ymd())
-        d <- (gsub("^[Y]?[0-9]+[D]([0-9]+)$", "\\1", x, TRUE) %>%
-            as.numeric() - 1) %>%
+    } else if (all(grepl("^[Y]?[0-9]+\\s?[D][0-9]+$", x, TRUE))) {
+        ## Two-digit decimal year will be assumed as "20XX"
+        y <- gsub("^[Y]?([0-9]+\\s?)[D][0-9]+$", "\\1", x, TRUE) |>
+            paste0("0101") |>
+            as.numeric() |>
+            lubridate::ymd()
+        d <- (gsub("^[Y]?[0-9]+\\s?[D]([0-9]+)$", "\\1", x, TRUE) |>
+            as.numeric() - 1) |>
             lubridate::days()
         x <- y + d
     } else if (all(grepl("^[W][0-9]+[D][0-9]+$", x, TRUE))) {
         y <- lubridate::ymd("00010101")
-        w <- (gsub("^[W]([0-9]+)[D][0-9]+$", "\\1", x, TRUE) %>%
-            as.numeric() - 1) %>%
+        w <- (gsub("^[W]([0-9]+)[D][0-9]+$", "\\1", x, TRUE) |>
+            as.numeric() - 1) |>
             lubridate::weeks()
-        d <- (gsub("^[W][0-9]+[D]([0-9]+)$", "\\1", x, TRUE) %>%
-            as.numeric() - 1) %>%
+        d <- (gsub("^[W][0-9]+[D]([0-9]+)$", "\\1", x, TRUE) |>
+            as.numeric() - 1) |>
             lubridate::days()
         x <- y + w + d
     } else if (all(grepl("^[D][0-9]+[H][0-9]+$", x, TRUE))) {
         y <- lubridate::ymd("00010101")
-        d <- (gsub("^[D]([0-9]+)[H][0-9]+$", "\\1", x, TRUE) %>%
-            as.numeric() - 1) %>%
+        d <- (gsub("^[D]([0-9]+)[H][0-9]+$", "\\1", x, TRUE) |>
+            as.numeric() - 1) |>
             lubridate::days()
-        h <- gsub("^[D][0-9]+[H]([0-9]+)$", "\\1", x, TRUE) %>%
-            as.numeric() %>%
+        h <- gsub("^[D][0-9]+[H]([0-9]+)$", "\\1", x, TRUE) |>
+            as.numeric() |>
             lubridate::hours()
         x <- y + d + h
     } else {
         rlang::abort("Invalid index format")
     }
-
     x
 }
 
@@ -99,7 +98,9 @@ format_index <- function(x) {
 #' @examples
 #' # create from a ts object
 #' z <- inzightts(UKgas)
+#' \dontrun{
 #' plot(z)
+#' }
 #'
 #' # create from a data.frame
 #' x <- inzightts(
@@ -117,7 +118,9 @@ format_index <- function(x) {
 #'     data.frame(Return = rnorm(100)),
 #'     start = c(1990, 1), end = c(1993, 5), freq = 12, var = 1
 #' )
+#' \dontrun{
 #' plot(y)
+#' }
 #'
 #' @export
 inzightts <- function(x, ...) {
@@ -153,21 +156,15 @@ inzightts.character <- function(x, stringsAsFactors = TRUE, as.is = TRUE, ...) {
 #' @export
 inzightts.data.frame <- function(x, var = NULL, index = NULL, key = NULL,
                                  start = NULL, end = NULL, freq = NULL, ...) {
-    if (is.null(index) & sum(is.null(start), is.null(end), is.null(freq)) > 1) {
+    if (is.null(index) && sum(is.null(start), is.null(end), is.null(freq)) > 1) {
         index <- grep("time|date|index", names(x), ignore.case = TRUE)[1]
     }
-
     if (is.numeric(index)) index <- names(x)[index]
     if (is.numeric(key)) key <- names(x)[key]
-
-    if (is.null(var)) {
-        var <- seq_len(ncol(x))
-    }
+    if (is.null(var)) var <- seq_len(ncol(x))
     if (is.numeric(var)) var <- names(x)[var]
-
     x <- dplyr::select(x, !!unique(na.omit(c(index, var))))
-
-    if (is.null(index) | isTRUE(is.na(index))) {
+    if (is.null(index) || isTRUE(is.na(index))) {
         if (sum(is.null(start), is.null(end), is.null(freq)) > 1) {
             rlang::abort("Unable to automatically identify the index column.")
         }
@@ -175,24 +172,21 @@ inzightts.data.frame <- function(x, var = NULL, index = NULL, key = NULL,
         if (!is.null(start)) ts_spec$start <- start
         if (!is.null(end)) ts_spec$end <- end
         if (!is.null(freq)) ts_spec$freq <- freq
-        inzightts <- expr(ts(x[, var], !!!ts_spec)) %>%
-            rlang::new_quosure() %>%
-            rlang::eval_tidy()
-    } else if (inherits(x[[index]], "Date") | inherits(x[[index]], "vctrs_vctr")) {
+        inzightts <- rlang::inject(ts(x[, var], !!!ts_spec))
+    } else if (inherits(x[[index]], "Date") || inherits(x[[index]], "vctrs_vctr")) {
         inzightts <- try(
             tsibble::as_tsibble(x, index = !!index, key = !!key),
             silent = TRUE
         )
     } else if (
-        is.character(x[[index]]) | is.factor(x[[index]]) | is.numeric(x[[index]])
+        is.character(x[[index]]) || is.factor(x[[index]]) || is.numeric(x[[index]])
     ) {
         inzightts <- try(
-            dplyr::mutate(x, !!index := format_index(!!sym(index))) %>%
+            dplyr::mutate(x, !!index := format_index(!!sym(index))) |>
                 tsibble::as_tsibble(index = !!index, key = !!key),
             silent = TRUE
         )
     }
-
     if (inherits(inzightts, "try-error")) {
         rlang::abort("Invalid data. Maybe you forgot to specify `key`?")
     } else {
@@ -216,11 +210,10 @@ inzightts.ts <- function(x, var_name = NULL, pivot_longer = FALSE, ...) {
     } else {
         if (is.null(var_name)) var_name <- "value"
         pivot_longer <- NULL
-        inzightts <- x %>%
-            tsibble::as_tsibble(...) %>%
+        inzightts <- x |>
+            tsibble::as_tsibble(...) |>
             dplyr::rename(!!sym(var_name) := value)
     }
-
     inzightts(inzightts)
 }
 
@@ -229,8 +222,8 @@ inzightts.ts <- function(x, var_name = NULL, pivot_longer = FALSE, ...) {
 #'
 #' @export
 inzightts.tbl_ts <- function(x, ...) {
-    x %>%
-        dplyr::rename(index = !!tsibble::index(x)) %>%
-        tsibble::fill_gaps() %>%
+    x |>
+        dplyr::rename(index = !!tsibble::index(x)) |>
+        tsibble::fill_gaps() |>
         tsibble::new_tsibble(..., class = "inz_ts")
 }

@@ -19,9 +19,7 @@ decomp(
   recompose.progress = c(0, 0),
   recompose = any(recompose.progress > 0),
   ylab = NULL,
-  xlab = "Date",
   title = NULL,
-  xlim = c(NA, NA),
   colour = c("#1B9E46", "#45a8ff", "orangered"),
   ...
 )
@@ -51,11 +49,7 @@ how many observations have been recomposed so far}
 
 \item{ylab}{the label for the y axis}
 
-\item{xlab}{the label for the x axis}
-
 \item{title}{the title for the plot}
-
-\item{xlim}{the x axis limits}
 
 \item{colour}{vector of three colours for trend, seasonal, and residuals, respectively}
 }
@@ -66,11 +60,12 @@ a decomp (\code{inz_dcmp}) object, a sub-class of dable
 Decompose a time series object
 }
 \examples{
-library(dplyr)
-d <- visitorsQ \%>\%
-    inzightts() \%>\%
-    decomp() \%>\%
-    plot()
+ts <- inzightts(visitorsQ)
+d <- decomp(ts)
+
+\dontrun{
+plot(d)
+}
 
 }
 \references{
