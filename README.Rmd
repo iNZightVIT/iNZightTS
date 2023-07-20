@@ -24,7 +24,7 @@ coverage](https://codecov.io/gh/iNZightVIT/iNZightTS/branch/dev/graph/badge.svg)
 v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
 [![CRAN](https://www.r-pkg.org/badges/version/iNZightTS)](https://CRAN.R-project.org/package=iNZightTS)
 
-<!-- [![CRAN](https://www.r-pkg.org/badges/version/iNZightTS)](https://CRAN.R-project.org/package=iNZightTS) -->
+[![CRAN](https://www.r-pkg.org/badges/version/iNZightTS)](https://CRAN.R-project.org/package=iNZightTS)
 
 ## Overview
 
@@ -32,12 +32,11 @@ The iNZightTS package provides some simple analysis tools for exploring time ser
 
 ## Installation
 
-<!-- The _stable_ version can be installed from [CRAN](https://cran.r-project.org/web/packages/iNZightTS/index.html):
+The _stable_ version can be installed from [CRAN](https://cran.r-project.org/web/packages/iNZightTS/index.html):
 
 ```{r cran, eval = FALSE}
 install.packages("iNZightTS")
-``` 
--->
+```
 
 Install from [GitHub](https://github.com/iNZightVIT/iNZightTS):
 

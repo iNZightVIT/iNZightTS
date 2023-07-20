@@ -8,7 +8,7 @@ coverage](https://codecov.io/gh/iNZightVIT/iNZightTS/branch/dev/graph/badge.svg)
 v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
 [![CRAN](https://www.r-pkg.org/badges/version/iNZightTS)](https://CRAN.R-project.org/package=iNZightTS)
 
-<!-- [![CRAN](https://www.r-pkg.org/badges/version/iNZightTS)](https://CRAN.R-project.org/package=iNZightTS) -->
+[![CRAN](https://www.r-pkg.org/badges/version/iNZightTS)](https://CRAN.R-project.org/package=iNZightTS)
 
 ## Overview
 
@@ -21,13 +21,12 @@ customisable graphics.
 
 ## Installation
 
-<!-- The _stable_ version can be installed from [CRAN](https://cran.r-project.org/web/packages/iNZightTS/index.html):
+The *stable* version can be installed from
+[CRAN](https://cran.r-project.org/web/packages/iNZightTS/index.html):
 
-
-```r
+``` r
 install.packages("iNZightTS")
 ```
--->
 
 Install from [GitHub](https://github.com/iNZightVIT/iNZightTS):
 
@@ -68,7 +67,7 @@ data
 #>  8 2000 Q3 Australia    17117
 #>  9 2000 Q4 Australia    22761
 #> 10 2001 Q1 Australia    27539
-#> # … with 206 more rows
+#> # ℹ 206 more rows
 ```
 
 ### Graphics
@@ -97,20 +96,19 @@ dcmp
 #> # A dable: 54 x 8 [1Q]
 #> # Key:     Country, .model [1]
 #> # :        Visitors = trend + season_year + remainder
-#>    Country   .model                                     index Visit…¹  trend seaso…² remai…³ seaso…⁴
-#>  * <chr>     <chr>                                      <qtr>   <dbl>  <dbl>   <dbl>   <dbl>   <dbl>
-#>  1 Australia feasts::STL(Visitors ~ trend() + season… 1998 Q4   20288 16858.   2191.   1239.  18097.
-#>  2 Australia feasts::STL(Visitors ~ trend() + season… 1999 Q1   22047 17586.   7515.  -3054.  14532.
-#>  3 Australia feasts::STL(Visitors ~ trend() + season… 1999 Q2   14362 18173.  -5731.   1920.  20093.
-#>  4 Australia feasts::STL(Visitors ~ trend() + season… 1999 Q3   15775 18928.  -3975.    822.  19750.
-#>  5 Australia feasts::STL(Visitors ~ trend() + season… 1999 Q4   21209 19248.   2191.   -230.  19018.
-#>  6 Australia feasts::STL(Visitors ~ trend() + season… 2000 Q1   25261 19601.   7515.  -1855.  17746.
-#>  7 Australia feasts::STL(Visitors ~ trend() + season… 2000 Q2   15891 20127.  -5731.   1496.  21622.
-#>  8 Australia feasts::STL(Visitors ~ trend() + season… 2000 Q3   17117 20652.  -3975.    439.  21092.
-#>  9 Australia feasts::STL(Visitors ~ trend() + season… 2000 Q4   22761 20972.   2191.   -402.  20570.
-#> 10 Australia feasts::STL(Visitors ~ trend() + season… 2001 Q1   27539 21528.   7515.  -1504.  20024.
-#> # … with 44 more rows, and abbreviated variable names ¹​Visitors, ²​season_year, ³​remainder,
-#> #   ⁴​season_adjust
+#>    Country   .model                        index Visitors  trend season_year remainder season_adjust
+#>  * <chr>     <chr>                         <qtr>    <dbl>  <dbl>       <dbl>     <dbl>         <dbl>
+#>  1 Australia feasts::STL(Visitors ~ tre… 1998 Q4    20288 16858.       2191.     1239.        18097.
+#>  2 Australia feasts::STL(Visitors ~ tre… 1999 Q1    22047 17586.       7515.    -3054.        14532.
+#>  3 Australia feasts::STL(Visitors ~ tre… 1999 Q2    14362 18173.      -5731.     1920.        20093.
+#>  4 Australia feasts::STL(Visitors ~ tre… 1999 Q3    15775 18928.      -3975.      822.        19750.
+#>  5 Australia feasts::STL(Visitors ~ tre… 1999 Q4    21209 19248.       2191.     -230.        19018.
+#>  6 Australia feasts::STL(Visitors ~ tre… 2000 Q1    25261 19601.       7515.    -1855.        17746.
+#>  7 Australia feasts::STL(Visitors ~ tre… 2000 Q2    15891 20127.      -5731.     1496.        21622.
+#>  8 Australia feasts::STL(Visitors ~ tre… 2000 Q3    17117 20652.      -3975.      439.        21092.
+#>  9 Australia feasts::STL(Visitors ~ tre… 2000 Q4    22761 20972.       2191.     -402.        20570.
+#> 10 Australia feasts::STL(Visitors ~ tre… 2001 Q1    27539 21528.       7515.    -1504.        20024.
+#> # ℹ 44 more rows
 ```
 
 ``` r
