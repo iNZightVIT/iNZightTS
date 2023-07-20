@@ -1,18 +1,18 @@
 
-# iNZightTS2: Time Series Visualisation and Forecasting
+# iNZightTS: Time Series Visualisation and Forecasting
 
-[![R-CMD-check](https://github.com/iNZightVIT/iNZightTS2/workflows/R-CMD-check/badge.svg)](https://github.com/iNZightVIT/iNZightTS2/actions?workflow=R-CMD-check)
+[![R-CMD-check](https://github.com/iNZightVIT/iNZightTS/workflows/R-CMD-check/badge.svg)](https://github.com/iNZightVIT/iNZightTS/actions?workflow=R-CMD-check)
 [![Codecov test
-coverage](https://codecov.io/gh/iNZightVIT/iNZightTS2/branch/dev/graph/badge.svg)](https://codecov.io/gh/iNZightVIT/iNZightTS2?branch=dev)
+coverage](https://codecov.io/gh/iNZightVIT/iNZightTS/branch/dev/graph/badge.svg)](https://codecov.io/gh/iNZightVIT/iNZightTS?branch=dev)
 [![License: GPL
 v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
 [![CRAN](https://www.r-pkg.org/badges/version/iNZightTS)](https://CRAN.R-project.org/package=iNZightTS)
 
-<!-- [![CRAN](https://www.r-pkg.org/badges/version/iNZightTS2)](https://CRAN.R-project.org/package=iNZightTS2) -->
+<!-- [![CRAN](https://www.r-pkg.org/badges/version/iNZightTS)](https://CRAN.R-project.org/package=iNZightTS) -->
 
 ## Overview
 
-The iNZightTS2 package provides some simple analysis tools for exploring
+The iNZightTS package provides some simple analysis tools for exploring
 time series data, which is used by
 [iNZight](https://github.com/iNZightVIT/iNZight). The package uses
 [tidyverts](https://tidyverts.org/) to store and process time series
@@ -21,24 +21,24 @@ customisable graphics.
 
 ## Installation
 
-<!-- The _stable_ version can be installed from [CRAN](https://cran.r-project.org/web/packages/iNZightTS2/index.html):
+<!-- The _stable_ version can be installed from [CRAN](https://cran.r-project.org/web/packages/iNZightTS/index.html):
 
 
 ```r
-install.packages("iNZightTS2")
+install.packages("iNZightTS")
 ```
 -->
 
-Install from [GitHub](https://github.com/iNZightVIT/iNZightTS2):
+Install from [GitHub](https://github.com/iNZightVIT/iNZightTS):
 
 ``` r
-remotes::install_github("iNZightVIT/iNZightTS2")
+remotes::install_github("iNZightVIT/iNZightTS")
 ```
 
 ## Usage
 
 ``` r
-library(iNZightTS2)
+library(iNZightTS)
 library(dplyr)
 library(tidyr)
 ```

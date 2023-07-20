@@ -1,4 +1,4 @@
-#' The iNZightTS2 package provides some simple analysis tools for
+#' The iNZightTS package provides some simple analysis tools for
 #' exploring time series data. It is used in the iNZight software.
 #'
 #' @title Time Series Data Analysis
@@ -9,13 +9,13 @@
 #'
 #' @keywords iNZight
 #'
-#' @seealso \code{\link[iNZightTS2]{inzightts}}
+#' @seealso \code{\link[iNZightTS]{inzightts}}
 #'
 #' @import grid grDevices graphics stats utils
 #' @importFrom rlang .data
 #' @importFrom rlang ':='
 #'
-#' @name iNZightTS2-package
+#' @name iNZightTS-package
 NULL
 
 

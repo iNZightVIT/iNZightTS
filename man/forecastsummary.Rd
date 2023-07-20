@@ -38,5 +38,5 @@ print(s, show_details = TRUE)
 
 }
 \seealso{
-\code{\link[iNZightTS2]{predict.inz_ts}}
+\code{\link[iNZightTS]{predict.inz_ts}}
 }

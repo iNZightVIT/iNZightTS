@@ -408,7 +408,7 @@ plot_forecast_var <- function(x, var, xlab, ylab, title) {
 #'
 #' @rdname forecastsummary
 #'
-#' @seealso \code{\link[iNZightTS2]{predict.inz_ts}}
+#' @seealso \code{\link[iNZightTS]{predict.inz_ts}}
 #'
 #' @examples
 #' ts <- inzightts(visitorsQ, var = 2:5)
