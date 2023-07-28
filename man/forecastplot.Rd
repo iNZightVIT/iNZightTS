@@ -3,7 +3,7 @@
 \name{predict.inz_ts}
 \alias{predict.inz_ts}
 \alias{plot.inz_frct}
-\title{Produce forecasts for inzightts objects}
+\title{Forecast future observations}
 \usage{
 \method{predict}{inz_ts}(
   object,
@@ -19,43 +19,45 @@
 \method{plot}{inz_frct}(x, t_range = NULL, xlab = NULL, ylab = NULL, title = NULL, ...)
 }
 \arguments{
-\item{object}{an inzightts (\code{inz_ts}) object}
+\item{object}{An \code{inzightts} object representing the time series.}
 
-\item{var}{a character vector of the variable(s) to forecast, or \code{NULL}}
+\item{var}{A character vector specifying the variable(s) to forecast, or set
+to \code{NULL} to forecast all variables.}
 
-\item{h}{The forecast horison}
+\item{h}{The forecast horizon, either the number of observations to predict,
+or a character string specifying the time interval to predict
+(e.g., \code{"2 years"}).}
 
-\item{mult_fit}{If \code{TRUE}, a multiplicative model is used, otherwise
-an additive model is used by default.}
+\item{mult_fit}{Logical; set to \code{TRUE} for a multiplicative model, or
+\code{FALSE} for the default additive model.}
 
-\item{pred_model}{a \code{fable} model function name or \code{"auto"}}
+\item{pred_model}{The name of a \code{fable} model function or \code{"auto"}.}
 
-\item{confint_width}{a decimal, the width of the prediction interval}
+\item{confint_width}{A decimal representing the width of the prediction
+interval.}
 
-\item{model_range}{range of data to be fitted for forecasts, specified as
-dates or years}
+\item{model_range}{The range of data to be used for fitting forecasts,
+specified as dates or years.}
 
-\item{...}{additional arguments (ignored)}
+\item{...}{Additional arguments (ignored).}
 
-\item{x}{an \code{inz_frct} object}
+\item{x}{An \code{inz_frct} object containing the forecasts.}
 
-\item{t_range}{range of data to be plotted, specified as dates or years}
+\item{t_range}{The range of data to be plotted, specified as dates or years.}
 
-\item{xlab}{a title for the x axis}
+\item{xlab}{A title for the x-axis of the plot.}
 
-\item{ylab}{a title for the y axis}
+\item{ylab}{A title for the y-axis of the plot.}
 
-\item{title}{a title for the graph}
+\item{title}{A title for the graph.}
 }
 \value{
-an \code{inz_frct} object
+An \code{inz_frct} object containing the forecasts.
 }
 \description{
-Produce future predictions of the time series from an inzightts object.
-}
-\details{
-The output object includes the predicted mean and prediction intervals,
-as well as the raw data and fitted values.
+Generates future predictions of the time series from an \code{inzightts} object.
+The output object includes predicted means, prediction intervals, raw data,
+and fitted values.
 }
 \examples{
 t <- inzightts(visitorsQ, var = c(2, 4))

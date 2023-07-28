@@ -1,16 +1,19 @@
-#' A time series plot faceted by seasonal period.
+#' Time series subseries plot by seasonal period
 #'
-#' @title Seasonal subseries plots for inzightts
+#' Plots seasonal subseries of a time series represented by an `inz_ts` or
+#' `tbl_ts` object. Each subseries represents one seasonal period.
 #'
-#' @param x an inzightts (\code{inz_ts}) or tsibble (\code{tbl_ts}) object
-#' @param var a character vector of the variable(s) to be plotted, or \code{NULL}
-#' @param show_mean logical, if \code{FALSE}, the mean line isn't drawn
-#' @param xlab a title for the x axis
-#' @param ylab a title for the y axis
-#' @param title a title for the graph
-#' @return a \code{numeric}
+#' @title Seasonal Subseries Plots for inzightts
 #'
-#' @rdname subseries
+#' @param x A time series object represented by an `inz_ts` or `tbl_ts` object.
+#' @param var A character vector specifying the variable(s) to be plotted, or
+#'        set to `NULL` to plot all variables.
+#' @param show_mean Logical; set to `FALSE` to exclude the mean line from the plot.
+#' @param xlab A title for the x-axis of the plot.
+#' @param ylab A title for the y-axis of the plot.
+#' @param title A title for the graph.
+#'
+#' @return A ggplot object of the seasonal subseries plot.
 #'
 #' @seealso \code{\link[feasts]{gg_subseries}}
 #'
@@ -21,6 +24,7 @@
 #' }
 #'
 #' @export
+#' @md
 subseries <- function(x, var = NULL, show_mean = TRUE, xlab = NULL,
                       ylab = NULL, title = NULL) {
     var <- guess_plot_var(x, !!enquo(var))

@@ -2,7 +2,7 @@
 % Please edit documentation in R/feat.R
 \name{subseries}
 \alias{subseries}
-\title{Seasonal subseries plots for inzightts}
+\title{Seasonal Subseries Plots for inzightts}
 \usage{
 subseries(
   x,
@@ -14,23 +14,28 @@ subseries(
 )
 }
 \arguments{
-\item{x}{an inzightts (\code{inz_ts}) or tsibble (\code{tbl_ts}) object}
+\item{x}{A time series object represented by an \code{inz_ts} or \code{tbl_ts} object.}
 
-\item{var}{a character vector of the variable(s) to be plotted, or \code{NULL}}
+\item{var}{A character vector specifying the variable(s) to be plotted, or
+set to \code{NULL} to plot all variables.}
 
-\item{show_mean}{logical, if \code{FALSE}, the mean line isn't drawn}
+\item{show_mean}{Logical; set to \code{FALSE} to exclude the mean line from the plot.}
 
-\item{xlab}{a title for the x axis}
+\item{xlab}{A title for the x-axis of the plot.}
 
-\item{ylab}{a title for the y axis}
+\item{ylab}{A title for the y-axis of the plot.}
 
-\item{title}{a title for the graph}
+\item{title}{A title for the graph.}
 }
 \value{
-a \code{numeric}
+A ggplot object of the seasonal subseries plot.
 }
 \description{
-A time series plot faceted by seasonal period.
+Time series subseries plot by seasonal period
+}
+\details{
+Plots seasonal subseries of a time series represented by an \code{inz_ts} or
+\code{tbl_ts} object. Each subseries represents one seasonal period.
 }
 \examples{
 t <- inzightts(visitorsQ)

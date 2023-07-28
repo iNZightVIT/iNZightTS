@@ -2,20 +2,23 @@
 % Please edit documentation in R/forecastplot.R
 \name{log_if}
 \alias{log_if}
-\title{Toggleable log logarithmic transformation}
+\title{Apply logarithmic transformation}
 \usage{
 log_if(x, mult_fit)
 }
 \arguments{
-\item{x}{a \code{numeric}}
+\item{x}{A numeric vector to be transformed.}
 
-\item{mult_fit}{whether or not to apply logarithmic transformation to the input}
+\item{mult_fit}{Logical; set to TRUE to apply logarithmic transformation,
+and FALSE to keep the original input.}
 }
 \value{
-a \code{numeric}
+A \code{numeric} vector after applying the logarithmic transformation (if
+\code{mult_fit = TRUE}); otherwise, it returns the original input.
 }
 \description{
-Log-transform the input if \code{mult_fit = TRUE}, else return the original input.
+Log-transforms the input \code{x} if \code{mult_fit} is TRUE; otherwise, returns the
+original input \code{x} unchanged.
 }
 \examples{
 x <- runif(1e4, 1, 100)

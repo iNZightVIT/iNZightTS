@@ -44,53 +44,44 @@ format_index <- function(x) {
 }
 
 
-#' The function \code{inzightts} is used to create temporal data frames
-#' used in iNZight.
+#' Coerce data to an inzightts (time-series) object
 #'
-#' The function \code{inzightts} is used to create temporal data
-#' frames. Unlike \code{ts} objects, these are tsibble objects
-#' that enables temporal data wrangling adapting to the tidy
-#' data principles, which are both data- and model-oriented.
+#' The function `inzightts` creates temporal data frames for use in iNZight.
+#' Unlike `ts` objects, these are tsibble objects that enable temporal data
+#' wrangling, adapting to tidy data principles, which are both data- and
+#' model-oriented.
 #'
-#' If a \code{ts} object is used to create the inzightts object,
-#' all the domain information is extracted from that object.
+#' If a `ts` object is used to create the inzightts object, all the domain
+#' information is extracted from that object.
 #'
-#' \code{index} should be a \code{character}, \code{Date},
-#' \code{\link[tsibble]{yearweek}}, \code{\link[tsibble]{yearmonth}} or
-#' \code{\link[tsibble]{yearquarter}} object.
+#' The `index` parameter should be a `character`, `Date`,
+#' `yearweek`, `yearmonth`, or `yearquarter` object.
 #'
-#' If \code{index} is a \code{character}, the function recognises the
-#' following time variable formatS without case sensitive:
-#'  \itemize{
-#'   \item "(Y)yyyy" annually data e.g."(Y)1991"
-#'   \item "(Y)yyyyMmm" monthly data e.g."(Y)1991M01"
-#'   \item "(Y)yyyyQqq" quarterly data e.g."(Y)1991Q01"
-#'   \item "(Y)yyyyWww" weekly data with yearly seasonality e.g."(Y)1991W01"
-#'   \item "(Y)yyyyDdd" daily data with yearly seasonality e.g."(Y)1991D01"
-#'   \item "WwwDdd"  daily data with weekly seasonality e.g. "W01D01"
-#'   \item "DddHhh" hourly data with daily seasonality e.g. "D01H01"
-#' }
-#' The length of digits of each time unit could be flexible and allowing space
-#' between the time unit
+#' If `index` is a `character`, the function recognizes the following
+#' time variable formats without case sensitivity:
+#'   - "(Y)yyyy": annually data, e.g., "(Y)1991"
+#'   - "(Y)yyyyMmm": monthly data, e.g., "(Y)1991M01"
+#'   - "(Y)yyyyQqq": quarterly data, e.g., "(Y)1991Q01"
+#'   - "(Y)yyyyWww": weekly data with yearly seasonality, e.g., "(Y)1991W01"
+#'   - "(Y)yyyyDdd": daily data with yearly seasonality, e.g., "(Y)1991D01"
+#'   - "WwwDdd": daily data with weekly seasonality, e.g., "W01D01"
+#'   - "DddHhh": hourly data with daily seasonality, e.g., "D01H01"
 #'
-#' In case of \code{data} being a data.frame or path to a \code{.csv}
-#' file and \code{start} being omitted, the starting date and the
-#' \code{freq} is extracted from the column that includes the time
-#' information. This column is either named \code{"Time"} or is the first
-#' column. If \code{end} is omitted, all of the data will be used for the
-#' time-series.
+#' The length of digits of each time unit could be flexible, and spaces between
+#' the time unit are allowed.
 #'
+#' In case `data` is a data.frame or path to a `.csv` file, and
+#' `start` is omitted, the starting date and the `freq` are extracted
+#' from the column that includes the time information. This column is either
+#' named `"Time"` or is the first column. If `end` is omitted, all of
+#' the data will be used for the time-series.
 #'
-#' @title Coerce to an inzightts (Time-Series) Objects
+#' @param x A `data.frame`, `ts`, tsibble, or path.
+#' @param ... Additional arguments to be passed to or from methods.
 #'
-#' @param x a \code{data.frame}, \code{ts}, tsibble, or path
-#' @param ... additional arguments to be passed to or from methods
-#'
-#' @return an inzightts (\code{inz_ts}) object, a sub-class of tsibble
-#'         which includes the index variable, temporal variable and,
-#'         if applicable, relevant keys.
-#'
-#' @rdname inzightts
+#' @return An `inzightts` (`inz_ts`) object, a sub-class of tsibble,
+#'         which includes the index variable, temporal variable, and, if
+#'         applicable, relevant keys.
 #'
 #' @seealso \code{\link[tsibble]{tsibble}}, \code{\link[tsibble]{as_tsibble}}
 #'          and \code{\link[tsibble]{new_tsibble}}
@@ -123,13 +114,14 @@ format_index <- function(x) {
 #' }
 #'
 #' @export
+#' @md
 inzightts <- function(x, ...) {
     UseMethod("inzightts")
 }
 
 
-#' @param stringsAsFactors see \code{\link[utils]{read.csv}}
-#' @param as.is see \code{\link[utils]{read.csv}}
+#' @param stringsAsFactors See \code{\link[utils]{read.csv}}
+#' @param as.is See \code{\link[utils]{read.csv}}
 #'
 #' @rdname inzightts
 #'
@@ -139,21 +131,22 @@ inzightts.character <- function(x, stringsAsFactors = TRUE, as.is = TRUE, ...) {
 }
 
 
-#' @param var the column number or name for the observations used
-#'        from \code{data} in the actual time series
-#' @param index which column contains the time variable
-#' @param key Variable(s) that uniquely determine time indices
-#' @param start the time of the first observation.
-#'        Either a single number or a vector
-#'        of two integers, which specify a natural time unit
-#'        and a (1-based) number of samples into the time unit
-#' @param end the time of the last observation, specified in the
-#'        same way as \code{start}
-#' @param freq the number of observations per unit of time
+#' @param var The column number or name in `data` representing the observations
+#'            used in the actual time series.
+#' @param index The column number or name in `data` containing the time
+#'        variable.
+#' @param key The variable(s) that uniquely determine time indices.
+#' @param start The time of the first observation. It can be a single number or
+#'             a vector of two integers representing a natural time unit and
+#'             a (1-based) number of samples into the time unit.
+#' @param end The time of the last observation, specified in the same way as
+#'            `start`.
+#' @param freq The number of observations per unit of time.
 #'
 #' @rdname inzightts
 #'
 #' @export
+#' @md
 inzightts.data.frame <- function(x, var = NULL, index = NULL, key = NULL,
                                  start = NULL, end = NULL, freq = NULL, ...) {
     if (is.null(index) && sum(is.null(start), is.null(end), is.null(freq)) > 1) {
@@ -195,14 +188,16 @@ inzightts.data.frame <- function(x, var = NULL, index = NULL, key = NULL,
 }
 
 
-#' @param var_name rename the variable column of the univariate time series,
-#'        applicable only if \code{x} is not an \code{mts} object.
-#' @param pivot_longer logical, \code{TRUE} gives a "longer" form of the data,
-#'        otherwise as is, applicable only if \code{x} is an \code{mts} object.
+#' @param var_name The new name for the variable column of the univariate time
+#'        series, applicable only if `x` is not an `mts` object.
+#' @param pivot_longer Logical; set to `TRUE` to transform data to a "longer"
+#'        form, otherwise keep the current form. Applicable only if `x` is an
+#'        `mts` object.
 #'
 #' @rdname inzightts
 #'
 #' @export
+#' @md
 inzightts.ts <- function(x, var_name = NULL, pivot_longer = FALSE, ...) {
     if (is.mts(x)) {
         var_name <- NULL

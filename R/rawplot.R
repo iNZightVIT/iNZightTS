@@ -59,40 +59,45 @@ cat_y_axis <- function(x) {
 }
 
 
-#' Draws a plot of a given inzightts (\code{inz_ts}) object with the trend superimposed.
+#' Draw a simple time series plot
 #'
-#' @title Draw a simple time series plot
+#' Draws a plot of a given `inzightts` (`inz_ts`) object with the trend
+#' superimposed.
 #'
-#' @param x an inzightts (\code{inz_ts}) object
-#' @param var a character vector of the variable(s) to be plotted, or \code{NULL}
-#' @param xlab a title for the x axis
-#' @param ylab a title for the y axis
-#' @param title a title for the graph
-#' @param xlim axis limits, specified as dates or years
-#' @param aspect the aspect ratio of the plot;
-#'        it will be about \code{aspect} times wider than it is high
-#' @param compare logical, whether to plot the key levels in a single plot
-#' @param pal (only if a categorical variable is passed to \code{var}): the
-#'        colour palette for the categorical plot, the palette vector should
-#'        be in the same order per the rows of \code{tsibble::key_data(x)}.
-#' @param smoother logical, if \code{TRUE} the smoother will be drawn
-#' @param sm_model the smoothing method to be used
-#' @param t the smoothing parameter (between 0 and 100)
-#' @param mult_fit If \code{TRUE}, a multiplicative model is used, otherwise
-#'        an additive model is used by default.
-#' @param emphasise integer vector to specify the key level(s) to focus in the
-#'        plot. The integer maps to the specific key level(s) corresponding to
-#'        the ith row of \code{tsibble::key_data(x)}.
-#' @param non_emph_opacity numeric. If \code{(0, 1]}, this argument determines
-#'        the opacity of the series other than the focused one(s) (to highlight
-#'        the focused series). If \code{non_emph_opacity = 0}, the plot draws
-#'        the focused series in its own scales.
-#' @param show_iso_obs logical, whether to plot isolated observations between
-#'        time series gaps or not, if there is any
-#' @param iso_obs_size numeric, scaling the size of isolated observations, if
-#'        \code{show_iso_obs = TRUE} and they exists
-#' @param ... additional arguments (ignored)
-#' @return a time series plot (constructed with ggplot2) is returned, which
+#' @param x An `inzightts` (`inz_ts`) object representing the time series.
+#' @param var A character vector specifying the variable(s) to be plotted,
+#'        or set to `NULL`.
+#' @param xlab A title for the x-axis of the plot.
+#' @param ylab A title for the y-axis of the plot.
+#' @param title A title for the graph.
+#' @param xlim Axis limits, specified as dates or years.
+#' @param aspect The aspect ratio of the plot; it will be about `aspect` times
+#'        wider than it is high.
+#' @param compare Logical; set to `TRUE` to plot the key levels in a single
+#'        plot.
+#' @param pal (Only if a categorical variable is passed to `var`): The colour
+#'        palette for the categorical plot. The palette vector should be in
+#'        the same order per the rows of `tsibble::key_data(x)`.
+#' @param smoother Logical; if `TRUE`, the smoother will be drawn.
+#' @param sm_model The smoothing method to be used.
+#' @param t The smoothing parameter (between 0 and 100).
+#' @param mult_fit Logical; set to `TRUE` for a multiplicative model, or
+#'        `FALSE` for the default additive model.
+#' @param emphasise Integer vector to specify the key level(s) to focus in the
+#'        plot. The integer maps to the specific key level(s)
+#'        corresponding to the ith row of `tsibble::key_data(x)`.
+#' @param non_emph_opacity Numeric. If `(0, 1]`, this argument determines the
+#'        opacity of the series other than the focused one(s)
+#'        (to highlight the focused series). If
+#'        `non_emph_opacity = 0`, the plot draws the focused
+#'        series in its own scales.
+#' @param show_iso_obs Logical; set to `TRUE` to plot isolated observations
+#'        between time series gaps (if any).
+#' @param iso_obs_size Numeric; scaling the size of isolated observations,
+#'        if `show_iso_obs = TRUE` and they exist.
+#' @param ... Additional arguments (ignored).
+#'
+#' @return A time series plot (constructed with ggplot2) is returned, which
 #'         can be added to if desired.
 #'
 #' @seealso \code{\link[tsibble]{key_data}}
@@ -114,6 +119,7 @@ cat_y_axis <- function(x) {
 #' }
 #'
 #' @export
+#' @md
 plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
                         xlim = NULL, aspect = NULL, compare = TRUE, pal = NULL,
                         smoother = TRUE, sm_model = "stl", t = 0, mult_fit = FALSE,

@@ -1,10 +1,13 @@
-#' Log-transform the input if \code{mult_fit = TRUE}, else return the original input.
+#' Apply logarithmic transformation
 #'
-#' @title Toggleable log logarithmic transformation
+#' Log-transforms the input `x` if `mult_fit` is TRUE; otherwise, returns the
+#' original input `x` unchanged.
 #'
-#' @param x a \code{numeric}
-#' @param mult_fit whether or not to apply logarithmic transformation to the input
-#' @return a \code{numeric}
+#' @param x A numeric vector to be transformed.
+#' @param mult_fit Logical; set to TRUE to apply logarithmic transformation,
+#'        and FALSE to keep the original input.
+#' @return A `numeric` vector after applying the logarithmic transformation (if
+#'         `mult_fit = TRUE`); otherwise, it returns the original input.
 #'
 #' @rdname log_if
 #'
@@ -16,6 +19,8 @@
 #' all.equal(log_if(x, FALSE), x)
 #'
 #' @export
+#' @md
+
 log_if <- fabletools::new_transformation(
     transformation = function(x, mult_fit) {
         if (mult_fit) log(x) else as.numeric(x)
@@ -49,24 +54,27 @@ ARIMA_lite <- function(formula,
 }
 
 
-#' Produce future predictions of the time series from an inzightts object.
+#' Forecast future observations
 #'
-#' The output object includes the predicted mean and prediction intervals,
-#' as well as the raw data and fitted values.
+#' Generates future predictions of the time series from an `inzightts` object.
+#' The output object includes predicted means, prediction intervals, raw data,
+#' and fitted values.
 #'
-#' @title Produce forecasts for inzightts objects
-#'
-#' @param object an inzightts (\code{inz_ts}) object
-#' @param var a character vector of the variable(s) to forecast, or \code{NULL}
-#' @param h The forecast horison
-#' @param mult_fit If \code{TRUE}, a multiplicative model is used, otherwise
-#'        an additive model is used by default.
-#' @param pred_model a \code{fable} model function name or \code{"auto"}
-#' @param confint_width a decimal, the width of the prediction interval
-#' @param model_range range of data to be fitted for forecasts, specified as
-#'        dates or years
-#' @param ... additional arguments (ignored)
-#' @return an \code{inz_frct} object
+#' @param object An `inzightts` object representing the time series.
+#' @param var A character vector specifying the variable(s) to forecast, or set
+#'        to `NULL` to forecast all variables.
+#' @param h The forecast horizon, either the number of observations to predict,
+#'        or a character string specifying the time interval to predict
+#'        (e.g., `"2 years"`).
+#' @param mult_fit Logical; set to `TRUE` for a multiplicative model, or
+#'        `FALSE` for the default additive model.
+#' @param pred_model The name of a `fable` model function or `"auto"`.
+#' @param confint_width A decimal representing the width of the prediction
+#'        interval.
+#' @param model_range The range of data to be used for fitting forecasts,
+#'        specified as dates or years.
+#' @param ... Additional arguments (ignored).
+#' @return An \code{inz_frct} object containing the forecasts.
 #'
 #' @rdname forecastplot
 #'
@@ -83,6 +91,7 @@ ARIMA_lite <- function(formula,
 #' }
 #'
 #' @export
+#' @md
 predict.inz_ts <- function(object, var = NULL, h = 8, mult_fit = FALSE,
                            pred_model = "auto", confint_width = .95,
                            model_range = NULL, ...) {
@@ -225,18 +234,20 @@ predict_inzightts_var <- function(x, var, h, mult_fit, pred_model, confint_width
 }
 
 
-#' @param x an \code{inz_frct} object
-#' @param t_range range of data to be plotted, specified as dates or years
-#' @param xlab a title for the x axis
-#' @param ylab a title for the y axis
-#' @param title a title for the graph
-#' @param ... additional arguments (ignored)
+#' @param x An `inz_frct` object containing the forecasts.
+#' @param t_range The range of data to be plotted, specified as dates or years.
+#' @param xlab A title for the x-axis of the plot.
+#' @param ylab A title for the y-axis of the plot.
+#' @param title A title for the graph.
+#'
+#' @param ... Additional arguments (ignored).
 #'
 #' @rdname forecastplot
 #'
 #' @import patchwork
 #'
 #' @export
+#' @md
 plot.inz_frct <- function(x, t_range = NULL, xlab = NULL, ylab = NULL, title = NULL, ...) {
     if (all(is.na(t_range))) t_range <- NULL
     if (!is.null(t_range)) {
@@ -395,16 +406,18 @@ plot_forecast_var <- function(x, var, xlab, ylab, title) {
 }
 
 
-#' \code{summary} method for objects of class \code{inz_frct}.
+#' Summarise iNZightTS forecasts
 #'
-#' @title Summarising forecasts for inzightts objects
+#' Summary method for objects of class `inz_frct`.
 #'
-#' @param object an \code{inz_frct} object
-#' @param var a character vector of length one, or \code{NULL}
-#' @param ... additional arguments (ignored)
-#' @return a \code{summary_inz_frct} object, which consists of the first few
-#'         forecast observations, the model used for forecasting and the model
-#'         details (call, coefficients and goodness of fit statistics).
+#' @param object An `inz_frct` object representing the forecasts.
+#' @param var A character vector specifying the variable to summarize,
+#'        or set to `NULL` to summarize all variables.
+#' @param ... Additional arguments (ignored).
+#'
+#' @return A `summary_inz_frct` object containing the first few forecast
+#'         observations, the forecasting model used, and its details (such as
+#'         call, coefficients, and goodness of fit statistics).
 #'
 #' @rdname forecastsummary
 #'
@@ -418,6 +431,7 @@ plot_forecast_var <- function(x, var, xlab, ylab, title) {
 #' print(s, show_details = TRUE)
 #'
 #' @export
+#' @md
 summary.inz_frct <- function(object, var = NULL, ...) {
     if (is.null(var)) {
         var <- unique(object$.var)[1]
@@ -464,10 +478,10 @@ summary.inz_frct <- function(object, var = NULL, ...) {
 }
 
 
-#' @param x a \code{summary_inz_frct} object
-#' @param show_details logical, if \code{TRUE} the model details will be shown,
-#'        only if \code{pred_model} is an \code{ARIMA} model.
-#' @param ... additional arguments (ignored)
+#' @param x A `summary_inz_frct` object containing forecast summaries.
+#' @param show_details Logical; set to `TRUE` to show model details only when
+#'        `pred_model` is an "ARIMA" model.
+#' @param ... Additional arguments (ignored).
 #'
 #' @rdname forecastsummary
 #'

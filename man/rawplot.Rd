@@ -26,59 +26,63 @@
 )
 }
 \arguments{
-\item{x}{an inzightts (\code{inz_ts}) object}
+\item{x}{An \code{inzightts} (\code{inz_ts}) object representing the time series.}
 
-\item{var}{a character vector of the variable(s) to be plotted, or \code{NULL}}
+\item{var}{A character vector specifying the variable(s) to be plotted,
+or set to \code{NULL}.}
 
-\item{xlab}{a title for the x axis}
+\item{xlab}{A title for the x-axis of the plot.}
 
-\item{ylab}{a title for the y axis}
+\item{ylab}{A title for the y-axis of the plot.}
 
-\item{title}{a title for the graph}
+\item{title}{A title for the graph.}
 
-\item{xlim}{axis limits, specified as dates or years}
+\item{xlim}{Axis limits, specified as dates or years.}
 
-\item{aspect}{the aspect ratio of the plot;
-it will be about \code{aspect} times wider than it is high}
+\item{aspect}{The aspect ratio of the plot; it will be about \code{aspect} times
+wider than it is high.}
 
-\item{compare}{logical, whether to plot the key levels in a single plot}
+\item{compare}{Logical; set to \code{TRUE} to plot the key levels in a single
+plot.}
 
-\item{pal}{(only if a categorical variable is passed to \code{var}): the
-colour palette for the categorical plot, the palette vector should
-be in the same order per the rows of \code{tsibble::key_data(x)}.}
+\item{pal}{(Only if a categorical variable is passed to \code{var}): The colour
+palette for the categorical plot. The palette vector should be in
+the same order per the rows of \code{tsibble::key_data(x)}.}
 
-\item{smoother}{logical, if \code{TRUE} the smoother will be drawn}
+\item{smoother}{Logical; if \code{TRUE}, the smoother will be drawn.}
 
-\item{sm_model}{the smoothing method to be used}
+\item{sm_model}{The smoothing method to be used.}
 
-\item{t}{the smoothing parameter (between 0 and 100)}
+\item{t}{The smoothing parameter (between 0 and 100).}
 
-\item{mult_fit}{If \code{TRUE}, a multiplicative model is used, otherwise
-an additive model is used by default.}
+\item{mult_fit}{Logical; set to \code{TRUE} for a multiplicative model, or
+\code{FALSE} for the default additive model.}
 
-\item{emphasise}{integer vector to specify the key level(s) to focus in the
-plot. The integer maps to the specific key level(s) corresponding to
-the ith row of \code{tsibble::key_data(x)}.}
+\item{emphasise}{Integer vector to specify the key level(s) to focus in the
+plot. The integer maps to the specific key level(s)
+corresponding to the ith row of \code{tsibble::key_data(x)}.}
 
-\item{non_emph_opacity}{numeric. If \code{(0, 1]}, this argument determines
-the opacity of the series other than the focused one(s) (to highlight
-the focused series). If \code{non_emph_opacity = 0}, the plot draws
-the focused series in its own scales.}
+\item{non_emph_opacity}{Numeric. If \verb{(0, 1]}, this argument determines the
+opacity of the series other than the focused one(s)
+(to highlight the focused series). If
+\code{non_emph_opacity = 0}, the plot draws the focused
+series in its own scales.}
 
-\item{show_iso_obs}{logical, whether to plot isolated observations between
-time series gaps or not, if there is any}
+\item{show_iso_obs}{Logical; set to \code{TRUE} to plot isolated observations
+between time series gaps (if any).}
 
-\item{iso_obs_size}{numeric, scaling the size of isolated observations, if
-\code{show_iso_obs = TRUE} and they exists}
+\item{iso_obs_size}{Numeric; scaling the size of isolated observations,
+if \code{show_iso_obs = TRUE} and they exist.}
 
-\item{...}{additional arguments (ignored)}
+\item{...}{Additional arguments (ignored).}
 }
 \value{
-a time series plot (constructed with ggplot2) is returned, which
-        can be added to if desired.
+A time series plot (constructed with ggplot2) is returned, which
+can be added to if desired.
 }
 \description{
-Draws a plot of a given inzightts (\code{inz_ts}) object with the trend superimposed.
+Draws a plot of a given \code{inzightts} (\code{inz_ts}) object with the trend
+superimposed.
 }
 \examples{
 t <- inzightts(visitorsQ, var = c(2, 4))

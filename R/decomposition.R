@@ -6,19 +6,25 @@
 
 #' Decompose a time series object
 #'
-#' @param x an inzightts (\code{inz_ts}) object
-#' @param var a character vector of length one, or \code{NULL}
-#' @param sm_model the smoothing method to be used
-#' @param mult_fit If \code{TRUE}, a multiplicative model is used, otherwise
+#' Decomposes a time series represented by an `inz_ts` object into its
+#' seasonal, trend, and remainder components using the specified smoothing
+#' method.
+#'
+#' @param x An `inz_ts` object representing the time series.
+#' @param var A character vector of length one, or `NULL`.
+#' @param sm_model The smoothing method to be used.
+#'        Currently on "stl" is available.
+#' @param mult_fit If `TRUE`, a multiplicative model is used; otherwise,
 #'        an additive model is used by default.
-#' @param model_range range of data to be decomposed by the model, specified as
-#'        dates or years, if part of \code{model_range} specified is outside
-#'        the range of the data, the exceeding proportion is ignored.
-#' @param ... additional arguments passed to decomposition methods (e.g. STL)
-#' @return a decomp (\code{inz_dcmp}) object, a sub-class of dable
+#' @param model_range The range of data to be decomposed by the model. It can be
+#'        specified as dates or years. If part of `model_range` lies
+#'        outside the range of the data, the exceeding proportion is ignored.
+#' @param ... Additional arguments passed to the decomposition method
+#'        defined by `sm_model`.
+#' @return An `inz_dcmp` object, which is a sub-class of `dable`,
+#'         representing the decomposed components of the time series.
 #'
 #' @rdname decomposition
-#'
 #' @seealso \code{\link[fabletools]{dable}}
 #'
 #' @examples
@@ -34,6 +40,7 @@
 #' STL: A Seasonal-Trend Decomposition Procedure Based on Loess.
 #' Journal of Official Statistics, 6, 3iV73.
 #' @export
+#' @md
 decomp <- function(x, var = NULL, sm_model = c("stl"),
                    mult_fit = FALSE, model_range = NULL, ...) {
     var <- dplyr::last(as.character(guess_plot_var(x, !!enquo(var), use = "Decomp")))
@@ -216,16 +223,19 @@ back_transform <- function(x, var, mult_fit) {
 }
 
 
-#' @param x a decomp (\code{inz_dcmp}) object
-#' @param recompose.progress if recompose is \code{TRUE}, this shows how
-#'        much to show (for animation!). Length 2 numeric: the first
-#'        is 0 for seasonal, and 1 for residual; second component is
-#'        how many observations have been recomposed so far
-#' @param recompose logical as to whether the recomposition is shown or not
-#' @param ylab the label for the y axis
-#' @param title the title for the plot
-#' @param colour vector of three colours for trend, seasonal, and residuals, respectively
-#' @param ... additional arguments (ignored)
+#' @param x An `inz_dcmp` object representing the decomposed time series.
+#' @param recompose.progress A numeric vector of length 2, controlling the
+#'        display of recomposition progress when `recompose` is `TRUE`.
+#'        The first component shows the progress for the seasonal component
+#'        (0 to 1), and the second component tracks the number of observations
+#'        recomposed so far.
+#' @param recompose Logical indicating whether the recomposition should be
+#'        displayed or not.
+#' @param ylab The label for the y-axis of the plot.
+#' @param title  The title for the plot.
+#' @param colour A vector of three colors specifying the colors for the trend,
+#'        seasonal, and residuals components, respectively.
+#' @param ... Additional arguments (ignored).
 #'
 #' @rdname decomposition
 #'

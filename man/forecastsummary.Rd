@@ -3,31 +3,32 @@
 \name{summary.inz_frct}
 \alias{summary.inz_frct}
 \alias{print.summary_inz_frct}
-\title{Summarising forecasts for inzightts objects}
+\title{Summarise iNZightTS forecasts}
 \usage{
 \method{summary}{inz_frct}(object, var = NULL, ...)
 
 \method{print}{summary_inz_frct}(x, show_details = FALSE, ...)
 }
 \arguments{
-\item{object}{an \code{inz_frct} object}
+\item{object}{An \code{inz_frct} object representing the forecasts.}
 
-\item{var}{a character vector of length one, or \code{NULL}}
+\item{var}{A character vector specifying the variable to summarize,
+or set to \code{NULL} to summarize all variables.}
 
-\item{...}{additional arguments (ignored)}
+\item{...}{Additional arguments (ignored).}
 
-\item{x}{a \code{summary_inz_frct} object}
+\item{x}{A `summary_inz_frct` object containing forecast summaries.}
 
-\item{show_details}{logical, if \code{TRUE} the model details will be shown,
-only if \code{pred_model} is an \code{ARIMA} model.}
+\item{show_details}{Logical; set to `TRUE` to show model details only when
+`pred_model` is an "ARIMA" model.}
 }
 \value{
-a \code{summary_inz_frct} object, which consists of the first few
-        forecast observations, the model used for forecasting and the model
-        details (call, coefficients and goodness of fit statistics).
+A \code{summary_inz_frct} object containing the first few forecast
+observations, the forecasting model used, and its details (such as
+call, coefficients, and goodness of fit statistics).
 }
 \description{
-\code{summary} method for objects of class \code{inz_frct}.
+Summary method for objects of class \code{inz_frct}.
 }
 \examples{
 ts <- inzightts(visitorsQ, var = 2:5)

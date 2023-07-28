@@ -6,7 +6,7 @@
 \alias{inzightts.data.frame}
 \alias{inzightts.ts}
 \alias{inzightts.tbl_ts}
-\title{Coerce to an inzightts (Time-Series) Objects}
+\title{Coerce data to an inzightts (time-series) object}
 \usage{
 inzightts(x, ...)
 
@@ -28,79 +28,76 @@ inzightts(x, ...)
 \method{inzightts}{tbl_ts}(x, ...)
 }
 \arguments{
-\item{x}{a \code{data.frame}, \code{ts}, tsibble, or path}
+\item{x}{A \code{data.frame}, \code{ts}, tsibble, or path.}
 
-\item{...}{additional arguments to be passed to or from methods}
+\item{...}{Additional arguments to be passed to or from methods.}
 
-\item{stringsAsFactors}{see \code{\link[utils]{read.csv}}}
+\item{stringsAsFactors}{See \code{\link[utils]{read.csv}}}
 
-\item{as.is}{see \code{\link[utils]{read.csv}}}
+\item{as.is}{See \code{\link[utils]{read.csv}}}
 
-\item{var}{the column number or name for the observations used
-from \code{data} in the actual time series}
+\item{var}{The column number or name in \code{data} representing the observations
+used in the actual time series.}
 
-\item{index}{which column contains the time variable}
+\item{index}{The column number or name in \code{data} containing the time
+variable.}
 
-\item{key}{Variable(s) that uniquely determine time indices}
+\item{key}{The variable(s) that uniquely determine time indices.}
 
-\item{start}{the time of the first observation.
-Either a single number or a vector
-of two integers, which specify a natural time unit
-and a (1-based) number of samples into the time unit}
+\item{start}{The time of the first observation. It can be a single number or
+a vector of two integers representing a natural time unit and
+a (1-based) number of samples into the time unit.}
 
-\item{end}{the time of the last observation, specified in the
-same way as \code{start}}
+\item{end}{The time of the last observation, specified in the same way as
+\code{start}.}
 
-\item{freq}{the number of observations per unit of time}
+\item{freq}{The number of observations per unit of time.}
 
-\item{var_name}{rename the variable column of the univariate time series,
-applicable only if \code{x} is not an \code{mts} object.}
+\item{var_name}{The new name for the variable column of the univariate time
+series, applicable only if \code{x} is not an \code{mts} object.}
 
-\item{pivot_longer}{logical, \code{TRUE} gives a "longer" form of the data,
-otherwise as is, applicable only if \code{x} is an \code{mts} object.}
+\item{pivot_longer}{Logical; set to \code{TRUE} to transform data to a "longer"
+form, otherwise keep the current form. Applicable only if \code{x} is an
+\code{mts} object.}
 }
 \value{
-an inzightts (\code{inz_ts}) object, a sub-class of tsibble
-        which includes the index variable, temporal variable and,
-        if applicable, relevant keys.
+An \code{inzightts} (\code{inz_ts}) object, a sub-class of tsibble,
+which includes the index variable, temporal variable, and, if
+applicable, relevant keys.
 }
 \description{
-The function \code{inzightts} is used to create temporal data frames
-used in iNZight.
+The function \code{inzightts} creates temporal data frames for use in iNZight.
+Unlike \code{ts} objects, these are tsibble objects that enable temporal data
+wrangling, adapting to tidy data principles, which are both data- and
+model-oriented.
 }
 \details{
-The function \code{inzightts} is used to create temporal data
-frames. Unlike \code{ts} objects, these are tsibble objects
-that enables temporal data wrangling adapting to the tidy
-data principles, which are both data- and model-oriented.
+If a \code{ts} object is used to create the inzightts object, all the domain
+information is extracted from that object.
 
-If a \code{ts} object is used to create the inzightts object,
-all the domain information is extracted from that object.
+The \code{index} parameter should be a \code{character}, \code{Date},
+\code{yearweek}, \code{yearmonth}, or \code{yearquarter} object.
 
-\code{index} should be a \code{character}, \code{Date},
-\code{\link[tsibble]{yearweek}}, \code{\link[tsibble]{yearmonth}} or
-\code{\link[tsibble]{yearquarter}} object.
-
-If \code{index} is a \code{character}, the function recognises the
-following time variable formatS without case sensitive:
- \itemize{
-  \item "(Y)yyyy" annually data e.g."(Y)1991"
-  \item "(Y)yyyyMmm" monthly data e.g."(Y)1991M01"
-  \item "(Y)yyyyQqq" quarterly data e.g."(Y)1991Q01"
-  \item "(Y)yyyyWww" weekly data with yearly seasonality e.g."(Y)1991W01"
-  \item "(Y)yyyyDdd" daily data with yearly seasonality e.g."(Y)1991D01"
-  \item "WwwDdd"  daily data with weekly seasonality e.g. "W01D01"
-  \item "DddHhh" hourly data with daily seasonality e.g. "D01H01"
+If \code{index} is a \code{character}, the function recognizes the following
+time variable formats without case sensitivity:
+\itemize{
+\item "(Y)yyyy": annually data, e.g., "(Y)1991"
+\item "(Y)yyyyMmm": monthly data, e.g., "(Y)1991M01"
+\item "(Y)yyyyQqq": quarterly data, e.g., "(Y)1991Q01"
+\item "(Y)yyyyWww": weekly data with yearly seasonality, e.g., "(Y)1991W01"
+\item "(Y)yyyyDdd": daily data with yearly seasonality, e.g., "(Y)1991D01"
+\item "WwwDdd": daily data with weekly seasonality, e.g., "W01D01"
+\item "DddHhh": hourly data with daily seasonality, e.g., "D01H01"
 }
-The length of digits of each time unit could be flexible and allowing space
-between the time unit
 
-In case of \code{data} being a data.frame or path to a \code{.csv}
-file and \code{start} being omitted, the starting date and the
-\code{freq} is extracted from the column that includes the time
-information. This column is either named \code{"Time"} or is the first
-column. If \code{end} is omitted, all of the data will be used for the
-time-series.
+The length of digits of each time unit could be flexible, and spaces between
+the time unit are allowed.
+
+In case \code{data} is a data.frame or path to a \code{.csv} file, and
+\code{start} is omitted, the starting date and the \code{freq} are extracted
+from the column that includes the time information. This column is either
+named \code{"Time"} or is the first column. If \code{end} is omitted, all of
+the data will be used for the time-series.
 }
 \examples{
 # create from a ts object
@@ -132,5 +129,5 @@ plot(y)
 }
 \seealso{
 \code{\link[tsibble]{tsibble}}, \code{\link[tsibble]{as_tsibble}}
-         and \code{\link[tsibble]{new_tsibble}}
+and \code{\link[tsibble]{new_tsibble}}
 }

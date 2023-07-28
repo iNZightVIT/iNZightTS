@@ -25,39 +25,46 @@ decomp(
 )
 }
 \arguments{
-\item{x}{a decomp (\code{inz_dcmp}) object}
+\item{x}{An `inz_dcmp` object representing the decomposed time series.}
 
-\item{var}{a character vector of length one, or \code{NULL}}
+\item{var}{A character vector of length one, or \code{NULL}.}
 
-\item{sm_model}{the smoothing method to be used}
+\item{sm_model}{The smoothing method to be used.
+Currently on "stl" is available.}
 
-\item{mult_fit}{If \code{TRUE}, a multiplicative model is used, otherwise
+\item{mult_fit}{If \code{TRUE}, a multiplicative model is used; otherwise,
 an additive model is used by default.}
 
-\item{model_range}{range of data to be decomposed by the model, specified as
-dates or years, if part of \code{model_range} specified is outside
-the range of the data, the exceeding proportion is ignored.}
+\item{model_range}{The range of data to be decomposed by the model. It can be
+specified as dates or years. If part of \code{model_range} lies
+outside the range of the data, the exceeding proportion is ignored.}
 
-\item{...}{additional arguments (ignored)}
+\item{...}{Additional arguments (ignored).}
 
-\item{recompose.progress}{if recompose is \code{TRUE}, this shows how
-much to show (for animation!). Length 2 numeric: the first
-is 0 for seasonal, and 1 for residual; second component is
-how many observations have been recomposed so far}
+\item{recompose.progress}{A numeric vector of length 2, controlling the
+display of recomposition progress when `recompose` is `TRUE`.
+The first component shows the progress for the seasonal component
+(0 to 1), and the second component tracks the number of observations
+recomposed so far.}
 
-\item{recompose}{logical as to whether the recomposition is shown or not}
+\item{recompose}{Logical indicating whether the recomposition should be
+displayed or not.}
 
-\item{ylab}{the label for the y axis}
+\item{ylab}{The label for the y-axis of the plot.}
 
-\item{title}{the title for the plot}
+\item{title}{The title for the plot.}
 
-\item{colour}{vector of three colours for trend, seasonal, and residuals, respectively}
+\item{colour}{A vector of three colors specifying the colors for the trend,
+seasonal, and residuals components, respectively.}
 }
 \value{
-a decomp (\code{inz_dcmp}) object, a sub-class of dable
+An \code{inz_dcmp} object, which is a sub-class of \code{dable},
+representing the decomposed components of the time series.
 }
 \description{
-Decompose a time series object
+Decomposes a time series represented by an \code{inz_ts} object into its
+seasonal, trend, and remainder components using the specified smoothing
+method.
 }
 \examples{
 ts <- inzightts(visitorsQ)

@@ -2,18 +2,18 @@
 % Please edit documentation in R/seasonplot.R
 \name{seasonplot}
 \alias{seasonplot}
-\title{Plot Seasonal Subseries from a Time Series}
+\title{Plot seasonal subseries from a time series}
 \usage{
 seasonplot(x, ...)
 }
 \arguments{
-\item{x}{an inzightts (\code{inz_ts}) object}
+\item{x}{An `inzightts` (`inz_ts`) object representing the time series.}
 
-\item{...}{further arguments to be passed onto specific methods
-and the \code{gg_season} function}
+\item{...}{Further arguments to be passed onto specific methods and the
+`gg_season` function.}
 }
 \value{
-A \code{patchwork} object of seasonal plots
+A `patchwork` object of seasonal plots.
 }
 \description{
 This function plots the seasonal components of a time series together

@@ -1,3 +1,5 @@
+#' Plot seasonal subseries from a time series
+#'
 #' This function plots the seasonal components of a time series together
 #' with the estimated seasonal effects of that series.
 #'
@@ -5,12 +7,10 @@
 #' seasonal subseries of the time series is plotted. On the right will be
 #' the average seasonal effect of the series.
 #'
-#' @title Plot Seasonal Subseries from a Time Series
-#'
-#' @param x an inzightts (\code{inz_ts}) object
-#' @param ... further arguments to be passed onto specific methods
-#'            and the \code{gg_season} function
-#' @return A \code{patchwork} object of seasonal plots
+#' @param x An `inzightts` (`inz_ts`) object representing the time series.
+#' @param ... Further arguments to be passed onto specific methods and the
+#'        `gg_season` function.
+#' @return A `patchwork` object of seasonal plots.
 #'
 #' @rdname seasonplot
 #'
