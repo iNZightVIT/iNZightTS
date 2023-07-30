@@ -10,3 +10,4 @@
 ^.git$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^docs$
