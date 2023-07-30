@@ -38,8 +38,6 @@ remotes::install_github("iNZightVIT/iNZightTS")
 
 ``` r
 library(iNZightTS)
-library(dplyr)
-library(tidyr)
 ```
 
 ### Getting started
@@ -50,7 +48,7 @@ the functions of the package. The data is stored as a
 
 ``` r
 data <- visitorsQ |>
-    pivot_longer(!Date, names_to = "Country", values_to = "Visitors") |>
+    tidyr::pivot_longer(!Date, names_to = "Country", values_to = "Visitors") |>
     inzightts(key = "Country")
 data
 #> # A tsibble: 216 x 3 [1Q]
@@ -89,7 +87,7 @@ simplies the analysis.
 
 ``` r
 dcmp <- data |>
-    filter(Country == "Australia") |>
+    dplyr::filter(Country == "Australia") |>
     inzightts() |>
     decomp()
 dcmp
