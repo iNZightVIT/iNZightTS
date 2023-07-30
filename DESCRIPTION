@@ -4,10 +4,10 @@ Title: Time Series for 'iNZight'
 Version: 2.0.0
 Authors@R: c(
     person("Tom", "Elliott", role = c("aut", "cre"), email = "tom.elliott@auckland.ac.nz", comment = c(ORCID = "0000-0002-7815-6318")),
-    person("Junjie", "Zeng",    role = "ctb"),
-    person("Simon", "Potter",   role = "aut"),
-    person("David", "Banks",    role = "aut"),
     person("Zhaoming", "Su",    role = "aut"),
+    person("Junjie", "Zeng",    role = "ctb"),
+    person("Simon", "Potter",   role = "ctb"),
+    person("David", "Banks",    role = "ctb"),
     person("Marco", "Kuper",    role = "ctb"),
     person("Dongning", "Zhang", role = "ctb")
     )

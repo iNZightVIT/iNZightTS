@@ -1,9 +1,9 @@
 ## Test environments
 
-- local ubuntu 21.04, R 4.1.0
-- ubuntu 21.04 (on travis-ci) R release
-- macos (on travis-ci), R release
-- win-builder (devel and release)
+- ubuntu 22.04 (local), R 4.2.3
+- ubuntu 20.04 (github actions), R release
+- macos (github actions), R release
+- windows (win-builder), R release and devel
 
 ## R CMD check results
 
