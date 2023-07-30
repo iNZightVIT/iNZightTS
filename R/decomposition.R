@@ -1,4 +1,3 @@
-#' @export
 .decomp <- function(use_method, ...) {
     UseMethod(".decomp")
 }
