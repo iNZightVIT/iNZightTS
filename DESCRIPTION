@@ -1,12 +1,13 @@
 Package: iNZightTS
 Type: Package
 Title: Time Series for 'iNZight'
-Version: 1.5.10
+Version: 2.0.0
 Authors@R: c(
     person("Tom", "Elliott", role = c("aut", "cre"), email = "tom.elliott@auckland.ac.nz", comment = c(ORCID = "0000-0002-7815-6318")),
+    person("Zhaoming", "Su",    role = "aut"),
     person("Junjie", "Zeng",    role = "ctb"),
-    person("Simon", "Potter",   role = "aut"),
-    person("David", "Banks",    role = "aut"),
+    person("Simon", "Potter",   role = "ctb"),
+    person("David", "Banks",    role = "ctb"),
     person("Marco", "Kuper",    role = "ctb"),
     person("Dongning", "Zhang", role = "ctb")
     )
@@ -14,22 +15,28 @@ Depends:
     R (>= 3.2)
 Imports:
     colorspace,
-    dplyr,
+    dplyr (>= 1.1.0),
     forcats,
-    ggplot2 (>= 3.4.0),
+    ggplot2,
     ggtext,
     glue,
     graphics,
     grDevices,
     grid,
-    gridExtra,
-    magrittr,
-    methods,
     patchwork,
     rlang,
     stats,
     tidyr,
-    utils
+    utils,
+    tsibble,
+    fable,
+    fabletools,
+    feasts,
+    evaluate,
+    lubridate,
+    stringr,
+    tibble,
+    urca
 Suggests:
     covr,
     testthat

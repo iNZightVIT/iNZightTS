@@ -1,405 +1,396 @@
-#' Draws a plot of a given \code{iNZightTS} object with the trend superimposed.
+guess_plot_var <- function(x, var, tidy = FALSE, use = "Plot") {
+    if (rlang::quo_is_null(enquo(var))) {
+        mv <- tsibble::measured_vars(x)
+        pos <- which(vapply(x[mv], is.numeric, logical(1L)))
+        if (rlang::is_empty(pos)) {
+            rlang::abort("Could not automatically identify an appropriate plot variable, please specify the variable to plot.")
+        }
+        rlang::inform(sprintf(
+            paste(use, 'variable not specified, automatically selected `var = "%s"`'),
+            mv[pos[1]]
+        ))
+        sym(mv[pos[1]])
+    } else if (tidy) {
+        rlang::get_expr(enexpr(var))
+    } else {
+        ## !IMPORTANT! A dummy empty string `""` is added before `var` if
+        ## it is passed to the `var` argument from a character vector
+        c("", as.character(rlang::eval_tidy(enexpr(var))))
+    }
+}
+
+
+cat_x_axis <- function(x) {
+    idx <- x[[tsibble::index(x)]]
+    if (!any(inherits(idx, "vctrs_vctr"), is.numeric(idx))) {
+        rlang::abort("Unsupported index format for categorical plot.")
+    }
+    if (is.numeric(idx)) {
+        fun <- function(x) x
+    } else {
+        fun <- function(x) lubridate::year(x)
+    }
+    list(fun = fun, name = "Year")
+}
+
+
+cat_y_axis <- function(x) {
+    idx <- x[[tsibble::index(x)]]
+    if (!any(inherits(idx, "vctrs_vctr"), is.numeric(idx))) {
+        rlang::abort("Unsupported index format for categorical plot.")
+    }
+    if (is.numeric(idx)) {
+        fun <- function(x) rep("", length(x))
+        name <- ""
+    } else {
+        if (inherits(idx, "yearquarter")) {
+            fun <- function(x) lubridate::quarter(x)
+        } else if (inherits(idx, "yearmonth")) {
+            fun <- function(x) lubridate::month(x, label = TRUE)
+        } else if (inherits(idx, "yearweek")) {
+            fun <- function(x) lubridate::week(x)
+        }
+        name <- is.numeric(idx) |>
+            ifelse("", substring(class(idx)[1], 5)) |>
+            stringr::str_to_title() |>
+            paste("of Year")
+    }
+    list(fun = fun, name = name)
+}
+
+
+#' Draw a simple time series plot
 #'
-#' If animate is set to \code{TRUE}, a scatterplot of all points in the
-#' time series will appear followed by slowly drawn lines connecting the
-#' points, simulating the drawing of a time series by hand.
+#' Draws a plot of a given `inzightts` (`inz_ts`) object with the trend
+#' superimposed.
 #'
-#' @title Draw a simple time series plot
+#' @param x An `inzightts` (`inz_ts`) object representing the time series.
+#' @param var A character vector specifying the variable(s) to be plotted,
+#'        or set to `NULL`.
+#' @param xlab A title for the x-axis of the plot.
+#' @param ylab A title for the y-axis of the plot.
+#' @param title A title for the graph.
+#' @param xlim Axis limits, specified as dates or years.
+#' @param aspect The aspect ratio of the plot; it will be about `aspect` times
+#'        wider than it is high.
+#' @param compare Logical; set to `TRUE` to plot the key levels in a single
+#'        plot.
+#' @param pal (Only if a categorical variable is passed to `var`): The colour
+#'        palette for the categorical plot. The palette vector should be in
+#'        the same order per the rows of `tsibble::key_data(x)`.
+#' @param smoother Logical; if `TRUE`, the smoother will be drawn.
+#' @param sm_model The smoothing method to be used.
+#' @param t The smoothing parameter (between 0 and 100).
+#' @param mult_fit Logical; set to `TRUE` for a multiplicative model, or
+#'        `FALSE` for the default additive model.
+#' @param emphasise Integer vector to specify the key level(s) to focus in the
+#'        plot. The integer maps to the specific key level(s)
+#'        corresponding to the ith row of `tsibble::key_data(x)`.
+#' @param non_emph_opacity Numeric. If `(0, 1]`, this argument determines the
+#'        opacity of the series other than the focused one(s)
+#'        (to highlight the focused series). If
+#'        `non_emph_opacity = 0`, the plot draws the focused
+#'        series in its own scales.
+#' @param show_iso_obs Logical; set to `TRUE` to plot isolated observations
+#'        between time series gaps (if any).
+#' @param iso_obs_size Numeric; scaling the size of isolated observations,
+#'        if `show_iso_obs = TRUE` and they exist.
+#' @param ... Additional arguments (ignored).
 #'
-#' @param x an \code{iNZightTS} object
-#' @param multiplicative logical. If \code{TRUE}, a multiplicative model is used,
-#' otherwise an additive model is used by default.
-#' @param ylab a title for the y axis
-#' @param xlab a title for the x axis
-#' @param title a title for the graph
-#' @param animate logical, if true the graph is animated
-#' @param t smoothing parameter
-#' @param smoother logical, if \code{TRUE} the smoother will be drawn
-#' @param aspect the aspect ratio of the plot;
-#'        it will be about ASPECT times wider than it is high
-#' @param plot logical, if \code{FALSE}, the graph isn't drawn
-#' @param col the colour of the smoothed trend line
-#' @param xlim axis limits, specified as dates
-#' @param model.lim limits of the series to use for modelling/forecast
-#' @param seasonal.trend logical, if \code{TRUE} seasonal+trend curve added
-#' @param forecast numeric, how many observations ahead to forecast (default is 0, no forecast)
-#' @param ... additional arguments (not used)
-#' @return a time series plot (constructed with ggplot2) is returned invisibly,
-#'         which can be added to if desired.
+#' @return A time series plot (constructed with ggplot2) is returned, which
+#'         can be added to if desired.
+#'
+#' @seealso \code{\link[tsibble]{key_data}}
+#'
+#' @rdname rawplot
 #'
 #' @keywords timeseries
 #'
 #' @import ggplot2
 #'
-#' @section Forecast:
-#' The predictions and prediction intervals are the result of models
-#' fitted by the Holt-Winters method. The amount of predicted
-#' observations is specified by the value of `forecast`.
+#' @examples
+#' t <- inzightts(visitorsQ, var = c(2, 4))
 #'
-#' @references
-#' C.C Holt (1957)
-#' Forecasting seasonals and trends by exponentially weighted
-#' moving averages,
-#' ONR Research Memorandum, Carnegie Institute 52.
+#' \dontrun{
+#' plot(t)
+#' plot(t, var = names(t)[-1])
+#' plot(t, var = "Japan")
+#' plot(t, mult_fit = TRUE)
+#' }
 #'
-#' P.R Winters (1960)
-#' Forecasting sales by exponentially weighted moving averages,
-#' \emph{Management Science} \bold{6}, 324--342.
+#' @export
+#' @md
+plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
+                        xlim = NULL, aspect = NULL, compare = TRUE, pal = NULL,
+                        smoother = TRUE, sm_model = "stl", t = 0, mult_fit = FALSE,
+                        emphasise = NULL, non_emph_opacity = .2,
+                        show_iso_obs = TRUE, iso_obs_size = 1, ...) {
+    var <- guess_plot_var(x, !!enquo(var))
+    if (all(is.na(xlim))) xlim <- NULL
+    var_has_num <- any(unlist(lapply(var, function(v) is.numeric(x[[v]]))))
+    var_has_cat <- any(unlist(lapply(var, function(v) {
+        is.factor(x[[v]]) | is.character(x[[v]])
+    })))
+    if (!show_iso_obs) iso_obs_size <- -1
+    if (tsibble::n_keys(x) > 1) {
+        x <- x |> dplyr::mutate(dplyr::across(
+            !!tsibble::key_vars(x), function(x) {
+                factor(x, levels = sort(unique(x)))
+            }
+        ))
+    }
+    if (var_has_cat) {
+        if (var_has_num) {
+            rlang::abort("Please pass only numeric or character/factor to `var`.")
+        }
+        if (length(var) > 2) {
+            var <- c("", dplyr::first(var[var != ""]))
+            rlang::warn("Please specify one character/factor at a time.")
+        }
+        x <- x |> dplyr::mutate(
+            !!dplyr::last(var) := rlang::inject(interaction(!!!({
+                c(lapply(tsibble::key_vars(x), function(i) x[[i]]), list(x[[dplyr::last(var)]]))
+            }), sep = "/"))
+        )
+        if (tsibble::n_keys(x) > 1 && is.null(emphasise)) {
+            emphasise <- 1L
+            rlang::warn("Key detected when plotting category, setting `emphasise = 1L`")
+        }
+        non_emph_opacity <- 0
+    } else {
+        y_obs <- unlist(lapply(ifelse(
+            length(as.character(var)) > 2,
+            c("", as.character(var)[-1]),
+            dplyr::last(as.character(var))
+        ), function(i) x[[i]]))
+        if (any(y_obs <= 0, na.rm = TRUE) && mult_fit) {
+            mult_fit <- !mult_fit
+            rlang::warn("Non-positive obs detected, setting `mult_fit = FALSE`")
+        }
+    }
+    if (!is.null(xlim) && !var_has_cat) {
+        if (!all(length(xlim) == 2, any(is.numeric(xlim), inherits(xlim, "Date")))) {
+            rlang::abort("xlim must be a numeric or Date vector of length 2.")
+        }
+        na_i <- which(is.na(xlim))[1]
+        if (!is.numeric(x[[tsibble::index_var(x)]]) && is.numeric(xlim)) {
+            xlim[na_i] <- lubridate::year(dplyr::case_when(
+                as.logical(na_i - 1) ~ dplyr::last(x$index),
+                TRUE ~ x$index[1]
+            ))
+            xlim <- lubridate::ymd(paste0(xlim, c("0101", "1231")))
+            x <- dplyr::filter(x, dplyr::between(lubridate::as_date(index), xlim[1], xlim[2]))
+        } else if (is.numeric(x[[tsibble::index_var(x)]]) && inherits(xlim, "Date")) {
+            xlim[na_i] <- lubridate::ymd(paste0(ifelse(na_i - 1, dplyr::last(x$index), x$index[1]), "0101"))
+            x <- dplyr::filter(x, dplyr::between(index, lubridate::year(xlim[1]), lubridate::year(xlim[2])))
+        } else {
+            xlim[na_i] <- dplyr::case_when(
+                as.logical(na_i - 1) ~ dplyr::last(x$index),
+                TRUE ~ x$index[1]
+            )
+            x <- dplyr::filter(x, dplyr::between(index, xlim[1], xlim[2]))
+        }
+    }
+    if (is.null(xlab)) {
+        xlab <- dplyr::case_when(
+            is.numeric(x$index) ~ "Year",
+            TRUE ~ stringr::str_to_title(class(x$index)[1])
+        )
+    }
+    x <- dplyr::rename(x, !!dplyr::first(xlab) := index)
+    if (is.null(ylab)) {
+        ylab <- as.character(var)
+        if (length(var) > 1) ylab <- ylab[-1]
+    }
+    if (is.null(title)) {
+        title <- dplyr::case_when(
+            length(var) > 2 ~ "",
+            TRUE ~ dplyr::last(as.character(var))
+        )
+    }
+    if (!any(is.null(emphasise), is.null(non_emph_opacity), tsibble::n_keys(x) == 1)) {
+        emph <- list(
+            data = tsibble::key_data(x)[emphasise, ],
+            opacity = non_emph_opacity
+        )
+    } else {
+        emph <- NULL
+    }
+    if (length(var) > 2) {
+        if (!isTRUE(all.equal(length(var) - 1, length(ylab)))) {
+            rlang::abort("var and ylab should have the same length.")
+        }
+        if (!is.null(aspect) || (!compare && tsibble::n_keys(x) > 1)) {
+            rlang::warn("Aspect ratio is automatic for multi-series plot.")
+        }
+    }
+    if (!is.null(aspect) && var_has_cat) {
+        rlang::warn("Aspect ratio is automatic for categorical plot.")
+    }
+    (if (length(var) < 3) {
+        if (!compare && tsibble::n_keys(x) > 1) aspect <- NULL
+        var <- sym(dplyr::last(as.character(var)))
+        plot_inzightts_var(
+            x, var, xlab, ylab, title, aspect, emph, pal,
+            compare, smoother, sm_model, t, mult_fit, iso_obs_size
+        )
+    } else {
+        p_ls <- lapply(seq_len(length(var) - 1), function(i) {
+            y_var <- as.character(var)[i + 1]
+            plot_inzightts_var(
+                x, sym(y_var), xlab, ylab[i], "", NULL, emph, pal,
+                compare, smoother, sm_model, t, mult_fit, iso_obs_size
+            )
+        })
+        rlang::inject(patchwork::wrap_plots(!!!p_ls)) +
+            patchwork::plot_layout(ncol = 1, guides = "collect") +
+            patchwork::plot_annotation(title = title) &
+            ggplot2::theme(legend.position = "bottom")
+    }) |> (\(.) structure(., use.plotly = ggplotable(.)))()
+}
+
+
+plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph, pal,
+                               compare, smoother, sm_model, t, mult_fit, iso) {
+    if (!is.null(emph)) {
+        emph_data <- emph$data |>
+            dplyr::left_join(x, by = tsibble::key_vars(x), multiple = "all") |>
+            tsibble::as_tsibble(
+                index = !!tsibble::index(x),
+                key = !!tsibble::key_vars(x)
+            )
+        if (emph$opacity == 0) x <- emph_data
+    }
+    op <- ifelse(!is.null(emph), emph$opacity, 1)
+    if (is.factor(x[[var]]) || is.character(x[[var]])) {
+        return(plot_cat_var(x, var, title, pal))
+    }
+    p <- fabletools::autoplot(x, !!var, linewidth = 1, alpha = op) +
+        ggplot2::labs(y = ylab, title = title) +
+        ggplot2::theme(
+            legend.position = dplyr::case_when(compare ~ "bottom", TRUE ~ "none"),
+            legend.title = element_blank()
+        )
+    if (!is.null(emph)) {
+        p <- suppressMessages(p + scale_colour_discrete(drop = FALSE)) +
+            geom_line(data = emph_data, linewidth = 1)
+    }
+    if (!compare && tsibble::n_keys(x) > 1) {
+        p <- p + facet_wrap(vars(!!!tsibble::key(x)), nrow = 1)
+    }
+    if (!is.null(aspect)) {
+        y_var <- dplyr::last(as.character(var))
+        p <- p + coord_fixed(
+            ratio = diff(range(lubridate::as_date(x[[xlab]]), na.rm = TRUE)) /
+                diff(range(x[[y_var]], na.rm = TRUE)) / aspect
+        )
+    }
+    if (smoother) {
+        if (tsibble::n_keys(x) > 1) {
+            sm_data <- decomp_key(x, as.character(var), sm_model, mult_fit, t = t)
+        } else {
+            sm_data <- decomp(x, as.character(var), sm_model, mult_fit, t = t)
+        }
+        smoother_spec <- list(
+            mapping = aes(!!tsibble::index(x), trend),
+            data = sm_data,
+            linetype = ifelse(compare & tsibble::n_keys(x) > 1, "dashed", "solid"),
+            linewidth = .5,
+            alpha = op
+        )
+        if (tsibble::n_keys(x) == 1) {
+            smoother_spec <- c(smoother_spec, col = "red")
+        }
+        if (!all(is.na(sm_data$trend))) {
+            p <- rlang::inject(p + geom_line(!!!smoother_spec))
+        } else {
+            rlang::warn("Time gaps in all (key) levels, turning off smoothers.")
+        }
+        if (!is.null(emph)) {
+            emph_sm <- emph$data |>
+                dplyr::left_join(sm_data, by = tsibble::key_vars(x), multiple = "all")
+            emph_sm_spec <- within(smoother_spec, rm(alpha, data))
+            p <- rlang::inject(p + geom_line(data = emph_sm, !!!emph_sm_spec))
+        }
+    }
+    iso_i <- which(diff(diff(is.na(c(NA, x[[var]])))) == 2)
+    if (iso != -1 && length(iso_i) > 0) {
+        p <- p + geom_point(data = x[iso_i, ], size = iso / 2) +
+            ggplot2::labs(caption = "Isolated observations are plotted as dots")
+    }
+    p
+}
+
+
+plot_cat_var <- function(x, var, title, pal) {
+    ini_row <- dplyr::select(x[1, ], !!var)
+    idx <- tsibble::index(x)
+    if (!is.numeric(x[[idx]])) {
+        floor_idx <- suppressWarnings(ini_row[[idx]] |>
+            lubridate::year() |>
+            as.character() |>
+            getFromNamespace(class(x[[idx]])[1], "tsibble")())
+        if (ini_row[[idx]] != floor_idx) {
+            ini_row[[idx]] <- floor_idx
+            ini_row[[var]] <- NA
+            x <- x |>
+                tsibble::update_tsibble(key = NULL) |>
+                dplyr::bind_rows(ini_row) |>
+                tsibble::fill_gaps()
+        }
+    }
+    p <- x |>
+        (\(.) dplyr::mutate(.,
+            .x = forcats::fct_inorder(as.character(
+                cat_x_axis(.)$fun(!!tsibble::index(.))
+            )),
+            .y = forcats::fct_inorder(as.character(
+                cat_y_axis(.)$fun(!!tsibble::index(.))
+            )) |> forcats::fct_rev()
+        ))() |>
+        dplyr::filter(!is.na(!!var)) |>
+        ggplot(aes(.x, .y, col = !!var)) +
+        geom_tile(aes(fill = after_scale(col))) +
+        ggplot2::theme(
+            panel.grid = element_blank(),
+            legend.title = element_blank(),
+            legend.position = "bottom",
+            axis.ticks = element_blank()
+        ) +
+        ggplot2::labs(
+            x = cat_x_axis(x)$name,
+            y = cat_y_axis(x)$name,
+            title = title
+        )
+    if (!is.null(pal)) {
+        if (is.function(pal)) {
+            pal <- pal(length(unique(x[[var]])))
+        }
+        p <- p + scale_colour_manual(values = pal)
+    }
+    p
+}
+
+
+#' Check if a plot generated by iNZightTS can be passed to plotly::ggplotly().
+#'
+#' @title Preliminary check for a plotly::ggplotly() call
+#'
+#' @param x a \code{ggplot} object produced by iNZightTS
+#' @return a \code{logical}
+#'
+#' @rdname ggplotable
+#'
+#' @seealso \code{\link[plotly]{ggplotly}}
 #'
 #' @examples
-#' t <- iNZightTS(visitorsQ)
-#' plot(t)
+#' x <- inzightts(visitorsQ)
+#' \dontrun{
+#' ggplotable(plot(x))
+#' ggplotable(plot(x, names(x)[-1]))
+#' }
 #'
-#' # Forecast plot (8 quarterly forecasts):
-#' plot(t, forecast = 8)
-#'
 #' @export
-plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab = "Date",
-                           title = "%var",
-                           animate = FALSE,
-                           t = 10, smoother = TRUE,
-                           aspect = 3,
-                           plot = TRUE,
-                           col = ifelse(forecast > 0, "#0e8c07", "red"),
-                           xlim = c(NA, NA),
-                           model.lim = NULL,
-                           seasonal.trend = FALSE,
-                           forecast = 0,
-                           ...) {
-    ### x and y coordinates of the time series tsObj
-    obj <- x
-    freq <- x$freq
-    tsObj <- obj$tsObj
-    xlist <- get.x(tsObj)
-    x <- xlist$x
-    x.units <- xlist$x.units
-    y <- tsObj@.Data
-    y.units <- unit(y, "native")
-    multiplicative <- is_multiplicative(tsObj, multiplicative)
-
-    xlim <- ifelse(is.na(xlim), range(time(tsObj)), xlim)
-    if (!is.null(model.lim)) {
-        model.lim <- ifelse(is.na(model.lim),
-            c(min(time(tsObj)), xlim[2]),
-            model.lim
-        )
-        if (model.lim[2] > xlim[2]) {
-            warning("Upper modelling limit cannot be greater than upper x limit")
-            model.lim[2] <- xlim[2]
-        }
-    } else {
-        model.lim <- c(min(time(tsObj)), xlim[2])
-    }
-
-    multiseries <- inherits(obj, "iNZightMTS")
-
-    if (multiseries && forecast > 0) {
-        warning("Forecasting not available for multiplots")
-        forecast <- 0
-    }
-    if (freq == 1 && forecast > 0) {
-        warning("Forecasting not available for annual data")
-        forecast <- 0
-    }
-
-    ### We want a trend line, so do a decomposition
-    if (!smoother) {
-        smooth <- NULL
-    } else if (!multiseries) {
-        if (forecast > 0) {
-            AtsObj <- tsObj
-            if (!is.null(model.lim)) {
-                AtsObj <- window(AtsObj, model.lim[1], model.lim[2])
-            }
-            if (multiplicative) {
-                AtsObj <- log(AtsObj)
-            }
-            hw.fit <- try(HoltWinters(AtsObj), TRUE)
-            if (inherits(hw.fit, "try-error")) {
-                stop("Holt-Winters could not converge.")
-            }
-            smooth <- hw.fit$fitted[, 1]
-            if (multiplicative) smooth <- exp(smooth)
-            smooth <- data.frame(
-                time = as.numeric(time(hw.fit$fitted)),
-                smooth = smooth,
-                stringsAsFactors = TRUE
-            )
-        } else {
-            decomp <- decompose(obj,
-                ylab = "",
-                multiplicative = multiplicative,
-                t = t,
-                model.lim = model.lim
-            )$decompVars
-            if (multiplicative) {
-                smooth <- exp(log(decomp$components[, "trend"]))
-            } else {
-                smooth <- decomp$components[, "trend"]
-            }
-            smooth <- as.matrix(smooth)[, 1]
-
-            dt <- time(decomp$components)
-            # print(dt)
-            # due to rounding, the limits might not be exact ...
-            smooth <- smooth[dt - xlim[1] > -1e-12 & dt - xlim[2] < 1e-12]
-
-            if (seasonal.trend) {
-                ssn <- decomp$components[, "seasonal"]
-                ssn <- ssn[dt - xlim[1] > -1e-12 & dt - xlim[2] < 1e-12]
-                ssn <- if (multiplicative) smooth * ssn else smooth + ssn
-            }
-        }
-    } else {
-        smoothList <- vector("list", length(obj$currVar))
-        names(smoothList) <- obj$currVar
-        for (v in obj$currVar) {
-            subts <- obj
-            subts$tsObj <- obj$tsObj[, v]
-            subts$currVar <- v
-            class(subts) <- "iNZightTS"
-            smoothList[[v]] <- decompose(subts,
-                ylab = "",
-                multiplicative = multiplicative,
-                t = t,
-                model.lim = model.lim
-            )$decompVars
-        }
-        smooth <- do.call(c, lapply(smoothList, function(s) {
-            if (multiplicative) {
-                z <- exp(log(s$components[, "trend"]))
-            } else {
-                z <- s$components[, "trend"]
-            }
-            dt <- time(s$components)
-            z[dt - xlim[1] > -1e-12 & dt - xlim[2] < 1e-12]
-        }))
-    }
-
-    ### Height of the plotting viewport needs to be scale.factor times the height
-    ### of the trend viewport in the decomposition plot
-
-    value <- obj$currVar
-    ts.df <- data.frame(
-        Date = as.numeric(time(tsObj)),
-        value = as.matrix(tsObj),
-        stringsAsFactors = TRUE
-    )
-    ts.df <- ts.df %>%
-        tidyr::gather(
-            key = "variable", value = "value",
-            -.data$Date, factor_key = TRUE
-        )
-    ts.df <-
-        dplyr::mutate(ts.df,
-            variable =
-                forcats::lvls_revalue(
-                    ts.df$variable,
-                    gsub(
-                        "value.", "",
-                        levels(ts.df$variable)
-                    )
-                )
-        )
-    ## x-axis limits
-    if (!all(is.na(xlim))) {
-        # if (forecast == 0)
-        #     smooth <- smooth[ts.df$Date >= xlim[1] & ts.df$Date <= xlim[2]]
-        ts.df <- ts.df[ts.df$Date - xlim[1] > -1e-12 & ts.df$Date - xlim[2] < 1e-12, ]
-    }
-
-    fit.df <- ts.df
-    if (!is.null(model.lim)) {
-        fit.df <-
-            fit.df[fit.df$Date - model.lim[1] > -1e-12 &
-                fit.df$Date - model.lim[2] < 1e-12, ]
-    }
-    if (forecast > 0) {
-        # remove first season from the smoother
-        # fit.df <- fit.df[-(1:freq),]
-
-        fit.df$Date <- round(fit.df$Date, 4)
-        smooth$time <- round(smooth$time, 4)
-        fit.df <- fit.df %>%
-            dplyr::filter(
-                dplyr::between(.data$Date, min(smooth$time), max(smooth$time))
-            )
-        smooth <- smooth %>%
-            dplyr::filter(
-                dplyr::between(.data$time, min(fit.df$Date), max(fit.df$Date))
-            )
-        fit.df <- dplyr::left_join(fit.df, smooth, by = c("Date" = "time"))
-
-        # create prediction df
-        pred <- predict(hw.fit,
-            n.ahead = forecast,
-            prediction.interval = TRUE
-        )
-        if (multiplicative) {
-            pred <- exp(pred)
-        }
-        pred.df <- rbind(
-            # fit.df[nrow(fit.df), c("Date", "variable", "value")] %>%
-            #     dplyr::mutate(lower = .data$value, upper = .data$value),
-            data.frame(
-                Date = as.numeric(time(pred)),
-                variable = "value",
-                value = as.numeric(pred[, "fit"]),
-                lower = as.numeric(pred[, "lwr"]),
-                upper = as.numeric(pred[, "upr"]),
-                stringsAsFactors = TRUE
-            )
-        )
-    } else if (!is.null(smooth)) {
-        fit.df$smooth <- smooth
-        if (seasonal.trend) fit.df$season.smooth <- ssn
-    }
-
-    if (grepl("%var", title)) {
-        title <- gsub("%var", paste(obj$currVar, collapse = ", "), title)
-    }
-
-
-    tsplot <- ggplot(ts.df, aes(
-        x = .data$Date, y = .data$value,
-        group = .data$variable, colour = .data$variable
-    )) +
-        xlab(xlab) +
-        ylab(ylab) +
-        ggtitle(title)
-    if (!is.null(aspect)) {
-        xr <- diff(range(ts.df$Date))
-        yr <- diff(range(ts.df$value))
-        asp <- xr / yr / aspect
-        tsplot <- tsplot + coord_fixed(ratio = asp)
-    }
-
-    if (!multiseries && forecast == 0) {
-        tsplot <- tsplot +
-            scale_colour_manual(
-                values = c(
-                    Fitted = col,
-                    "Raw data" = "black",
-                    if (seasonal.trend) "Trend + Seasonal" <- "green4" else NULL
-                ),
-                guide = "none"
-            )
-    }
-
-    if (plot && animate && !multiseries) {
-        ## Do a bunch of things to animate the plot ...
-
-        dev.hold()
-        print(tsplot + geom_point(aes(colour = NULL)))
-        dev.flush()
-
-        Sys.sleep(1)
-        for (i in 2:nrow(ts.df)) {
-            dev.hold()
-            print(
-                tsplot +
-                    geom_point(aes(colour = NULL), colour = "black") +
-                    geom_line(aes(colour = NULL),
-                        data = ts.df[1:i, ], colour = "black"
-                    )
-            )
-            dev.flush()
-            Sys.sleep(ifelse(i > 9, 0.05, 0.5))
-        }
-        Sys.sleep(1)
-    }
-
-    if (forecast > 0) {
-        tsplot <- tsplot +
-            geom_vline(
-                xintercept = max(fit.df$Date),
-                col = "#555555", lty = "dashed"
-            ) +
-            geom_ribbon(aes(ymin = .data$lower, ymax = .data$upper),
-                data = pred.df,
-                fill = "#ffdbdb",
-                col = NA
-            ) +
-            geom_line(aes(y = .data$lower, col = "Prediction"),
-                data = pred.df,
-                lty = "dashed", lwd = 0.4
-            ) +
-            geom_line(aes(y = .data$upper, col = "Prediction"),
-                data = pred.df,
-                lty = "dashed", lwd = 0.4
-            ) +
-            geom_line(data = pred.df, col = "#b50000")
-    }
-
-    if (multiseries) {
-        tsplot <- tsplot + geom_line(lwd = 1)
-    } else {
-        tsplot <- tsplot + geom_line(aes(colour = "Raw data"), lwd = 1)
-    }
-    if (!is.null(smooth)) {
-        if (seasonal.trend) {
-            tsplot <- tsplot +
-                geom_path(aes(x = .data$Date, y = .data$season.smooth, color = "Trend + Seasonal"),
-                    data = fit.df, na.rm = TRUE,
-                    lwd = 0.5
-                )
-        }
-
-        tsplot <-
-            if (multiseries) {
-                tsplot + geom_line(aes(x = .data$Date, y = .data$smooth, color = .data$variable),
-                    data = fit.df, na.rm = TRUE,
-                    linetype = "22", lwd = 1
-                ) +
-                    geom_point(aes(x = .data$Date, y = .data$smooth, shape = .data$variable, color = .data$variable),
-                        data = fit.df[fit.df$Date == max(fit.df$Date), ],
-                        size = 2, stroke = 2
-                    ) +
-                    labs(color = "", shape = "")
-            } else {
-                tsplot + geom_line(aes(x = .data$Date, y = .data$smooth, col = "Fitted"),
-                    data = fit.df
-                )
-            }
-    }
-
-    if (forecast > 0) {
-        tsplot <- tsplot + scale_colour_manual(
-            name = "",
-            values = c(
-                "Raw data" = "black",
-                "Fitted" = col,
-                "Prediction" = "#b50000"
-            )
-        ) +
-            theme(legend.position = "bottom")
-    }
-
-    if (plot) {
-        dev.hold()
-        print(tsplot)
-        dev.flush()
-    }
-
-    if (forecast > 0) {
-        attr(tsplot, "predictions") <- pred
-    }
-
-    attr(tsplot, "use.plotly") <- TRUE
-    invisible(tsplot)
+ggplotable <- function(x) {
+    !inherits(x, "patchwork")
 }
-
-#' Time series plot - depreciated
-#' @param ... arguments passed to `plot` method
-#' @export
-#' @return Called to draw a plot. Invisibly returns a \code{ggplot} object.
-rawplot <- function(...) {
-    warning("Depreciated: use `plot()` instead.\n")
-    plot(...)
-}
-
-#' Get forecast prediction values
-#' @param x the forecast object (a plot with predictions)
-#' @return a time series forecasts object
-#' @export
-pred <- function(x) attr(x, "predictions")
