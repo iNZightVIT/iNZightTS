@@ -5,4 +5,11 @@
 ^appveyor\.yml$
 ^CRAN-RELEASE$
 ^.github$
+^README\.Rmd
 ^CRAN-SUBMISSION$
+^.git$
+^.*\.Rproj$
+^\.Rproj\.user$
+^docs$
+^_pkgdown.yml$
+^\.better-commits.json$

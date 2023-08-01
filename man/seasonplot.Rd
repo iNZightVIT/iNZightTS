@@ -2,17 +2,18 @@
 % Please edit documentation in R/seasonplot.R
 \name{seasonplot}
 \alias{seasonplot}
-\title{Plot Seasonal Subseries from a Time Series}
+\title{Plot seasonal subseries from a time series}
 \usage{
-seasonplot(obj, ...)
+seasonplot(x, ...)
 }
 \arguments{
-\item{obj}{an \code{iNZightTS} object}
+\item{x}{An `inzightts` (`inz_ts`) object representing the time series.}
 
-\item{...}{Further arguments to be passed onto specific methods.}
+\item{...}{Further arguments to be passed onto specific methods and the
+`gg_season` function.}
 }
 \value{
-No return value, called for the side effect of drawing a plot.
+A `patchwork` object of seasonal plots.
 }
 \description{
 This function plots the seasonal components of a time series together
@@ -24,10 +25,11 @@ seasonal subseries of the time series is plotted. On the right will be
 the average seasonal effect of the series.
 }
 \examples{
-ts <- iNZightTS(visitorsQ)
-seasonplot(ts)
+\dontrun{
+seasonplot(inzightts(visitorsQ))
+}
 
 }
 \seealso{
-\code{\link{iNZightTS}}
+\code{\link[feasts]{gg_season}}
 }
