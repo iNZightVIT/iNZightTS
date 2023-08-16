@@ -14,6 +14,10 @@ test_that("Smoother can be disabled", {
     expect_s3_class(plot(t, smoother = FALSE), "ggplot")
 })
 
+test_that("Data can be seasonally adjusted", {
+    expect_s3_class(plot(t, seasonal_adjusment = TRUE), "ggplot")
+})
+
 test_that("Decomposition and recomposition plots work", {
     expect_silent(d <- decomp(t, var = "Australia"))
     expect_s3_class(plot(d), "ggplot")
