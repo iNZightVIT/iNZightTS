@@ -15,7 +15,7 @@ test_that("Smoother can be disabled", {
 })
 
 test_that("Data can be seasonally adjusted", {
-    expect_s3_class(plot(t, seasonal_adjusment = TRUE), "ggplot")
+    expect_s3_class(plot(t, seasonal_adjustment = TRUE), "ggplot")
 })
 
 test_that("Decomposition and recomposition plots work", {
