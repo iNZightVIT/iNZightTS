@@ -7,7 +7,7 @@ Large update with major refactoring of most/all plots and processes. Notably,
 - enhanced: introduce key for multiple time series
 - enhanced: changed the default behaviour of multiple variables in time series plots
 - added readme with example usage (#56)
- Add option to seasonally adjust the series before plotting (default plot)
+- Add option to seasonally adjust the series before plotting (default plot)
 
 # iNZightTS 1.5.9
 
