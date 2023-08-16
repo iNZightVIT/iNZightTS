@@ -65,7 +65,7 @@
     "infer_ticket": false,
     "confirm_ticket": true,
     "add_to_title": true,
-    "append_hashtag": true
+    "append_hashtag": false
   },
   "commit_title": {
     "max_size": 70
