@@ -1,3 +1,5 @@
+- Add option to seasonally adjust the series before plotting (default plot)
+
 # iNZightTS 2.0.0
 
 This is a new package based off the original [iNZightTS](github.com/iNZightVIT/iNZightTS) package. Versioning will continue, as the long-term plan is to merge these changes into the original package once it is fully deprecated.
