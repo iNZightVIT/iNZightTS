@@ -95,6 +95,7 @@ cat_y_axis <- function(x) {
 #'        between time series gaps (if any).
 #' @param iso_obs_size Numeric; scaling the size of isolated observations,
 #'        if `show_iso_obs = TRUE` and they exist.
+#' @param seasonal_adjustment Logical; set to `TRUE` to show the seasonally adjusted time series (i.e., removed the estimated seasonal effects as determined by STL decomoposition; see `decomp()`).
 #' @param ... Additional arguments (ignored).
 #'
 #' @return A time series plot (constructed with ggplot2) is returned, which
@@ -124,7 +125,9 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
                         xlim = NULL, aspect = NULL, compare = TRUE, pal = NULL,
                         smoother = TRUE, sm_model = "stl", t = 0, mult_fit = FALSE,
                         emphasise = NULL, non_emph_opacity = .2,
-                        show_iso_obs = TRUE, iso_obs_size = 1, ...) {
+                        show_iso_obs = TRUE, iso_obs_size = 1,
+                        seasonal_adjustment = FALSE,
+                        ...) {
     var <- guess_plot_var(x, !!enquo(var))
     if (all(is.na(xlim))) xlim <- NULL
     var_has_num <- any(unlist(lapply(var, function(v) is.numeric(x[[v]]))))
@@ -232,14 +235,16 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
         var <- sym(dplyr::last(as.character(var)))
         plot_inzightts_var(
             x, var, xlab, ylab, title, aspect, emph, pal,
-            compare, smoother, sm_model, t, mult_fit, iso_obs_size
+            compare, smoother, sm_model, t, mult_fit, iso_obs_size,
+            seasonal_adjustment = seasonal_adjustment
         )
     } else {
         p_ls <- lapply(seq_len(length(var) - 1), function(i) {
             y_var <- as.character(var)[i + 1]
             plot_inzightts_var(
                 x, sym(y_var), xlab, ylab[i], "", NULL, emph, pal,
-                compare, smoother, sm_model, t, mult_fit, iso_obs_size
+                compare, smoother, sm_model, t, mult_fit, iso_obs_size,
+                seasonal_adjustment = seasonal_adjustment
             )
         })
         rlang::inject(patchwork::wrap_plots(!!!p_ls)) +
@@ -251,7 +256,8 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
 
 
 plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph, pal,
-                               compare, smoother, sm_model, t, mult_fit, iso) {
+                               compare, smoother, sm_model, t, mult_fit, iso,
+                               seasonal_adjustment) {
     if (!is.null(emph)) {
         emph_data <- emph$data |>
             dplyr::left_join(x, by = tsibble::key_vars(x), multiple = "all") |>
@@ -264,6 +270,13 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph, pal,
     op <- ifelse(!is.null(emph), emph$opacity, 1)
     if (is.factor(x[[var]]) || is.character(x[[var]])) {
         return(plot_cat_var(x, var, title, pal))
+    }
+    if (seasonal_adjustment) {
+        x_decomp <- decomp(x,
+            var = var, mult_fit = mult_fit,
+            sm_model = sm_model
+        )
+        x[[var]] <- x_decomp$season_adjust
     }
     p <- fabletools::autoplot(x, !!var, linewidth = 1, alpha = op) +
         ggplot2::labs(y = ylab, title = title) +

@@ -22,6 +22,7 @@
   non_emph_opacity = 0.2,
   show_iso_obs = TRUE,
   iso_obs_size = 1,
+  seasonal_adjustment = FALSE,
   ...
 )
 }
@@ -74,6 +75,7 @@ between time series gaps (if any).}
 \item{iso_obs_size}{Numeric; scaling the size of isolated observations,
 if \code{show_iso_obs = TRUE} and they exist.}
 
+\item{seasonal_adjustment}{Logical; set to \code{TRUE} to show the seasonally adjusted time series (i.e., removed the estimated seasonal effects as determined by STL decomoposition; see \code{decomp()}).}
 \item{...}{Additional arguments (ignored).}
 }
 \value{
