@@ -76,6 +76,7 @@ between time series gaps (if any).}
 if \code{show_iso_obs = TRUE} and they exist.}
 
 \item{seasonal_adjustment}{Logical; set to \code{TRUE} to show the seasonally adjusted time series (i.e., removed the estimated seasonal effects as determined by STL decomoposition; see \code{decomp()}).}
+
 \item{...}{Additional arguments (ignored).}
 }
 \value{
