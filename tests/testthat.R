@@ -1,4 +1,4 @@
 library(testthat)
-library(iNZightTS)
+library(iNZightTSLegacy)
 
 test_check("iNZightTS")

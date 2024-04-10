@@ -188,7 +188,7 @@ plot.iNZightTS <- function(x, multiplicative = FALSE, ylab = obj$currVar, xlab =
     ts.df <- ts.df %>%
         tidyr::gather(
             key = "variable", value = "value",
-            -.data$Date, factor_key = TRUE
+            -Date, factor_key = TRUE
         )
     ts.df <-
         dplyr::mutate(ts.df,
