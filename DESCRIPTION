@@ -49,3 +49,8 @@ License: GPL-3
 Encoding: UTF-8
 Language: en-GB
 RoxygenNote: 7.2.3
+Config/Needs/dependencies:
+    rcmdcheck,
+    curl
+Config/Needs/coverage:
+    covr
