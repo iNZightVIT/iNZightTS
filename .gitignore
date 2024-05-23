@@ -5,3 +5,4 @@ iNZightTS.Rproj
 *.Rcheck
 *.tar.gz
 CRAN-SUBMISSION
+inst/doc

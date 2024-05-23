@@ -39,6 +39,8 @@ Imports:
     urca
 Suggests:
     covr,
+    knitr,
+    rmarkdown,
     testthat
 Description: Provides a collection of functions for working with time series data, including functions for drawing, decomposing, and forecasting. Includes capabilities to compare multiple series and fit both additive and multiplicative models. Used by 'iNZight', a graphical user interface providing easy exploration and visualisation of data for students of statistics, available in both desktop and online versions. Holt (1957) <doi:10.1016/j.ijforecast.2003.09.015>, Winters (1960) <doi:10.1287/mnsc.6.3.324>, Cleveland, Cleveland, & Terpenning (1990) "STL: A Seasonal-Trend Decomposition Procedure Based on Loess".
 BugReports: https://github.com/iNZightVIT/iNZightTS/issues
@@ -48,9 +50,10 @@ LazyData: true
 License: GPL-3
 Encoding: UTF-8
 Language: en-GB
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Config/Needs/dependencies:
     rcmdcheck,
     curl
 Config/Needs/coverage:
     covr
+VignetteBuilder: knitr

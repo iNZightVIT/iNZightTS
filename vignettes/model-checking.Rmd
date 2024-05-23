@@ -1,0 +1,34 @@
+---
+title: "model-checking"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{model-checking}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(iNZightTS)
+```
+
+```{r tsObject}
+visitors_ts <- inzightts(visitorsQ)
+plot(visitors_ts, "Australia")
+```
+
+```{r model-checking, eval=FALSE}
+visitors_fit <- fit_model(visitors_ts, ~Australia, method = "arima")
+visitors_fit
+plot(visitors_fit)
+```
+
+Without any model checking, outputs show warnings.
+
+To check the model, we can use the `check_model` function. This will launch an interactive process where we can check the model assumptions are satisfied.

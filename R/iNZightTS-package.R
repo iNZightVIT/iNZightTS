@@ -16,7 +16,7 @@
 #' @importFrom rlang ':='
 #'
 #' @name iNZightTS-package
-NULL
+"_PACKAGE"
 
 
 utils::globalVariables(c(
