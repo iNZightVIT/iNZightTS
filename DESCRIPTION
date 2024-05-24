@@ -14,6 +14,7 @@ Authors@R: c(
 Depends:
     R (>= 3.2)
 Imports:
+    cli,
     colorspace,
     dplyr (>= 1.1.0),
     forcats,

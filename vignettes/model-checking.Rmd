@@ -1,5 +1,5 @@
 ---
-title: "model-checking"
+title: "Model checking"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{model-checking}
@@ -23,8 +23,8 @@ visitors_ts <- inzightts(visitorsQ)
 plot(visitors_ts, "Australia")
 ```
 
-```{r model-checking, eval=FALSE}
-visitors_fit <- fit_model(visitors_ts, ~Australia, method = "arima")
+```{r model-checking}
+visitors_fit <- fit_model(visitors_ts, Australia, method = "arima")
 visitors_fit
 plot(visitors_fit)
 ```
@@ -32,3 +32,116 @@ plot(visitors_fit)
 Without any model checking, outputs show warnings.
 
 To check the model, we can use the `check_model` function. This will launch an interactive process where we can check the model assumptions are satisfied.
+
+```{r check-model}
+visitors_checked <- check_model(visitors_fit)
+visitors_checked
+plot(visitors_checked)
+```
+
+
+***
+
+Approx outline of what we are aiming for:
+
+```{r script}
+library(tidyverse)
+library(fpp3)
+
+# Read in data
+data <- aus_arrivals |>
+  filter(Origin == "NZ") |>
+  select(Arrivals)
+
+# Seasonal frequency
+s.freq <- 4 # Need to automate
+
+# Look at time plot
+data |>
+  autoplot(Arrivals)
+
+# Does it need a transformation to stabilise the variance?
+lambda <- data |>
+  features(Arrivals, features = "guerrero") |>
+  pull() # Box-Cox parameter
+data |>
+  autoplot(box_cox(Arrivals, lambda))
+# Variance has been stabilised
+
+# Does it need a seasonal difference to stabilise autocovariance?
+data |>
+  autoplot(difference(box_cox(Arrivals, lambda), s.freq))
+data |>
+  features(box_cox(Arrivals, lambda), "unitroot_nsdiffs")
+# Therefore D = 1.  Autocovariance stabilised.
+
+# Does it need a first difference to stabilise the mean?
+data |>
+  autoplot(difference(box_cox(Arrivals, lambda), s.freq)
+  |> difference(1))
+data |>
+  features(
+    difference(box_cox(Arrivals, lambda), s.freq),
+    "unitroot_ndiffs"
+  )
+# Therefore d = 0. Mean stable.
+
+# What are some appropriate candidate models?
+data |>
+  gg_tsdisplay(difference(box_cox(Arrivals, lambda), s.freq),
+    plot_type = "partial"
+  )
+# Take combinations of these: MA(3), AR(1), SMA(0), SAR(2).
+# Get user to input numbers.
+
+fit <- data |>
+  model(
+    m1 = ARIMA(box_cox(Arrivals, lambda) ~ pdq(0, 0, 3) + PDQ(0, 1, 0)),
+    m2 = ARIMA(box_cox(Arrivals, lambda) ~ pdq(0, 0, 3) + PDQ(2, 1, 0)),
+    m3 = ARIMA(box_cox(Arrivals, lambda) ~ pdq(1, 0, 0) + PDQ(0, 1, 0)),
+    m4 = ARIMA(box_cox(Arrivals, lambda) ~ pdq(1, 0, 0) + PDQ(2, 1, 0)),
+    auto = ARIMA(box_cox(Arrivals, lambda))
+  )
+
+# Find model with best predictive ability
+fit |>
+  glance() |>
+  arrange(AICc)
+
+# Extract best model
+fit |>
+  select(auto) |>
+  report()
+
+# Are the model assumptions met?  Check residuals (or innovation residuals)
+# Independence, normality, constant variance, zero mean.
+fit |>
+  select(auto) |>
+  gg_tsresiduals()
+# Looks good!
+
+# May want to verify using hypothesis tests
+
+# Ljung-Box test
+fit |>
+  select(auto) |>
+  augment() |>
+  features(.innov,
+    features = ljung_box,
+    lag = 2 * s.freq,
+    dof = 6
+  ) # Need to automate this
+
+# No residual autocorrelation in innovation residuals
+# Therefore forecast
+fit |>
+  select(auto) |>
+  forecast(h = 16) |>
+  autoplot(data)
+
+
+# Ideas for hypothesis tests:
+# Independence:  Random shuffle surrogate data test
+# Stationarity:  Could do each three assumptions separately.
+#                Polar form of FFT. Keep amplitude. Randomise phase.
+```
