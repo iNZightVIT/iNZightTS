@@ -51,8 +51,12 @@ plot.inzts_fit <- function(x, ...) {
     p
 }
 
+#' @export
 check <- function(x, ...) {
     if (attr(x, "checked")) {
         return(x)
     }
+
+    attr(x, "checked") <- TRUE
+    x
 }

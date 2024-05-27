@@ -182,7 +182,7 @@ as_year <- function(x) {
     UseMethod("as_year")
 }
 
-
+#' @export
 as_year.vctrs_vctr <- function(x) {
     1970 + as.numeric(x) / dplyr::case_when(
         inherits(x, "yearmonth") ~ 12,
@@ -192,15 +192,15 @@ as_year.vctrs_vctr <- function(x) {
     )
 }
 
-
+#' @export
 as_year.Date <- function(x) {
     1970 + as.numeric(x) / 365.25
 }
 
-
+#' @export
 as_year.numeric <- function(x) x
 
-
+#' @export
 as_year.character <- function(x) as.numeric(x)
 
 

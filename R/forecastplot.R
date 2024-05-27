@@ -30,15 +30,14 @@ log_if <- fabletools::new_transformation(
     }
 )
 
-
 get_model <- function(x) {
     UseMethod("get_model")
 }
 
-
+#' @export
 get_model.function <- function(x) x
 
-
+#' @export
 get_model.character <- function(x) {
     if (tolower(x) == "auto") {
         ARIMA_lite

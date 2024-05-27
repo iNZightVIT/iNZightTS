@@ -2,7 +2,7 @@
 title: "Model checking"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{model-checking}
+  %\VignetteIndexEntry{Model checking}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -34,7 +34,7 @@ Without any model checking, outputs show warnings.
 To check the model, we can use the `check_model` function. This will launch an interactive process where we can check the model assumptions are satisfied.
 
 ```{r check-model}
-visitors_checked <- check_model(visitors_fit)
+visitors_checked <- check(visitors_fit)
 visitors_checked
 plot(visitors_checked)
 ```
@@ -144,4 +144,37 @@ fit |>
 # Independence:  Random shuffle surrogate data test
 # Stationarity:  Could do each three assumptions separately.
 #                Polar form of FFT. Keep amplitude. Randomise phase.
+```
+
+```{r surrogate}
+# Example 1: Data set is a numeric vector
+#            Simulated AR(1): Should not be independent
+set.seed(1)
+data <- arima.sim(
+  n = 256,
+  model = list(ar = 0.35)
+) # Simulate data
+s <- surrogate.test(data, lag = 10) # Run surrogate test
+s$p.value # Extract p-value
+s %>%
+  plot() +
+  theme_bw() +
+  labs(title = "Surrogate data test with Ljung-Box statistic")
+
+# Example 2: Data set is a tsibble object
+#            Simulated white noise: Should be independent
+data <- tsibble::tsibble(
+  Value = rnorm(256),
+  Time = 1:256,
+  index = Time
+)
+s <- surrogate.test(data,
+  lag = 8, N = 5000,
+  test.stat = "box-pierce"
+) # Run surrogate test
+s$p.value # Extract p-value
+s %>%
+  plot() +
+  theme_bw() +
+  labs(title = "Surrogate data test with Box-Pierce statistic")
 ```
