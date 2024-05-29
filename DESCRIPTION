@@ -5,6 +5,8 @@ Version: 2.0.0
 Authors@R: c(
     person("Tom", "Elliott", role = c("aut", "cre"), email = "tom.elliott@auckland.ac.nz", comment = c(ORCID = "0000-0002-7815-6318")),
     person("Zhaoming", "Su",    role = "aut"),
+    person("Matt", "Edwards", role = "ctb",
+        email = "matt.edwards@auckland.ac.nz"),
     person("Junjie", "Zeng",    role = "ctb"),
     person("Simon", "Potter",   role = "ctb"),
     person("David", "Banks",    role = "ctb"),

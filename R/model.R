@@ -1,4 +1,11 @@
+#' Fit model
+#' @param data An inz_ts object
+#' @param x A formula specifying the model
+#' @param method The method to use for fitting the model
+#' @param ... Additional arguments to pass to the model fitting function
+#' @return An object of class "inzts_fit" containing the fitted model
 #' @export
+#' @md
 fit_model <- function(data, x, method = c("arima", "ets"), ...) {
     method <- match.arg(method)
     fit <- switch(method,
@@ -15,6 +22,7 @@ fit_model <- function(data, x, method = c("arima", "ets"), ...) {
     fit
 }
 
+#' @describeIn fit_model Print method
 #' @export
 print.inzts_fit <- function(x, ...) {
     cli::cli_h3("Model of { attr(x, 'response') }")
@@ -25,6 +33,7 @@ print.inzts_fit <- function(x, ...) {
     }
 }
 
+#' @describeIn fit_model Plot method
 #' @export
 plot.inzts_fit <- function(x, ...) {
     f <- x[[1]][[1]]
@@ -51,7 +60,11 @@ plot.inzts_fit <- function(x, ...) {
     p
 }
 
+#' Check model assumptions
+#' @param x An object of class "inzts_fit"
+#' @return The object with the checked and transformed fit
 #' @export
+#' @md
 check <- function(x, ...) {
     if (attr(x, "checked")) {
         return(x)

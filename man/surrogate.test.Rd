@@ -2,10 +2,63 @@
 % Please edit documentation in R/surrogate_test.R
 \name{surrogate.test}
 \alias{surrogate.test}
+\alias{plot.surrogate}
 \title{Surrogate test for independence}
 \usage{
-surrogate.test(data, lag, N = 1000, test.stat = "ljung-box")
+surrogate.test(
+  data,
+  lag = 4,
+  R = 1000,
+  test.stat = c("ljung-box", "box-pierce")
+)
+
+\method{plot}{surrogate}(x, ...)
+}
+\arguments{
+\item{data}{A tsibble or numeric vector object.}
+
+\item{lag}{Number of lags in portmanteau test statistic.}
+
+\item{R}{Number of permutations to perform.}
+
+\item{test.stat}{Either "ljung-box" or "box-pierce".}
+
+\item{x}{Object of class "surrogate".}
+}
+\value{
+An object of class "surrogate" containing the following components:'
+\itemize{
+ \item{Q.null}{A numeric vector of test statistics from the null distribution.}
+\item{Q.obs}{The observed test statistic.}
+\item{test.stat}{The type of test statistic used.}
+\item{p.value}{The p-value of the test.}
+}
 }
 \description{
 Surrogate test for independence
+
+Plot surrogate null distribution and observed test statistic
+}
+\section{Functions}{
+\itemize{
+\item \code{plot(surrogate)}: Plot method
+
+}}
+\examples{
+data <- arima.sim(n = 256, model = list(ar = 0.35))
+o <- par(mfrow = c(1, 2))
+plot(data, type = "l")
+acf(data)
+par(o)
+(s <- surrogate.test(data, lag = 10))
+plot(s)
+
+data <- tsibble::tsibble(value = rnorm(256), Time = 1:256, index = Time)
+o <- par(mfrow = c(1, 2))
+plot(data$value, type = "l")
+acf(data$value)
+par(o)
+(s <- surrogate.test(data, lag = 8, R = 5000, test.stat = "box-pierce"))
+plot(s)
+
 }

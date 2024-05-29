@@ -2,7 +2,53 @@ url: https://inzightvit.github.io/iNZightTS/
 
 template:
   package: iNZightTS
+  opengraph:
+    image:
+      src: https://inzight.nz/img/inzight_hex.png
+      alt: iNZight Logo
+    twitter:
+      creator: "@tomelliottnz"
+      site: "@inzightuoa"
+      card: summary
 
 authors:
   Tom Elliott:
     href: https://tomelliott.co.nz
+  Matt Edwards:
+    href: https://profiles.auckland.ac.nz/matt-edwards
+
+reference:
+  - title: Time series objects
+    desc: Creating a Time Series Object
+    contents:
+      - iNZightTS-package
+      - inzightts
+      - decomp
+      - subseries
+
+  - title: Plots
+    desc: Plotting Time Series Data
+    contents:
+      - plot.inz_ts
+      - seasonplot
+
+  - title: Modelling and forecasting
+    desc: Modelling and Forecasting Time Series Data
+    contents:
+      - surrogate.test
+      - predict.inz_ts
+      - summary.inz_frct
+      - fit_model
+      - check
+
+  - title: Data
+    desc: Time Series Data sets
+    contents:
+      - visitorsQ
+      - visitorsM2
+      - visitorsA2
+      - seaice
+
+  - title: Functions
+    contents:
+      - ggplotable

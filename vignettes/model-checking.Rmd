@@ -169,7 +169,7 @@ data <- tsibble::tsibble(
   index = Time
 )
 s <- surrogate.test(data,
-  lag = 8, N = 5000,
+  lag = 8, R = 5000,
   test.stat = "box-pierce"
 ) # Run surrogate test
 s$p.value # Extract p-value

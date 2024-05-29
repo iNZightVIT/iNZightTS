@@ -19,7 +19,13 @@
     <loc>https://inzightvit.github.io/iNZightTS/news/index.html</loc>
   </url>
   <url>
+    <loc>https://inzightvit.github.io/iNZightTS/reference/check.html</loc>
+  </url>
+  <url>
     <loc>https://inzightvit.github.io/iNZightTS/reference/decomposition.html</loc>
+  </url>
+  <url>
+    <loc>https://inzightvit.github.io/iNZightTS/reference/fit_model.html</loc>
   </url>
   <url>
     <loc>https://inzightvit.github.io/iNZightTS/reference/forecastplot.html</loc>

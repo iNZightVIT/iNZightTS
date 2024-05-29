@@ -1,26 +1,3 @@
-#' Apply logarithmic transformation
-#'
-#' Log-transforms the input `x` if `mult_fit` is TRUE; otherwise, returns the
-#' original input `x` unchanged.
-#'
-#' @param x A numeric vector to be transformed.
-#' @param mult_fit Logical; set to TRUE to apply logarithmic transformation,
-#'        and FALSE to keep the original input.
-#' @return A `numeric` vector after applying the logarithmic transformation (if
-#'         `mult_fit = TRUE`); otherwise, it returns the original input.
-#'
-#' @rdname log_if
-#'
-#' @seealso \code{\link[fabletools]{new_transformation}}
-#'
-#' @examples
-#' x <- runif(1e4, 1, 100)
-#' all.equal(log_if(x, TRUE), log(x))
-#' all.equal(log_if(x, FALSE), x)
-#'
-#' @export
-#' @md
-
 log_if <- fabletools::new_transformation(
     transformation = function(x, mult_fit) {
         if (mult_fit) log(x) else as.numeric(x)
