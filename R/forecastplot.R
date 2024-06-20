@@ -1,3 +1,10 @@
+#' Conditional log transform
+#'
+#' @param x A numeric vector to be transformed.
+#' @param mult_fit Logical; set to `TRUE` for a multiplicative model, or `FALSE` for the additive model.
+#' @return A numeric vector.
+#' @md
+#' @export
 log_if <- fabletools::new_transformation(
     transformation = function(x, mult_fit) {
         if (mult_fit) log(x) else as.numeric(x)

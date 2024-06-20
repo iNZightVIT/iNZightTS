@@ -45,7 +45,8 @@ plot(visitors_checked)
 Approx outline of what we are aiming for:
 
 ```{r script}
-library(tidyverse)
+library(dplyr)
+library(ggplot2)
 library(fpp3)
 
 # Read in data
@@ -154,7 +155,7 @@ data <- arima.sim(
   n = 256,
   model = list(ar = 0.35)
 ) # Simulate data
-s <- surrogate.test(data, lag = 10) # Run surrogate test
+s <- surrogate_independence(data, lag = 10) # Run surrogate test
 s$p.value # Extract p-value
 s %>%
   plot() +
@@ -168,7 +169,7 @@ data <- tsibble::tsibble(
   Time = 1:256,
   index = Time
 )
-s <- surrogate.test(data,
+s <- surrogate_independence(data,
   lag = 8, R = 5000,
   test.stat = "box-pierce"
 ) # Run surrogate test

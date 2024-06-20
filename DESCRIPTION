@@ -61,3 +61,16 @@ Config/Needs/dependencies:
 Config/Needs/coverage:
     covr
 VignetteBuilder: knitr
+Collate:
+    'check_input.R'
+    'check.R'
+    'datasets.R'
+    'decomposition.R'
+    'feat.R'
+    'forecastplot.R'
+    'iNZightTS-package.R'
+    'iNZightTS.R'
+    'model.R'
+    'rawplot.R'
+    'seasonplot.R'
+    'surrogate_test.R'

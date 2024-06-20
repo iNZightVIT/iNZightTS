@@ -59,17 +59,3 @@ plot.inzts_fit <- function(x, ...) {
 
     p
 }
-
-#' Check model assumptions
-#' @param x An object of class "inzts_fit"
-#' @return The object with the checked and transformed fit
-#' @export
-#' @md
-check <- function(x, ...) {
-    if (attr(x, "checked")) {
-        return(x)
-    }
-
-    attr(x, "checked") <- TRUE
-    x
-}
