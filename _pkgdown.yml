@@ -35,7 +35,7 @@ reference:
   - title: Modelling and forecasting
     desc: Modelling and Forecasting Time Series Data
     contents:
-      - surrogate.test
+      - surrogate_independence
       - predict.inz_ts
       - summary.inz_frct
       - fit_model
@@ -52,3 +52,4 @@ reference:
   - title: Functions
     contents:
       - ggplotable
+      - log_if

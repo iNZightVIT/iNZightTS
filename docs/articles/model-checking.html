@@ -121,22 +121,22 @@
 <hr>
 <p>Approx outline of what we are aiming for:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; ── <span style="font-weight: bold;">Attaching core tidyverse packages</span> ──────────────────────── tidyverse 2.0.0 ──</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">dplyr    </span> 1.1.4     <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">readr    </span> 2.1.5</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">forcats  </span> 1.0.0     <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">stringr  </span> 1.5.1</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">ggplot2  </span> 3.5.1     <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">tibble   </span> 3.2.1</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">lubridate</span> 1.9.3     <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">tidyr    </span> 1.3.1</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">purrr    </span> 1.0.2     </span></span>
-<span><span class="co">#&gt; ── <span style="font-weight: bold;">Conflicts</span> ────────────────────────────────────────── tidyverse_conflicts() ──</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">filter()</span> masks <span style="color: #0000BB;">stats</span>::filter()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">lag()</span>    masks <span style="color: #0000BB;">stats</span>::lag()</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Use the conflicted package (<span style="color: #0000BB; font-style: italic;">&lt;http://conflicted.r-lib.org/&gt;</span>) to force all conflicts to become errors</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'dplyr'</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     filter, lag</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/robjhyndman/fpp3package" class="external-link">fpp3</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Attaching packages</span> ────────────────────────────────────────────── fpp3 0.5 ──</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">tsibble    </span> 1.1.4     <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">fable      </span> 0.3.4</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">tsibbledata</span> 0.4.1     <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">fabletools </span> 0.4.2</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">feasts     </span> 0.3.2     </span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">tibble     </span> 3.2.1     <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">tsibbledata</span> 0.4.1</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">tidyr      </span> 1.3.1     <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">feasts     </span> 0.3.2</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">lubridate  </span> 1.9.3     <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">fable      </span> 0.3.4</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">tsibble    </span> 1.1.4     <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">fabletools </span> 0.4.2</span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Conflicts</span> ───────────────────────────────────────────────── fpp3_conflicts ──</span></span>
 <span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">date()</span>    masks <span style="color: #0000BB;">base</span>::date()</span></span>
 <span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">filter()</span>      masks <span style="color: #0000BB;">stats</span>::filter()</span></span>
@@ -303,7 +303,8 @@
 <span>  n <span class="op">=</span> <span class="fl">256</span>,</span>
 <span>  model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ar <span class="op">=</span> <span class="fl">0.35</span><span class="op">)</span></span>
 <span><span class="op">)</span> <span class="co"># Simulate data</span></span>
-<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surrogate.test.html">surrogate.test</a></span><span class="op">(</span><span class="va">data</span>, lag <span class="op">=</span> <span class="fl">10</span><span class="op">)</span> <span class="co"># Run surrogate test</span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surrogate_independence.html">surrogate_independence</a></span><span class="op">(</span><span class="va">data</span>, lag <span class="op">=</span> <span class="fl">10</span><span class="op">)</span> <span class="co"># Run surrogate test</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Fewer than 10 permutations in the tail</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">p.value</span> <span class="co"># Extract p-value</span></span>
 <span><span class="co">#&gt; [1] 0.001</span></span>
 <span><span class="va">s</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
@@ -320,7 +321,7 @@
 <span>  Time <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">256</span>,</span>
 <span>  index <span class="op">=</span> <span class="va">Time</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surrogate.test.html">surrogate.test</a></span><span class="op">(</span><span class="va">data</span>,</span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/surrogate_independence.html">surrogate_independence</a></span><span class="op">(</span><span class="va">data</span>,</span>
 <span>  lag <span class="op">=</span> <span class="fl">8</span>, R <span class="op">=</span> <span class="fl">5000</span>,</span>
 <span>  test.stat <span class="op">=</span> <span class="st">"box-pierce"</span></span>
 <span><span class="op">)</span> <span class="co"># Run surrogate test</span></span>
