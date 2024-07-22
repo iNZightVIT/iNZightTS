@@ -1,3 +1,7 @@
+# iNZightTS 2.0.1
+
+- prefix `log_if` with `iNZightTS::` so 'fabletools' can find it if the package is not loaded with `library()`
+
 # iNZightTS 2.0.0
 
 Large update with major refactoring of most/all plots and processes. Notably,
