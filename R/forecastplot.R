@@ -209,7 +209,9 @@ use_urca <- function() {
 
 
 predict_inzightts_var <- function(x, var, h, mult_fit, pred_model, confint_width) {
-    fit <- fabletools::model(x, Prediction = pred_model(iNZightTS::log_if(!!var, !!mult_fit)))
+    fit <- fabletools::model(x,
+        Prediction = pred_model(log_if(!!var, !!mult_fit))
+    )
     fit |>
         fabletools::forecast(h = h) |>
         dplyr::mutate(
