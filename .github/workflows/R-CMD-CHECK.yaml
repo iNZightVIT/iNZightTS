@@ -47,4 +47,10 @@ jobs:
             dependencies
           install-pandoc: true
 
+      - name: Install additional linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -yh --reinstall libicu66
+
       - uses: r-lib/actions/check-r-package@v2
