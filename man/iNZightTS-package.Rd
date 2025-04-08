@@ -2,6 +2,7 @@
 % Please edit documentation in R/iNZightTS2-package.R
 \docType{package}
 \name{iNZightTS-package}
+\alias{iNZightTS}
 \alias{iNZightTS-package}
 \title{Time Series Data Analysis}
 \description{
