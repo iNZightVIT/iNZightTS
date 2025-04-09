@@ -20,7 +20,6 @@
 #'
 #' @export
 #' @md
-
 log_if <- fabletools::new_transformation(
     transformation = function(x, mult_fit) {
         if (mult_fit) log(x) else as.numeric(x)
@@ -210,7 +209,9 @@ use_urca <- function() {
 
 
 predict_inzightts_var <- function(x, var, h, mult_fit, pred_model, confint_width) {
-    fit <- fabletools::model(x, Prediction = pred_model(log_if(!!var, !!mult_fit)))
+    fit <- fabletools::model(x,
+        Prediction = pred_model(log_if(!!var, !!mult_fit))
+    )
     fit |>
         fabletools::forecast(h = h) |>
         dplyr::mutate(
