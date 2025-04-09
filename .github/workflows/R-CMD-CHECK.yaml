@@ -15,7 +15,6 @@ jobs:
           - { os: windows-latest, r: "release" }
           - { os: windows-latest, r: "devel" }
           - { os: macOS-latest, r: "release" }
-          # - {os: macOS-latest, r: 'devel'}
           - { os: ubuntu-latest, r: "release" }
 
     env:
@@ -32,6 +31,7 @@ jobs:
         with:
           r-version: ${{ matrix.config.r }}
           use-public-rspm: true
+          extra-repositories: "https://r.docker.stat.auckland.ac.nz"
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
