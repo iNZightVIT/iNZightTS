@@ -41,10 +41,4 @@ jobs:
             dependencies
           install-pandoc: true
 
-      - name: Install additional linux dependencies
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --reinstall libicu-dev
-
       - uses: r-lib/actions/check-r-package@v2
