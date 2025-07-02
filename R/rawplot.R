@@ -294,7 +294,7 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph, pal,
     if (!is.null(aspect)) {
         y_var <- dplyr::last(as.character(var))
         p <- p + coord_fixed(
-            ratio = diff(range(lubridate::as_date(x[[xlab]]), na.rm = TRUE)) /
+            ratio = as.numeric(diff(range(lubridate::as_date(x[[xlab]]), na.rm = TRUE))) /
                 diff(range(x[[y_var]], na.rm = TRUE)) / aspect
         )
     }
