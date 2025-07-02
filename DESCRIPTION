@@ -12,7 +12,7 @@ Authors@R: c(
     person("Dongning", "Zhang", role = "ctb")
     )
 Depends:
-    R (>= 3.2)
+    R (>= 4.1)
 Imports:
     colorspace,
     dplyr (>= 1.1.0),
