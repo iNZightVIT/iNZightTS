@@ -172,7 +172,11 @@ use_decomp_method <- function(method) {
         fabletools::components() |>
         dplyr::mutate(dplyr::across(
             !!var | trend | remainder | dplyr::contains("season"), function(x) {
-                dplyr::case_when(mult_fit ~ exp(x), TRUE ~ as.numeric(x))
+                if (mult_fit) {
+                    exp(x)
+                } else {
+                    as.numeric(x)
+                }
             }
         ))
 }
