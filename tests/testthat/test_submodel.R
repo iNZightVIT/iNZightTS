@@ -1,4 +1,3 @@
-context("Use subseries to model the time series")
 data(visitorsQ)
 
 x <- inzightts(visitorsQ, var = 2:5)

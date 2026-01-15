@@ -1,4 +1,3 @@
-context("Basic time series graphs")
 # data(visitorsQ)
 # data(visitorsM2)
 
@@ -97,7 +96,7 @@ test_that("Check raw-plot configuration", {
     expect_s3_class(plot(x, "y", pal = 1:5), "ggplot")
     expect_s3_class(suppressWarnings(plot(y, "y", pal = 1:5)), "ggplot")
     expect_error(plot(y, c("y", "Visitors")))
-    expect_warning(plot(y, c("y", "y")))
+    expect_warning(expect_warning(plot(y, c("y", "y"))))
     expect_warning(plot(x, "y", aspect = 1))
     x$Australia[c(23, 25)] <- NA
     expect_s3_class(suppressWarnings(plot(x)), "ggplot")
@@ -134,7 +133,7 @@ test_that("Check season plot configuration", {
     expect_warning(seasonplot(t_key_gap, "Australia"))
     # TODO: gives ERROR but not reproducible under some unknown conditions
     #   Error in `dplyr::mutate()`:
-    #   ℹ In argument: `season_effect = dplyr::case_when(mult_fit ~ `NA` * remainder, TRUE ~ `NA` +
+    #   <U+2139> In argument: `season_effect = dplyr::case_when(mult_fit ~ `NA` * remainder, TRUE ~ `NA` +
     #     remainder)`.
     #   Caused by error in `dplyr::case_when()`:
     #   ! Failed to evaluate the right-hand side of formula 1.
