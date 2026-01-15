@@ -1,3 +1,7 @@
+# iNZightTS 2.0.3
+
+- fix bug in `seasonplot()` where y-axis limits for seasonal effects plot (right panel) were not computed correctly, causing some data points to be cut off
+
 # iNZightTS 2.0.2
 
 - convert difftime to numeric (change in ggplot2)

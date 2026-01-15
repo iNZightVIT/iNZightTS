@@ -73,15 +73,13 @@ seasonplot.inz_ts <- function(x, var = NULL, t = 0, mult_fit = FALSE,
         diff(extendrange(x_dcmp_ls[[i]][[as.character(var)[i]]])) |>
             max(diff(extendrange(x[[as.character(var)[i]]])))
     }))
-    if (mult_fit) {
-        eff_y_span <- seq_along(var) |>
-            lapply(function(i) abs(range(x_dcmp_ls[[i]]$season_effect) - 1)) |>
-            unlist() |>
-            max()
-        eff_y_lim <- replicate(length(var), 1 + c(-1.05, 1.05) * eff_y_span, FALSE)
-    } else {
-        eff_y_lim <- lapply(seq_along(var), function(i) c(-.5, .5) * y_span[i])
-    }
+
+    # quick fix: Compute y-axis limits based on actual season_effect values for each variable
+    # This ensures all data points are visible with 5% padding on each side
+    eff_y_lim <- lapply(seq_along(var), function(i) {
+        season_eff_range <- range(x_dcmp_ls[[i]]$season_effect, na.rm = TRUE)
+        extendrange(season_eff_range, f = 0.05)
+    })
     if (length(var) < 2) {
         p1 <- rlang::inject(feasts::gg_season(x, !!sym(var), labels = l, !!!spec)) +
             geom_point() +
