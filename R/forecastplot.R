@@ -35,9 +35,11 @@ get_model <- function(x) {
 }
 
 
+#' @export
 get_model.function <- function(x) x
 
 
+#' @export
 get_model.character <- function(x) {
     if (tolower(x) == "auto") {
         ARIMA_lite

@@ -2,6 +2,7 @@
 
 - fix bug in `seasonplot()` where y-axis limits for seasonal effects plot (right panel) were not computed correctly, causing some data points to be cut off
 - replace single-condition `dplyr::case_when()` statements with simpler `if/else` expressions throughout the package for better readability and performance
+- update exports for S3 methods
 
 # iNZightTS 2.0.2
 
