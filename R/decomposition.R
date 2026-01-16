@@ -53,20 +53,20 @@ decomp <- function(x, var = NULL, sm_model = c("stl"),
         }
         na_i <- which(is.na(model_range))[1]
         if (!is.numeric(x[[tsibble::index_var(x)]]) && is.numeric(model_range)) {
-            model_range[na_i] <- lubridate::year(dplyr::case_when(
-                as.logical(na_i - 1) ~ dplyr::last(x$index),
-                TRUE ~ x$index[1]
-            ))
+            model_range[na_i] <- lubridate::year(
+                if (!is.na(na_i) && as.logical(na_i - 1)) {
+                    dplyr::last(x$index)
+                } else {
+                    x$index[1]
+                }
+            )
             model_range <- lubridate::ymd(paste0(model_range, c("0101", "1231")))
             x <- dplyr::filter(x, dplyr::between(lubridate::as_date(index), model_range[1], model_range[2]))
         } else if (is.numeric(x[[tsibble::index_var(x)]]) && inherits(model_range, "Date")) {
             model_range[na_i] <- lubridate::ymd(paste0(ifelse(na_i - 1, dplyr::last(x$index), x$index[1]), "0101"))
             x <- dplyr::filter(x, dplyr::between(index, lubridate::year(model_range[1]), lubridate::year(model_range[2])))
         } else {
-            model_range[na_i] <- dplyr::case_when(
-                as.logical(na_i - 1) ~ dplyr::last(x$index),
-                TRUE ~ x$index[1]
-            )
+            model_range[na_i] <- if (!is.na(na_i) && as.logical(na_i - 1)) dplyr::last(x$index) else x$index[1]
             x <- dplyr::filter(x, dplyr::between(index, model_range[1], model_range[2]))
         }
     }
@@ -172,7 +172,7 @@ use_decomp_method <- function(method) {
         fabletools::components() |>
         dplyr::mutate(dplyr::across(
             !!var | trend | remainder | dplyr::contains("season"), function(x) {
-                dplyr::case_when(mult_fit ~ exp(x), TRUE ~ as.numeric(x))
+                if (mult_fit) exp(x) else as.numeric(x)
             }
         ))
 }
@@ -182,7 +182,7 @@ as_year <- function(x) {
     UseMethod("as_year")
 }
 
-
+#' @export
 as_year.vctrs_vctr <- function(x) {
     1970 + as.numeric(x) / dplyr::case_when(
         inherits(x, "yearmonth") ~ 12,
@@ -192,15 +192,16 @@ as_year.vctrs_vctr <- function(x) {
     )
 }
 
-
+#' @export
 as_year.Date <- function(x) {
     1970 + as.numeric(x) / 365.25
 }
 
-
+#' @export
 as_year.numeric <- function(x) x
 
 
+#' @export
 as_year.character <- function(x) as.numeric(x)
 
 

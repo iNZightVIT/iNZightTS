@@ -1,4 +1,3 @@
-context("Plotting subset of series")
 data(visitorsQ)
 
 ## single series

@@ -177,28 +177,25 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
         }
         na_i <- which(is.na(xlim))[1]
         if (!is.numeric(x[[tsibble::index_var(x)]]) && is.numeric(xlim)) {
-            xlim[na_i] <- lubridate::year(dplyr::case_when(
-                as.logical(na_i - 1) ~ dplyr::last(x$index),
-                TRUE ~ x$index[1]
-            ))
+            xlim[na_i] <- lubridate::year(
+                if (!is.na(na_i) && as.logical(na_i - 1)) {
+                    dplyr::last(x$index)
+                } else {
+                    x$index[1]
+                }
+            )
             xlim <- lubridate::ymd(paste0(xlim, c("0101", "1231")))
             x <- dplyr::filter(x, dplyr::between(lubridate::as_date(index), xlim[1], xlim[2]))
         } else if (is.numeric(x[[tsibble::index_var(x)]]) && inherits(xlim, "Date")) {
             xlim[na_i] <- lubridate::ymd(paste0(ifelse(na_i - 1, dplyr::last(x$index), x$index[1]), "0101"))
             x <- dplyr::filter(x, dplyr::between(index, lubridate::year(xlim[1]), lubridate::year(xlim[2])))
         } else {
-            xlim[na_i] <- dplyr::case_when(
-                as.logical(na_i - 1) ~ dplyr::last(x$index),
-                TRUE ~ x$index[1]
-            )
+            xlim[na_i] <- if (!is.na(na_i) && as.logical(na_i - 1)) dplyr::last(x$index) else x$index[1]
             x <- dplyr::filter(x, dplyr::between(index, xlim[1], xlim[2]))
         }
     }
     if (is.null(xlab)) {
-        xlab <- dplyr::case_when(
-            is.numeric(x$index) ~ "Year",
-            TRUE ~ stringr::str_to_title(class(x$index)[1])
-        )
+        xlab <- if (is.numeric(x$index)) "Year" else stringr::str_to_title(class(x$index)[1])
     }
     x <- dplyr::rename(x, !!dplyr::first(xlab) := index)
     if (is.null(ylab)) {
@@ -206,10 +203,7 @@ plot.inz_ts <- function(x, var = NULL, xlab = NULL, ylab = NULL, title = NULL,
         if (length(var) > 1) ylab <- ylab[-1]
     }
     if (is.null(title)) {
-        title <- dplyr::case_when(
-            length(var) > 2 ~ "",
-            TRUE ~ dplyr::last(as.character(var))
-        )
+        title <- if (length(var) > 2) "" else dplyr::last(as.character(var))
     }
     if (!any(is.null(emphasise), is.null(non_emph_opacity), tsibble::n_keys(x) == 1)) {
         emph <- list(
@@ -281,7 +275,7 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph, pal,
     p <- fabletools::autoplot(x, !!var, linewidth = 1, alpha = op) +
         ggplot2::labs(y = ylab, title = title) +
         ggplot2::theme(
-            legend.position = dplyr::case_when(compare ~ "bottom", TRUE ~ "none"),
+            legend.position = if (compare) "bottom" else "none",
             legend.title = element_blank()
         )
     if (!is.null(emph)) {

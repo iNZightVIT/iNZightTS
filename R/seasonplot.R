@@ -46,20 +46,20 @@ seasonplot.inz_ts <- function(x, var = NULL, t = 0, mult_fit = FALSE,
         na_i <- which(is.na(model_range))[1]
         t_range <- range(x$index)
         if (!is.numeric(x[[tsibble::index_var(x)]]) && is.numeric(model_range)) {
-            model_range[na_i] <- lubridate::year(dplyr::case_when(
-                as.logical(na_i - 1) ~ dplyr::last(x$index),
-                TRUE ~ x$index[1]
-            ))
+            model_range[na_i] <- lubridate::year(
+                if (!is.na(na_i) && as.logical(na_i - 1)) {
+                    dplyr::last(x$index)
+                } else {
+                    x$index[1]
+                }
+            )
             model_range <- lubridate::ymd(paste0(model_range, c("0101", "1231")))
             x <- dplyr::filter(x, dplyr::between(lubridate::as_date(index), model_range[1], model_range[2]))
         } else if (is.numeric(x[[tsibble::index_var(x)]]) && inherits(model_range, "Date")) {
             model_range[na_i] <- lubridate::ymd(paste0(ifelse(na_i - 1, dplyr::last(x$index), x$index[1]), "0101"))
             x <- dplyr::filter(x, dplyr::between(index, lubridate::year(model_range[1]), lubridate::year(model_range[2])))
         } else {
-            model_range[na_i] <- dplyr::case_when(
-                as.logical(na_i - 1) ~ dplyr::last(x$index),
-                TRUE ~ x$index[1]
-            )
+            model_range[na_i] <- if (!is.na(na_i) && as.logical(na_i - 1)) dplyr::last(x$index) else x$index[1]
             x <- dplyr::filter(x, dplyr::between(index, model_range[1], model_range[2]))
         }
     }
@@ -73,15 +73,13 @@ seasonplot.inz_ts <- function(x, var = NULL, t = 0, mult_fit = FALSE,
         diff(extendrange(x_dcmp_ls[[i]][[as.character(var)[i]]])) |>
             max(diff(extendrange(x[[as.character(var)[i]]])))
     }))
-    if (mult_fit) {
-        eff_y_span <- seq_along(var) |>
-            lapply(function(i) abs(range(x_dcmp_ls[[i]]$season_effect) - 1)) |>
-            unlist() |>
-            max()
-        eff_y_lim <- replicate(length(var), 1 + c(-1.05, 1.05) * eff_y_span, FALSE)
-    } else {
-        eff_y_lim <- lapply(seq_along(var), function(i) c(-.5, .5) * y_span[i])
-    }
+
+    # quick fix: Compute y-axis limits based on actual season_effect values for each variable
+    # This ensures all data points are visible with 5% padding on each side
+    eff_y_lim <- lapply(seq_along(var), function(i) {
+        season_eff_range <- range(x_dcmp_ls[[i]]$season_effect, na.rm = TRUE)
+        extendrange(season_eff_range, f = 0.05)
+    })
     if (length(var) < 2) {
         p1 <- rlang::inject(feasts::gg_season(x, !!sym(var), labels = l, !!!spec)) +
             geom_point() +
@@ -139,10 +137,7 @@ season_effect <- function(x, var, t, mult_fit = FALSE) {
         }
         season <- sym(names(attributes(x_dcmp)$seasons))
         x_dcmp |>
-            dplyr::mutate(season_effect = dplyr::case_when(
-                mult_fit ~ !!season * remainder,
-                TRUE ~ !!season + remainder
-            )) |>
+            dplyr::mutate(season_effect = if (mult_fit) !!season * remainder else !!season + remainder) |>
             (\(.) structure(.,
                 class = c("seas_ts", class(.)),
                 mult_fit = mult_fit,
@@ -171,10 +166,7 @@ plot.seas_ts <- function(x, ylim = NULL, title = NULL, ...) {
             tsibble::update_tsibble(key = .key)
     }
     p <- feasts::gg_season(x, season_effect, ...) +
-        ggplot2::labs(y = dplyr::case_when(
-            mult_fit ~ "Multiplicative effect",
-            TRUE ~ "Additive effect"
-        ))
+        ggplot2::labs(y = if (mult_fit) "Multiplicative effect" else "Additive effect")
     if (tsibble::n_keys(x) > 1) {
         p$layers[[1]] <- NULL
         p <- p + geom_line(aes(index, season_effect, group = interaction(id, .key)))

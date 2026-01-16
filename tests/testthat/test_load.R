@@ -1,4 +1,3 @@
-context("Loading and initialising data sets")
 data(visitorsQ)
 
 test_that("Various index formats can be recognised", {

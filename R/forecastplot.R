@@ -35,9 +35,11 @@ get_model <- function(x) {
 }
 
 
+#' @export
 get_model.function <- function(x) x
 
 
+#' @export
 get_model.character <- function(x) {
     if (tolower(x) == "auto") {
         ARIMA_lite
@@ -112,20 +114,20 @@ predict.inz_ts <- function(object, var = NULL, h = 8, mult_fit = FALSE,
         }
         na_i <- which(is.na(model_range))[1]
         if (!is.numeric(object[[tsibble::index_var(object)]]) && is.numeric(model_range)) {
-            model_range[na_i] <- lubridate::year(dplyr::case_when(
-                as.logical(na_i - 1) ~ dplyr::last(object$index),
-                TRUE ~ object$index[1]
-            ))
+            model_range[na_i] <- lubridate::year(
+                if (!is.na(na_i) && as.logical(na_i - 1)) {
+                    dplyr::last(object$index)
+                } else {
+                    object$index[1]
+                }
+            )
             model_range <- lubridate::ymd(paste0(model_range, c("0101", "1231")))
             x <- dplyr::filter(object, dplyr::between(lubridate::as_date(index), model_range[1], model_range[2]))
         } else if (is.numeric(object[[tsibble::index_var(object)]]) && inherits(model_range, "Date")) {
             model_range[na_i] <- lubridate::ymd(paste0(ifelse(na_i - 1, dplyr::last(object$index), object$index[1]), "0101"))
             x <- dplyr::filter(object, dplyr::between(index, lubridate::year(model_range[1]), lubridate::year(model_range[2])))
         } else {
-            model_range[na_i] <- dplyr::case_when(
-                as.logical(na_i - 1) ~ dplyr::last(object$index),
-                TRUE ~ object$index[1]
-            )
+            model_range[na_i] <- if (!is.na(na_i) && as.logical(na_i - 1)) dplyr::last(object$index) else object$index[1]
             x <- dplyr::filter(object, dplyr::between(index, model_range[1], model_range[2]))
         }
     } else {
@@ -257,10 +259,13 @@ plot.inz_frct <- function(x, t_range = NULL, xlab = NULL, ylab = NULL, title = N
         }
         na_i <- which(is.na(t_range))[1]
         if (!is.numeric(x[[tsibble::index_var(x)]]) && is.numeric(t_range)) {
-            t_range[na_i] <- lubridate::year(dplyr::case_when(
-                as.logical(na_i - 1) ~ dplyr::last(x$index),
-                TRUE ~ x$index[1]
-            ))
+            t_range[na_i] <- lubridate::year(
+                if (!is.na(na_i) && as.logical(na_i - 1)) {
+                    dplyr::last(x$index)
+                } else {
+                    x$index[1]
+                }
+            )
             t_range <- lubridate::ymd(paste0(t_range, c("0101", "1231")))
             x <- x |> dplyr::filter(
                 dplyr::between(lubridate::as_date(index), t_range[1], t_range[2]) | .model == "Prediction"
@@ -271,10 +276,7 @@ plot.inz_frct <- function(x, t_range = NULL, xlab = NULL, ylab = NULL, title = N
                 dplyr::between(index, lubridate::year(t_range[1]), lubridate::year(t_range[2])) | .model == "Prediction"
             )
         } else {
-            t_range[na_i] <- dplyr::case_when(
-                as.logical(na_i - 1) ~ dplyr::last(x$index),
-                TRUE ~ x$index[1]
-            )
+            t_range[na_i] <- if (!is.na(na_i) && as.logical(na_i - 1)) dplyr::last(x$index) else x$index[1]
             x <- x |> dplyr::filter(
                 dplyr::between(index, t_range[1], t_range[2]) | .model == "Prediction"
             )
@@ -286,10 +288,7 @@ plot.inz_frct <- function(x, t_range = NULL, xlab = NULL, ylab = NULL, title = N
         }
     }
     if (is.null(xlab)) {
-        xlab <- dplyr::case_when(
-            is.numeric(x$index) ~ "Year",
-            TRUE ~ stringr::str_to_title(class(x$index)[1])
-        )
+        xlab <- if (is.numeric(x$index)) "Year" else stringr::str_to_title(class(x$index)[1])
     }
     x <- dplyr::rename(x, !!dplyr::first(xlab) := index)
     if (is.null(ylab)) ylab <- unique(x$.var)
@@ -298,10 +297,7 @@ plot.inz_frct <- function(x, t_range = NULL, xlab = NULL, ylab = NULL, title = N
             rlang::abort()
     }
     if (is.null(title)) {
-        title <- dplyr::case_when(
-            length(unique(x$.var)) > 1 ~ "",
-            TRUE ~ unique(x$.var)
-        )
+        title <- if (length(unique(x$.var)) > 1) "" else unique(x$.var)
     }
     (if (length(unique(x$.var)) == 1) {
         plot_forecast_var(x, sym(unique(x$.var)), xlab, ylab, title)
