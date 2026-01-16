@@ -1,4 +1,3 @@
-context("Auxiliary feature extraction plots and tools")
 data(visitorsQ)
 
 x <- inzightts(visitorsQ)

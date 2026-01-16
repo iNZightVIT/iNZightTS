@@ -37,10 +37,7 @@ subseries <- function(x, var = NULL, show_mean = TRUE, xlab = NULL,
             tsibble::update_tsibble(key = .key)
     }
     if (is.null(xlab)) {
-        xlab <- dplyr::case_when(
-            is.numeric(x$index) ~ "Year",
-            TRUE ~ stringr::str_to_title(class(x$index)[1])
-        )
+        xlab <- if (is.numeric(x$index)) "Year" else stringr::str_to_title(class(x$index)[1])
     }
     x <- dplyr::rename(x, !!dplyr::first(xlab) := index)
     if (is.null(ylab)) {
@@ -48,10 +45,7 @@ subseries <- function(x, var = NULL, show_mean = TRUE, xlab = NULL,
         if (length(var) > 1) ylab <- ylab[-1]
     }
     if (is.null(title)) {
-        title <- dplyr::case_when(
-            length(var) > 2 ~ "",
-            TRUE ~ dplyr::last(as.character(var))
-        )
+        title <- if (length(var) > 2) "" else dplyr::last(as.character(var))
     }
     if (length(var) > 2) {
         if (!isTRUE(all.equal(length(var) - 1, length(ylab)))) {

@@ -5,8 +5,6 @@
 #'
 #' @author Tom Elliott (previously: Marco Kuper, Simon Potter, and David Banks)
 #'
-#' @docType package
-#'
 #' @keywords iNZight
 #'
 #' @seealso \code{\link[iNZightTS]{inzightts}}
@@ -16,7 +14,7 @@
 #' @importFrom rlang ':='
 #'
 #' @name iNZightTS-package
-NULL
+"_PACKAGE"
 
 
 utils::globalVariables(c(
