@@ -1,5 +1,6 @@
 # data(visitorsQ)
 # data(visitorsM2)
+library(ggtime)
 
 ## single series
 t <- inzightts(visitorsQ)
