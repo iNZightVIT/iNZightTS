@@ -15,7 +15,7 @@
 #'
 #' @return A ggplot object of the seasonal subseries plot.
 #'
-#' @seealso \code{\link[feasts]{gg_subseries}}
+#' @seealso \code{\link[ggtime]{gg_subseries}}
 #'
 #' @examples
 #' t <- inzightts(visitorsQ)
@@ -69,7 +69,7 @@ subseries <- function(x, var = NULL, show_mean = TRUE, xlab = NULL,
 
 
 plot_subseries <- function(x, var, show_mean, ylab, title) {
-    p <- feasts::gg_subseries(x, !!var) +
+    p <- ggtime::gg_subseries(x, !!var) +
         ggplot2::labs(y = ylab, title = title)
     if (!show_mean || tsibble::n_keys(x) > 1) {
         p$layers[[2]] <- NULL

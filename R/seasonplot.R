@@ -81,7 +81,7 @@ seasonplot.inz_ts <- function(x, var = NULL, t = 0, mult_fit = FALSE,
         extendrange(season_eff_range, f = 0.05)
     })
     if (length(var) < 2) {
-        p1 <- rlang::inject(feasts::gg_season(x, !!sym(var), labels = l, !!!spec)) +
+        p1 <- rlang::inject(ggtime::gg_season(x, !!sym(var), labels = l, !!!spec)) +
             geom_point() +
             ggplot2::ylim(mean(range(x[[var]])) + c(-.5, .5) * y_span) +
             ggplot2::labs(title = "Seasonal plot", x = "")
@@ -96,7 +96,7 @@ seasonplot.inz_ts <- function(x, var = NULL, t = 0, mult_fit = FALSE,
         p <- patchwork::wrap_plots(p1, p2, nrow = 1)
     } else {
         p_ls <- lapply(seq_along(var), function(i) {
-            p1 <- rlang::inject(feasts::gg_season(x, !!sym(var[i]), labels = l, !!!spec)) +
+            p1 <- rlang::inject(ggtime::gg_season(x, !!sym(var[i]), labels = l, !!!spec)) +
                 geom_point() +
                 ggplot2::ylim(mean(range(x[[var[i]]])) + c(-.5, .5) * y_span[i]) +
                 ggplot2::labs(title = ifelse(i == 1L, "Seasonal plot", ""), x = "")
@@ -165,7 +165,7 @@ plot.seas_ts <- function(x, ylim = NULL, title = NULL, ...) {
         ) |>
             tsibble::update_tsibble(key = .key)
     }
-    p <- feasts::gg_season(x, season_effect, ...) +
+    p <- ggtime::gg_season(x, season_effect, ...) +
         ggplot2::labs(y = if (mult_fit) "Multiplicative effect" else "Additive effect")
     if (tsibble::n_keys(x) > 1) {
         p$layers[[1]] <- NULL
