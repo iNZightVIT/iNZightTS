@@ -227,7 +227,7 @@ predict_inzightts_var <- function(x, var, h, mult_fit, pred_model, confint_width
             .model = "Fitted"
         )) |>
         dplyr::bind_rows(dplyr::mutate(
-            dplyr::select(dplyr::rename(x, .mean = !!var), .mean),
+            dplyr::select(dplyr::rename(x, .mean = !!var), index, .mean),
             .model = "Raw data"
         )) |>
         dplyr::mutate(.var = !!as.character(var)) |>

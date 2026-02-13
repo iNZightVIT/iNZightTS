@@ -1,5 +1,6 @@
 # iNZightTS 2.0.4
 
+- fix tsibble index-drop warning in forecast by explicitly selecting `index` column
 - Switch to ggtime for temporal graphics
 
 # iNZightTS 2.0.3
