@@ -374,7 +374,7 @@ plot_forecast_var <- function(x, var, xlab, ylab, title) {
     p <- x |>
         dplyr::select(-.var) |>
         dplyr::filter(.model != "Raw data") |>
-        fabletools::autoplot(.mean, linetype = ifelse(n_keys > 3, "dashed", "solid"))
+        ggtime::autoplot(.mean, linetype = ifelse(n_keys > 3, "dashed", "solid"))
     if (n_keys > 3) {
         p$mapping$group <- p$mapping$colour
         p$mapping$colour <- NULL
