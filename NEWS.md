@@ -1,3 +1,7 @@
+# iNZightTS 2.0.4
+
+- Switch to ggtime for temporal graphics
+
 # iNZightTS 2.0.3
 
 - fix bug in `seasonplot()` where y-axis limits for seasonal effects plot (right panel) were not computed correctly, causing some data points to be cut off
