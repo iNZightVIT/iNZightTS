@@ -36,7 +36,8 @@ Imports:
     lubridate,
     stringr,
     tibble,
-    urca
+    urca,
+    ggtime (>= 0.2.0)
 Suggests:
     covr,
     testthat

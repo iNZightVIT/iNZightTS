@@ -272,7 +272,7 @@ plot_inzightts_var <- function(x, var, xlab, ylab, title, aspect, emph, pal,
         )
         x[[var]] <- x_decomp$season_adjust
     }
-    p <- fabletools::autoplot(x, !!var, linewidth = 1, alpha = op) +
+    p <- ggtime::autoplot(x, !!var, linewidth = 1, alpha = op) +
         ggplot2::labs(y = ylab, title = title) +
         ggplot2::theme(
             legend.position = if (compare) "bottom" else "none",
