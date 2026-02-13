@@ -45,5 +45,5 @@ subseries(t)
 
 }
 \seealso{
-\code{\link[feasts]{gg_subseries}}
+\code{\link[ggtime]{gg_subseries}}
 }
