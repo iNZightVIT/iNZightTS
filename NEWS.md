@@ -1,3 +1,7 @@
+# iNZightTS 2.0.2
+
+- constrain **feasts** to versions before 0.5.0: feasts 0.5+ imports **ggtime**, which requires R ≥ 4.3 (`chooseOpsMethod` in base); keeps iNZight Windows builds on R 4.2 working.
+
 # iNZightTS 2.0.0
 
 This is a new package based off the original [iNZightTS](github.com/iNZightVIT/iNZightTS) package. Versioning will continue, as the long-term plan is to merge these changes into the original package once it is fully deprecated.
